@@ -1,5 +1,6 @@
 import type { DictionaryEntry, DictionaryProviderInfo } from "@lib/model";
 import { getDictionaryProvider, listDictionaryProviders } from "./registry";
+import "./providers/jisho";
 import "./providers/youdao";
 import "./providers/zdic";
 

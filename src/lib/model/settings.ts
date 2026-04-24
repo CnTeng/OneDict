@@ -14,6 +14,7 @@ export interface AnkiLexSettings {
 export const DEFAULT_SETTINGS: AnkiLexSettings = {
   dictionaryProviders: {
     en: "youdao",
+    ja: "jisho",
     zh: "zdic",
   },
 
