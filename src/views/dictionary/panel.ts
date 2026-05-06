@@ -1,5 +1,5 @@
 import type { DictionaryEntry, IAnkiService } from "@common/model";
-import { Editor } from "@ui/components";
+import { Editor } from "@views/components";
 import { cn } from "tailwind-variants";
 import { DictionaryEntryView } from "./entry";
 import { DictionaryStatusView } from "./status";

@@ -1,4 +1,4 @@
-import { Icon } from "@ui/components";
+import { Icon } from "@views/components";
 import { RotateCcw } from "lucide";
 import { cn } from "tailwind-variants";
 import { createStatus, type OptionsStatusElement } from "./elements";

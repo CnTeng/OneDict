@@ -1,4 +1,4 @@
-import { OptionsPage } from "@ui/options";
+import { OptionsPage } from "@views/options";
 import { LocalPlatformServices } from "@services";
 
 let registeredPaneId: string | null = null;

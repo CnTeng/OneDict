@@ -1,5 +1,5 @@
 import type { SelectOption } from "@common/model";
-import { Icon } from "@ui/components";
+import { Icon } from "@views/components";
 import { cn } from "tailwind-variants";
 
 export type StatusLevel = "success" | "error" | "info" | "warning";

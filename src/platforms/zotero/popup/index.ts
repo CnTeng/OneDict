@@ -1,6 +1,6 @@
 import { extractContext } from "@common/context";
 import { LocalPlatformServices } from "@services";
-import { DictionaryPanel } from "@ui/dictionary";
+import { DictionaryPanel } from "@views/dictionary";
 import { cx } from "tailwind-variants";
 import popupStyle from "./popup.css?inline";
 

@@ -1,4 +1,4 @@
-import { Icon } from "@ui/components";
+import { Icon } from "@views/components";
 import { LoaderCircle, SearchX, TriangleAlert } from "lucide";
 import { cn } from "tailwind-variants";
 

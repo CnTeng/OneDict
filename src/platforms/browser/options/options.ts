@@ -1,4 +1,4 @@
-import { OptionsPage } from "@ui/options";
+import { OptionsPage } from "@views/options";
 import { BrowserPlatformServices } from "@services";
 import { cn } from "tailwind-variants";
 

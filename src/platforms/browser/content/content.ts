@@ -1,7 +1,7 @@
 import { flip, inline, offset, shift } from "@floating-ui/dom";
 import { extractContext } from "@common/context";
 import type { Context } from "@common/model";
-import { Icon, Popover } from "@ui/components";
+import { Icon, Popover } from "@views/components";
 import { Search } from "lucide";
 import contentStyles from "./content.css?inline";
 

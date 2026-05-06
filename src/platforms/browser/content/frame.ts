@@ -1,6 +1,6 @@
 import type { Context } from "@common/model";
 import { BrowserPlatformServices } from "@services";
-import { DictionaryPanel } from "@ui/dictionary";
+import { DictionaryPanel } from "@views/dictionary";
 import { cx } from "tailwind-variants";
 
 function init() {

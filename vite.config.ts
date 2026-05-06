@@ -32,7 +32,7 @@ const strategies: Record<"browser" | "zotero", (target: Target) => UserConfig> =
         ],
         modules: {
           "iife:anki-card": {
-            entry: "ui/dictionary/templates/card.ts",
+            entry: "views/dictionary/templates/card.ts",
             name: "AnkiCard",
             minify: true,
           },
@@ -70,7 +70,7 @@ const strategies: Record<"browser" | "zotero", (target: Target) => UserConfig> =
       iifePlugin({
         modules: {
           "iife:anki-card": {
-            entry: "ui/dictionary/templates/card.ts",
+            entry: "views/dictionary/templates/card.ts",
             name: "AnkiCard",
             minify: true,
           },
@@ -121,7 +121,7 @@ export default defineConfig(({ mode }) => {
         "@assets": resolve(__dirname, "src/assets"),
         "@common": resolve(__dirname, "src/common"),
         "@services": resolve(__dirname, "src/services"),
-        "@ui": resolve(__dirname, "src/ui"),
+        "@views": resolve(__dirname, "src/views"),
       },
     },
     plugins: [tailwindcss()],

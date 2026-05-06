@@ -1,5 +1,5 @@
 import type { DictionaryEntry, IConfigService, IDictionaryService } from "@common/model";
-import { Icon } from "@ui/components";
+import { Icon } from "@views/components";
 import { ChevronDown, Search } from "lucide";
 import pLimit from "p-limit";
 import { cn } from "tailwind-variants";

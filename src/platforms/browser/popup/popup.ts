@@ -1,6 +1,6 @@
 import { BrowserPlatformServices } from "@services";
-import { DictionaryPanel } from "@ui/dictionary";
-import { SearchBar } from "@ui/search-bar";
+import { DictionaryPanel } from "@views/dictionary";
+import { SearchBar } from "@views/search-bar";
 import { cx } from "tailwind-variants";
 
 async function init() {

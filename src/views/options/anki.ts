@@ -1,7 +1,7 @@
 import type { AnkiConfig, AnkiState, IAnkiService, SelectOption } from "@common/model";
 import { ANKI_DEFAULT_MODEL_NAME, guessAnkiModelField, normalizeAnkiFieldMap } from "@common/model";
-import { Icon } from "@ui/components";
-import { ANKI_DEFAULT_MODEL } from "@ui/dictionary/templates";
+import { Icon } from "@views/components";
+import { ANKI_DEFAULT_MODEL } from "@views/dictionary/templates";
 import { RefreshCw } from "lucide";
 import { cn } from "tailwind-variants";
 import {

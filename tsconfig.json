@@ -14,8 +14,8 @@
       "@common/*": ["./src/common/*"],
       "@services": ["./src/services/index.ts"],
       "@services/*": ["./src/services/*"],
-      "@ui": ["./src/ui/index.ts"],
-      "@ui/*": ["./src/ui/*"]
+      "@views": ["./src/views/index.ts"],
+      "@views/*": ["./src/views/*"]
     }
   },
   "include": [
@@ -24,7 +24,7 @@
     "src/common/**/*",
     "src/platforms/**/*",
     "src/services/**/*",
-    "src/ui/**/*"
+    "src/views/**/*"
   ],
   "exclude": ["node_modules", "dist"]
 }
