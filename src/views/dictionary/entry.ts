@@ -1,11 +1,23 @@
-import type { DictionaryEntry, IAnkiService } from "@common/model";
-import { createDefinitions, createHeader, createMetadata, createPronunciations } from "./sections";
+import type { DictionaryEntry as DictionaryEntryData, IAnkiService } from "@common/model";
+import {
+  DictionaryDefinitionsSection,
+  DictionaryHeaderSection,
+  DictionaryMetadataSection,
+  DictionaryPronunciationsSection,
+} from "./sections";
 
-export class DictionaryEntryView {
+export interface DictionaryEntryOptions {
+  doc?: Document;
+  entry: DictionaryEntryData;
+  showAddButton?: boolean;
+  ankiService?: IAnkiService;
+}
+
+export class DictionaryEntry {
   readonly element: HTMLDivElement;
 
   private readonly doc: Document;
-  private readonly entry: DictionaryEntry;
+  private readonly entry: DictionaryEntryData;
   private readonly showAddButton: boolean;
   private readonly ankiService?: IAnkiService;
 
@@ -14,12 +26,7 @@ export class DictionaryEntryView {
     entry,
     showAddButton = true,
     ankiService,
-  }: {
-    doc?: Document;
-    entry: DictionaryEntry;
-    showAddButton?: boolean;
-    ankiService?: IAnkiService;
-  }) {
+  }: DictionaryEntryOptions) {
     this.doc = doc;
     this.entry = entry;
     this.showAddButton = showAddButton;
@@ -32,19 +39,20 @@ export class DictionaryEntryView {
     const { word, provider, metadata, pronunciations, definitions } = this.entry;
     const fragment = this.doc.createDocumentFragment();
 
-    const components = [
-      createHeader(this.doc, word, provider),
-      createMetadata(this.doc, metadata),
-      createPronunciations(this.doc, pronunciations),
-      createDefinitions(this.doc, definitions, {
+    [
+      new DictionaryHeaderSection({ doc: this.doc, word, provider }),
+      new DictionaryMetadataSection({ doc: this.doc, metadata }),
+      new DictionaryPronunciationsSection({ doc: this.doc, pronunciations }),
+      new DictionaryDefinitionsSection({
+        doc: this.doc,
+        definitions,
         showAddButton: this.showAddButton,
         onAddClick: async (index) => this.addDefinitionToAnki(index),
       }),
-    ];
-
-    for (const component of components) {
-      if (component) fragment.append(component);
-    }
+    ].forEach((section) => {
+      if ("isEmpty" in section && section.isEmpty) return;
+      fragment.append(section.element);
+    });
 
     this.element.replaceChildren(fragment);
   }

@@ -1,5 +1,5 @@
 import { BrowserPlatformServices } from "@services";
-import { DictionaryPanel } from "@views/dictionary";
+import { LookupPanel } from "@views/lookup-panel";
 import { SearchBar } from "@views/search-bar";
 import { cx } from "tailwind-variants";
 
@@ -14,7 +14,7 @@ async function init() {
 
   document.body.append(app);
 
-  const stateView = new DictionaryPanel({
+  const stateView = new LookupPanel({
     className: cx("flex min-h-0 flex-1 flex-col overflow-hidden"),
     ankiService: services.anki,
   });

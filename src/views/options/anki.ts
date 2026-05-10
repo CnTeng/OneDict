@@ -4,12 +4,7 @@ import { Icon } from "@views/components";
 import { ANKI_DEFAULT_MODEL } from "@views/dictionary/templates";
 import { RefreshCw } from "lucide";
 import { cn } from "tailwind-variants";
-import {
-  createFormField,
-  createSectionIntro,
-  setSelectOptions,
-  type StatusLevel,
-} from "./elements";
+import { FormField, SectionIntro, SelectOptions, type StatusLevel } from "./elements";
 
 export interface AnkiOptionsDependencies {
   doc?: Document;
@@ -33,26 +28,6 @@ const LEX_FIELD_OPTIONS: SelectOption[] = [
   { value: "context", label: "Original Context" },
   { value: "data", label: "Full JSON Data" },
 ];
-
-function mergeAnkiConfig(ankiConfig: AnkiConfig, ankiState: AnkiState): AnkiConfig {
-  return {
-    ...ankiConfig,
-    noteType: ankiState.noteType,
-    fieldMap: normalizeAnkiFieldMap(ankiState.fieldNames, ankiConfig.fieldMap),
-  };
-}
-
-function ensureCurrentOption(options: SelectOption[], value: string) {
-  if (!value || options.some((option) => option.value === value)) return options;
-  return [{ value, label: value }, ...options];
-}
-
-function createControlRow(doc: Document, children: HTMLElement[]) {
-  const row = doc.createElement("div");
-  row.className = cn("flex min-w-0 flex-col gap-2 md:flex-row md:items-center") as string;
-  row.append(...children);
-  return row;
-}
 
 export class AnkiOptions {
   readonly element: HTMLElement;
@@ -89,18 +64,8 @@ export class AnkiOptions {
     this.getAnkiStateValue = getAnkiState;
     this.showStatus = showStatus;
 
-    const section = this.doc.createElement("section");
-    section.className = cn("p-0") as string;
-    section.append(
-      createSectionIntro(
-        this.doc,
-        "Anki",
-        "Connect to Anki, choose the target note type, and map model fields for generated notes.",
-      ),
-    );
-
-    const content = this.doc.createElement("div");
-    content.className = cn("space-y-6") as string;
+    this.element = this.doc.createElement("section");
+    this.element.className = cn("p-0") as string;
 
     this.urlInput = this.doc.createElement("input");
     this.urlInput.id = "anki-url";
@@ -112,11 +77,11 @@ export class AnkiOptions {
     this.refreshButton.title = "Refresh Decks/Models";
     this.refreshButton.className = cn("btn btn-outline w-full md:w-auto") as string;
     this.refreshButton.append(
-      Icon({
+      new Icon({
         doc: this.doc,
         iconNode: RefreshCw,
         customAttrs: { width: 16, height: 16 },
-      }),
+      }).element,
       this.doc.createTextNode("Refresh"),
     );
 
@@ -135,22 +100,7 @@ export class AnkiOptions {
     this.fieldMappingElement = fieldMapping.element;
     this.fieldMappingContent = fieldMapping.content;
 
-    content.append(
-      createFormField(this.doc, "AnkiConnect URL", {
-        htmlFor: "anki-url",
-        children: createControlRow(this.doc, [this.urlInput, this.refreshButton]),
-        layout: "inline",
-      }),
-      createFormField(this.doc, "Note Type", {
-        htmlFor: "default-note-type",
-        children: createControlRow(this.doc, [this.noteTypeSelect, this.setupButton]),
-        layout: "inline",
-      }),
-      this.fieldMappingElement,
-    );
-
-    section.append(content);
-    this.element = section;
+    this.renderStructure();
 
     this.registerListeners();
     this.render();
@@ -159,17 +109,51 @@ export class AnkiOptions {
   render() {
     const ankiConfig = this.getConfigValue();
     const ankiState = this.getAnkiStateValue();
-    const mergedConfig = mergeAnkiConfig(ankiConfig, ankiState);
+    const mergedConfig = this.mergeAnkiConfig(ankiConfig, ankiState);
 
     this.urlInput.value = mergedConfig.connectUrl;
-    setSelectOptions(
+    new SelectOptions(
       this.doc,
       this.noteTypeSelect,
-      ensureCurrentOption(ankiState.noteTypeOptions, mergedConfig.noteType),
+      this.ensureCurrentOption(ankiState.noteTypeOptions, mergedConfig.noteType),
       mergedConfig.noteType,
-    );
+    ).render();
 
     this.renderFieldMapping(mergedConfig, ankiState);
+  }
+
+  private renderStructure() {
+    const content = this.doc.createElement("div");
+    content.className = cn("space-y-6") as string;
+    content.append(
+      new FormField(this.doc, "AnkiConnect URL", {
+        htmlFor: "anki-url",
+        children: this.renderControlRow([this.urlInput, this.refreshButton]),
+        layout: "inline",
+      }).element,
+      new FormField(this.doc, "Note Type", {
+        htmlFor: "default-note-type",
+        children: this.renderControlRow([this.noteTypeSelect, this.setupButton]),
+        layout: "inline",
+      }).element,
+      this.fieldMappingElement,
+    );
+
+    this.element.append(
+      new SectionIntro(
+        this.doc,
+        "Anki",
+        "Connect to Anki, choose the target note type, and map model fields for generated notes.",
+      ).element,
+      content,
+    );
+  }
+
+  private renderControlRow(children: HTMLElement[]) {
+    const row = this.doc.createElement("div");
+    row.className = cn("flex min-w-0 flex-col gap-2 md:flex-row md:items-center") as string;
+    row.append(...children);
+    return row;
   }
 
   private registerListeners() {
@@ -236,20 +220,20 @@ export class AnkiOptions {
         const select = this.doc.createElement("select");
         select.className = cn("select w-full") as string;
         select.style.colorScheme = "light dark";
-        setSelectOptions(
+        new SelectOptions(
           this.doc,
           select,
           LEX_FIELD_OPTIONS,
           normalizedFieldMap[fieldName] || guessAnkiModelField(fieldName) || "",
-        );
+        ).render();
         select.addEventListener("change", () => {
           void this.updateFieldMapping(fieldName, select.value);
         });
 
-        return createFormField(this.doc, fieldName, {
+        return new FormField(this.doc, fieldName, {
           children: select,
           layout: "inline",
-        });
+        }).element;
       }),
     );
   }
@@ -369,5 +353,18 @@ export class AnkiOptions {
       "error",
       `${message}: ${error instanceof Error ? error.message : String(error)}`,
     );
+  }
+
+  private mergeAnkiConfig(ankiConfig: AnkiConfig, ankiState: AnkiState): AnkiConfig {
+    return {
+      ...ankiConfig,
+      noteType: ankiState.noteType,
+      fieldMap: normalizeAnkiFieldMap(ankiState.fieldNames, ankiConfig.fieldMap),
+    };
+  }
+
+  private ensureCurrentOption(options: SelectOption[], value: string) {
+    if (!value || options.some((option) => option.value === value)) return options;
+    return [{ value, label: value }, ...options];
   }
 }

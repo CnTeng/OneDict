@@ -76,11 +76,11 @@ export class SearchBar {
   }
 
   private renderSearchIcon(container: HTMLElement): void {
-    const icon = Icon({
+    const icon = new Icon({
       doc: this.doc,
       iconNode: Search,
       className: cn("text-base-content/80 my-auto me-3 size-4 shrink-0"),
-    });
+    }).element;
 
     container.append(icon);
   }
@@ -110,7 +110,7 @@ export class SearchBar {
         const option = this.doc.createElement("option");
 
         option.value = lang;
-        option.textContent = lang ? lang.toUpperCase() : "🌐";
+        option.textContent = lang ? lang.toUpperCase() : "ALL";
 
         return option;
       }),

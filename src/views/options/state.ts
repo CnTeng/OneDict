@@ -14,40 +14,80 @@ export interface LoadedOptionsState {
   ankiState: AnkiState;
 }
 
-function toSelectOptions(values: string[]): SelectOption[] {
-  return values.map((value) => ({ value, label: value }));
-}
+class OptionsStateLoader {
+  private readonly dictionaryService?: IDictionaryService;
+  private readonly ankiService: IAnkiService;
 
-function ensureNoteType(noteType: string, options: SelectOption[]) {
-  if (options.some((option) => option.value === noteType)) return noteType;
-  return options[0]?.value ?? noteType;
+  constructor({
+    dictionaryService,
+    ankiService,
+  }: {
+    dictionaryService?: IDictionaryService;
+    ankiService: IAnkiService;
+  }) {
+    this.dictionaryService = dictionaryService;
+    this.ankiService = ankiService;
+  }
+
+  loadFieldNames(noteType: string) {
+    if (!noteType) return Promise.resolve([]);
+    return this.ankiService.getModelFields(noteType);
+  }
+
+  async loadAnkiState(ankiConfig: AnkiConfig): Promise<AnkiState> {
+    const [decks, models] = await Promise.all([
+      this.ankiService.getDecks().catch(() => []),
+      this.ankiService.getModels().catch(() => []),
+    ]);
+
+    const noteTypeOptions = this.toSelectOptions(
+      models.length > 0 ? models : [ankiConfig.noteType || "Basic"],
+    );
+    const noteType = this.ensureNoteType(ankiConfig.noteType || "Basic", noteTypeOptions);
+
+    return {
+      deckOptions: this.toSelectOptions(decks),
+      noteType,
+      noteTypeOptions,
+      fieldNames: await this.loadFieldNames(noteType).catch(() => []),
+    };
+  }
+
+  async loadOptionsState(userConfig: UserConfig): Promise<LoadedOptionsState> {
+    if (!this.dictionaryService) {
+      throw new Error("Dictionary service is required to load options state");
+    }
+
+    const [dictionaryLanguages, ankiState] = await Promise.all([
+      this.dictionaryService.getLanguages(),
+      this.loadAnkiState(userConfig.anki),
+    ]);
+
+    return {
+      dictionaryLanguages,
+      ankiState,
+    };
+  }
+
+  private toSelectOptions(values: string[]): SelectOption[] {
+    return values.map((value) => ({ value, label: value }));
+  }
+
+  private ensureNoteType(noteType: string, options: SelectOption[]) {
+    if (options.some((option) => option.value === noteType)) return noteType;
+    return options[0]?.value ?? noteType;
+  }
 }
 
 export async function loadFieldNames(ankiService: IAnkiService, noteType: string) {
-  if (!noteType) return [];
-  return ankiService.getModelFields(noteType);
+  return new OptionsStateLoader({ ankiService }).loadFieldNames(noteType);
 }
 
 export async function loadAnkiState(
   ankiService: IAnkiService,
   ankiConfig: AnkiConfig,
 ): Promise<AnkiState> {
-  const [decks, models] = await Promise.all([
-    ankiService.getDecks().catch(() => []),
-    ankiService.getModels().catch(() => []),
-  ]);
-
-  const noteTypeOptions = toSelectOptions(
-    models.length > 0 ? models : [ankiConfig.noteType || "Basic"],
-  );
-  const noteType = ensureNoteType(ankiConfig.noteType || "Basic", noteTypeOptions);
-
-  return {
-    deckOptions: toSelectOptions(decks),
-    noteType,
-    noteTypeOptions,
-    fieldNames: await loadFieldNames(ankiService, noteType).catch(() => []),
-  };
+  return new OptionsStateLoader({ ankiService }).loadAnkiState(ankiConfig);
 }
 
 export function loadOptionsState(
@@ -55,13 +95,7 @@ export function loadOptionsState(
   ankiService: IAnkiService,
   userConfig: UserConfig,
 ): Promise<LoadedOptionsState> {
-  return Promise.all([
-    dictionaryService.getLanguages(),
-    loadAnkiState(ankiService, userConfig.anki),
-  ]).then(([dictionaryLanguages, ankiState]) => ({
-    dictionaryLanguages,
-    ankiState,
-  }));
+  return new OptionsStateLoader({ dictionaryService, ankiService }).loadOptionsState(userConfig);
 }
 
 export function resetOptionsState(
@@ -69,8 +103,9 @@ export function resetOptionsState(
   dictionaryService: IDictionaryService,
   ankiService: IAnkiService,
 ) {
+  const loader = new OptionsStateLoader({ dictionaryService, ankiService });
   return configService.reset().then((userConfig) =>
-    loadOptionsState(dictionaryService, ankiService, userConfig).then(({ ankiState }) => ({
+    loader.loadOptionsState(userConfig).then(({ ankiState }) => ({
       userConfig,
       ankiState,
     })),

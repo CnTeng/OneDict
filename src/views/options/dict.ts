@@ -8,7 +8,7 @@ import {
   type SelectOption,
 } from "@common/model";
 import { cn } from "tailwind-variants";
-import { createSectionIntro, setSelectOptions } from "./elements";
+import { SectionIntro, SelectOptions } from "./elements";
 
 export interface DictionaryOptionsDependencies {
   doc?: Document;
@@ -16,25 +16,6 @@ export interface DictionaryOptionsDependencies {
   setDictionaryConfig: (dictionaryConfig: DictionaryConfig) => Promise<void>;
   getDictionaryLanguages: () => DictionaryLanguageInfo[];
   getDeckOptions: () => SelectOption[];
-}
-
-function toLanguageLabel(language: DictionaryLanguageInfo): string {
-  return `${language.name} (${language.code})`;
-}
-
-function findProviderLabel(language: DictionaryLanguageInfo, providerId: string): string {
-  return language.providers.find((provider) => provider.id === providerId)?.name ?? providerId;
-}
-
-function createField(doc: Document, label: string, control: HTMLElement): HTMLElement {
-  const field = doc.createElement("div");
-  field.className = cn("space-y-1") as string;
-  const labelEl = doc.createElement("p");
-  labelEl.className = cn("text-[11px] uppercase") as string;
-  labelEl.textContent = label;
-
-  field.append(labelEl, control);
-  return field;
 }
 
 export class DictionaryOptions {
@@ -49,6 +30,7 @@ export class DictionaryOptions {
   private readonly languageSelect: HTMLSelectElement;
   private readonly providerSelect: HTMLSelectElement;
   private readonly deckSelect: HTMLSelectElement;
+  private readonly addButton: HTMLButtonElement;
 
   constructor({
     doc = document,
@@ -63,13 +45,8 @@ export class DictionaryOptions {
     this.getDictionaryLanguagesValue = getDictionaryLanguages;
     this.getDeckOptionsValue = getDeckOptions;
 
-    const section = this.doc.createElement("section");
-    section.className = "p-0";
-
-    const content = this.doc.createElement("div");
-    content.className = cn("space-y-3") as string;
-    const composer = this.doc.createElement("div");
-    composer.className = cn("grid items-end gap-3 md:grid-cols-2 xl:grid-cols-4") as string;
+    this.element = this.doc.createElement("section");
+    this.element.className = "p-0";
 
     this.configBody = this.doc.createElement("div");
     this.configBody.className = cn("max-h-72 divide-y overflow-y-auto border-t") as string;
@@ -86,34 +63,13 @@ export class DictionaryOptions {
     this.deckSelect.className = this.languageSelect.className;
     this.deckSelect.style.colorScheme = "light dark";
 
-    const addButton = this.doc.createElement("button");
-    addButton.type = "button";
-    addButton.className = "btn btn-outline w-full lg:min-w-28";
-    addButton.append(this.doc.createTextNode("Add"));
-    addButton.addEventListener("click", () => {
-      void this.addProvider();
-    });
+    this.addButton = this.doc.createElement("button");
+    this.addButton.type = "button";
+    this.addButton.className = "btn btn-outline w-full lg:min-w-28";
+    this.addButton.append(this.doc.createTextNode("Add"));
 
-    this.languageSelect.addEventListener("change", () => this.render());
-
-    composer.append(
-      createField(this.doc, "Language", this.languageSelect),
-      createField(this.doc, "Provider", this.providerSelect),
-      createField(this.doc, "Deck", this.deckSelect),
-      createField(this.doc, " ", addButton),
-    );
-
-    content.append(composer, this.configBody);
-    section.append(
-      createSectionIntro(
-        this.doc,
-        "Dictionary",
-        "Choose which providers and decks are used for each language you want to look up.",
-      ),
-      content,
-    );
-
-    this.element = section;
+    this.renderStructure();
+    this.registerListeners();
     this.render();
   }
 
@@ -122,40 +78,86 @@ export class DictionaryOptions {
     const dictionaryConfig = this.getDictionaryConfigValue();
     const deckOptions = [
       { value: "", label: "No deck" },
-      ...this.getDeckOptionsValue().filter((o) => o.value),
+      ...this.getDeckOptionsValue().filter((option) => option.value),
     ];
 
-    setSelectOptions(
+    new SelectOptions(
       this.doc,
       this.languageSelect,
       dictionaryLanguages.map((language) => ({
         value: language.code,
-        label: toLanguageLabel(language),
+        label: this.getLanguageLabel(language),
       })),
       this.languageSelect.value || dictionaryLanguages[0]?.code || "",
-    );
+    ).render();
 
     const languageCode = this.languageSelect.value || dictionaryLanguages[0]?.code || "";
     const language = dictionaryLanguages.find((item) => item.code === languageCode);
     const providerOptions =
       language?.providers.map((provider) => ({ value: provider.id, label: provider.name })) ?? [];
 
-    setSelectOptions(
+    new SelectOptions(
       this.doc,
       this.providerSelect,
       providerOptions.length > 0
         ? providerOptions
         : [{ value: "", label: "No providers available" }],
       this.providerSelect.value || providerOptions[0]?.value || "",
-    );
+    ).render();
 
-    setSelectOptions(
+    new SelectOptions(
       this.doc,
       this.deckSelect,
       deckOptions,
       getDictionaryConfig(dictionaryConfig, languageCode).deck,
-    );
+    ).render();
 
+    this.renderConfigItems(dictionaryLanguages, dictionaryConfig);
+  }
+
+  private renderStructure() {
+    const content = this.doc.createElement("div");
+    content.className = cn("space-y-3") as string;
+    content.append(this.renderComposer(), this.configBody);
+
+    this.element.append(
+      new SectionIntro(
+        this.doc,
+        "Dictionary",
+        "Choose which providers and decks are used for each language you want to look up.",
+      ).element,
+      content,
+    );
+  }
+
+  private renderComposer() {
+    const composer = this.doc.createElement("div");
+    composer.className = cn("grid items-end gap-3 md:grid-cols-2 xl:grid-cols-4") as string;
+    composer.append(
+      this.renderField("Language", this.languageSelect),
+      this.renderField("Provider", this.providerSelect),
+      this.renderField("Deck", this.deckSelect),
+      this.renderField(" ", this.addButton),
+    );
+    return composer;
+  }
+
+  private renderField(label: string, control: HTMLElement) {
+    const field = this.doc.createElement("div");
+    field.className = cn("space-y-1") as string;
+
+    const labelElement = this.doc.createElement("p");
+    labelElement.className = cn("text-[11px] uppercase") as string;
+    labelElement.textContent = label;
+
+    field.append(labelElement, control);
+    return field;
+  }
+
+  private renderConfigItems(
+    dictionaryLanguages: DictionaryLanguageInfo[],
+    dictionaryConfig: DictionaryConfig,
+  ) {
     const items = dictionaryLanguages
       .filter((languageItem) => {
         const config = getDictionaryConfig(dictionaryConfig, languageItem.code);
@@ -174,6 +176,17 @@ export class DictionaryOptions {
     this.configBody.replaceChildren(...items);
   }
 
+  private registerListeners() {
+    this.addButton.addEventListener("click", () => {
+      void this.addProvider();
+    });
+    this.languageSelect.addEventListener("change", () => this.render());
+  }
+
+  private getLanguageLabel(language: DictionaryLanguageInfo) {
+    return `${language.name} (${language.code})`;
+  }
+
   private createLanguageItem(language: DictionaryLanguageInfo, dictionaryConfig: DictionaryConfig) {
     const config = getDictionaryConfig(dictionaryConfig, language.code);
     const item = this.doc.createElement("div");
@@ -183,7 +196,7 @@ export class DictionaryOptions {
 
     const languageName = this.doc.createElement("div");
     languageName.className = cn("truncate text-sm lg:col-span-3") as string;
-    languageName.textContent = toLanguageLabel(language);
+    languageName.textContent = this.getLanguageLabel(language);
 
     const deckText = this.doc.createElement("div");
     deckText.className = cn("w-fit text-xs lg:col-span-2") as string;
@@ -224,7 +237,7 @@ export class DictionaryOptions {
     chip.className = cn("badge badge-outline badge-sm gap-1") as string;
     const text = this.doc.createElement("span");
     text.className = cn("text-xs") as string;
-    text.textContent = findProviderLabel(language, providerId);
+    text.textContent = this.findProviderLabel(language, providerId);
 
     const removeBtn = this.doc.createElement("button");
     removeBtn.type = "button";
@@ -251,5 +264,9 @@ export class DictionaryOptions {
     await this.setDictionaryConfigValue(
       addDictionaryProvider(this.getDictionaryConfigValue(), languageCode, provider, deck),
     );
+  }
+
+  private findProviderLabel(language: DictionaryLanguageInfo, providerId: string) {
+    return language.providers.find((provider) => provider.id === providerId)?.name ?? providerId;
   }
 }

@@ -1,0 +1,90 @@
+import { Icon } from "@views/components";
+import { Check, Plus, X } from "lucide";
+
+type DefinitionButtonState = "idle" | "loading" | "success" | "error";
+
+const ADD_BUTTON_STATE_CLASSES: Record<Exclude<DefinitionButtonState, "idle">, string[]> = {
+  loading: ["opacity-70", "cursor-wait"],
+  success: ["btn-success"],
+  error: ["btn-error"],
+};
+
+export interface AnkiAddButtonOptions {
+  doc: Document;
+  index: number;
+  onAddClick?: (index?: number) => void | Promise<void>;
+}
+
+export class AnkiAddButton {
+  readonly element: HTMLButtonElement;
+
+  private readonly doc: Document;
+  private readonly index: number;
+  private readonly onAddClick?: (index?: number) => void | Promise<void>;
+
+  constructor({ doc, index, onAddClick }: AnkiAddButtonOptions) {
+    this.doc = doc;
+    this.index = index;
+    this.onAddClick = onAddClick;
+
+    this.element = this.doc.createElement("button");
+    this.element.type = "button";
+    this.element.title = "Add to Anki";
+    this.element.className = "btn btn-ghost btn-circle btn-sm text-base-content/60 shadow-none";
+    this.element.setAttribute("data-def-index", this.index.toString());
+
+    this.setState("idle");
+    this.registerListeners();
+  }
+
+  private registerListeners() {
+    this.element.addEventListener("click", async (event) => {
+      event.stopPropagation();
+      if (!this.onAddClick) return;
+      if (this.element.dataset.state === "loading") return;
+
+      try {
+        this.setState("loading");
+        await this.onAddClick(this.index);
+        this.setState("success");
+      } catch {
+        this.setState("error");
+      }
+    });
+  }
+
+  private setContent(node: Node) {
+    this.element.replaceChildren(node);
+  }
+
+  private setState(state: DefinitionButtonState) {
+    this.element.dataset.state = state;
+    this.element.classList.remove(...ADD_BUTTON_STATE_CLASSES.loading);
+    this.element.classList.remove(...ADD_BUTTON_STATE_CLASSES.success);
+    this.element.classList.remove(...ADD_BUTTON_STATE_CLASSES.error);
+    this.element.disabled = state === "loading";
+
+    if (state === "loading") {
+      const spinner = this.doc.createElement("span");
+      spinner.className =
+        "h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent";
+      this.element.classList.add(...ADD_BUTTON_STATE_CLASSES.loading);
+      this.setContent(spinner);
+      return;
+    }
+
+    if (state === "success") {
+      this.element.classList.add(...ADD_BUTTON_STATE_CLASSES.success);
+      this.setContent(new Icon({ doc: this.doc, iconNode: Check }).element);
+      return;
+    }
+
+    if (state === "error") {
+      this.element.classList.add(...ADD_BUTTON_STATE_CLASSES.error);
+      this.setContent(new Icon({ doc: this.doc, iconNode: X }).element);
+      return;
+    }
+
+    this.setContent(new Icon({ doc: this.doc, iconNode: Plus }).element);
+  }
+}

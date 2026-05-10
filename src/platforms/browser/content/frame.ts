@@ -1,6 +1,6 @@
 import type { Context } from "@common/model";
 import { BrowserPlatformServices } from "@services";
-import { DictionaryPanel } from "@views/dictionary";
+import { LookupPanel } from "@views/lookup-panel";
 import { cx } from "tailwind-variants";
 
 function init() {
@@ -11,7 +11,7 @@ function init() {
 
   document.body.append(app);
 
-  const stateView = new DictionaryPanel({
+  const stateView = new LookupPanel({
     className: cx("flex h-0 flex-1 flex-col"),
     ankiService: services.anki,
   });

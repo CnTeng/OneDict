@@ -15,44 +15,6 @@ import { DictionaryOptions } from "./dict";
 import { OptionsFooter } from "./footer";
 import { loadOptionsState, resetOptionsState } from "./state";
 
-function showLoadError(doc: Document, root: HTMLElement, error: unknown) {
-  root.replaceChildren(
-    createStateMessage(doc, error instanceof Error ? error.message : String(error)),
-  );
-}
-
-function sameUserConfig(a: UserConfig, b: UserConfig) {
-  return JSON.stringify(a) === JSON.stringify(b);
-}
-
-function mergeAnkiConfig(ankiConfig: AnkiConfig, ankiState: AnkiState): AnkiConfig {
-  return {
-    ...ankiConfig,
-    noteType: ankiState.noteType,
-    fieldMap: normalizeAnkiFieldMap(ankiState.fieldNames, ankiConfig.fieldMap),
-  };
-}
-
-function createPageIntro(doc: Document) {
-  const header = doc.createElement("section");
-  const title = doc.createElement("h1");
-  title.className = cn("text-xl font-semibold") as string;
-  title.textContent = "Options";
-  const text = doc.createElement("p");
-  text.className = cn("mt-1 text-sm") as string;
-  text.textContent =
-    "Tune dictionary sources, connect Anki, and keep note generation aligned with your workflow.";
-  header.append(title, text);
-  return header;
-}
-
-function createStateMessage(doc: Document, message: string) {
-  const element = doc.createElement("div");
-  element.className = cn("p-4 text-sm") as string;
-  element.textContent = message;
-  return element;
-}
-
 export class OptionsPage {
   readonly element: HTMLDivElement;
 
@@ -105,9 +67,6 @@ export class OptionsPage {
     this.element = this.doc.createElement("div");
     this.element.className = "bg-base-100 text-base-content";
 
-    const sections = this.doc.createElement("div");
-    sections.className = cn("space-y-6 p-4") as string;
-
     this.footer = new OptionsFooter(this.doc);
     this.footer.setResetAction(() => this.reset());
 
@@ -130,12 +89,7 @@ export class OptionsPage {
       showStatus: (level, message) => this.footer.status.show(message, level),
     });
 
-    sections.append(
-      createPageIntro(this.doc),
-      this.dictionaryOptions.element,
-      this.ankiOptions.element,
-    );
-    this.element.append(sections, this.footer.element);
+    this.renderStructure();
     this.root.replaceChildren(this.element);
 
     this.unsubscribeConfigChange = this.configService.onDidChange((event) => {
@@ -157,7 +111,7 @@ export class OptionsPage {
     dictionaryService: IDictionaryService;
     ankiService: IAnkiService;
   }) {
-    root.replaceChildren(createStateMessage(doc, "Loading options..."));
+    root.replaceChildren(OptionsPage.createStateMessage(doc, "Loading options..."));
 
     const userConfig = await configService.get();
     const { dictionaryLanguages, ankiState } = await loadOptionsState(
@@ -186,11 +140,38 @@ export class OptionsPage {
     this.ankiOptions.render();
   }
 
+  private renderStructure() {
+    const sections = this.doc.createElement("div");
+    sections.className = cn("space-y-6 p-4") as string;
+    sections.append(
+      this.renderPageIntro(),
+      this.dictionaryOptions.element,
+      this.ankiOptions.element,
+    );
+    this.element.append(sections, this.footer.element);
+  }
+
+  private renderPageIntro() {
+    const header = this.doc.createElement("section");
+
+    const title = this.doc.createElement("h1");
+    title.className = cn("text-xl font-semibold") as string;
+    title.textContent = "Options";
+
+    const text = this.doc.createElement("p");
+    text.className = cn("mt-1 text-sm") as string;
+    text.textContent =
+      "Tune dictionary sources, connect Anki, and keep note generation aligned with your workflow.";
+
+    header.append(title, text);
+    return header;
+  }
+
   private async saveUserConfig(nextUserConfig: UserConfig, errorMessage: string) {
-    if (sameUserConfig(nextUserConfig, this.savedUserConfig)) return;
+    if (this.sameUserConfig(nextUserConfig, this.savedUserConfig)) return;
 
     const task = this.saveChain.then(() => {
-      if (sameUserConfig(nextUserConfig, this.savedUserConfig)) return;
+      if (this.sameUserConfig(nextUserConfig, this.savedUserConfig)) return;
       return this.configService.update(nextUserConfig).then(() => {
         this.savedUserConfig = nextUserConfig;
       });
@@ -227,7 +208,7 @@ export class OptionsPage {
     this.ankiState = nextAnkiState;
     this.userConfig = {
       ...this.userConfig,
-      anki: mergeAnkiConfig(nextAnkiConfig ?? this.userConfig.anki, nextAnkiState),
+      anki: this.mergeAnkiConfig(nextAnkiConfig ?? this.userConfig.anki, nextAnkiState),
     };
     this.render();
   }
@@ -277,10 +258,38 @@ export class OptionsPage {
         this.render();
       })
       .catch((error) => {
-        showLoadError(this.doc, this.root, error);
+        this.showLoadError(error);
       });
 
     return this.reloadChain;
+  }
+
+  private showLoadError(error: unknown) {
+    this.root.replaceChildren(
+      OptionsPage.createStateMessage(
+        this.doc,
+        error instanceof Error ? error.message : String(error),
+      ),
+    );
+  }
+
+  private sameUserConfig(a: UserConfig, b: UserConfig) {
+    return JSON.stringify(a) === JSON.stringify(b);
+  }
+
+  private mergeAnkiConfig(ankiConfig: AnkiConfig, ankiState: AnkiState): AnkiConfig {
+    return {
+      ...ankiConfig,
+      noteType: ankiState.noteType,
+      fieldMap: normalizeAnkiFieldMap(ankiState.fieldNames, ankiConfig.fieldMap),
+    };
+  }
+
+  private static createStateMessage(doc: Document, message: string) {
+    const element = doc.createElement("div");
+    element.className = cn("p-4 text-sm") as string;
+    element.textContent = message;
+    return element;
   }
 }
 
