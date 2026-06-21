@@ -179,7 +179,6 @@ export class BrowserServiceHost {
         (sendResponse as (value: unknown) => void)(result);
       })
       .catch((error: Error) => {
-        console.error(`[Service Error] ${domain}.${method}:`, error);
         (sendResponse as (value: unknown) => void)({ error: error.message });
       });
 
