@@ -11,15 +11,20 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "paths": {
-      "@lib/*": ["./src/lib/*"]
+      "@common/*": ["./src/common/*"],
+      "@services": ["./src/services/index.ts"],
+      "@services/*": ["./src/services/*"],
+      "@views": ["./src/views/index.ts"],
+      "@views/*": ["./src/views/*"]
     }
   },
   "include": [
+    "build/**/*",
     "src/env.d.ts",
-    "src/app/**/*",
-    "src/lib/**/*",
-    "src/zotero/**/*",
-    "src/manifests/**/*"
+    "src/common/**/*",
+    "src/platforms/**/*",
+    "src/services/**/*",
+    "src/views/**/*"
   ],
   "exclude": ["node_modules", "dist"]
 }

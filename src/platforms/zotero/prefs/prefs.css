@@ -1,0 +1,12 @@
+@import "@assets/theme.css";
+@import "@assets/scrollbar.css";
+@import "tailwindcss";
+
+body,
+.ankilex-root {
+  @apply bg-background text-foreground min-h-screen antialiased;
+}
+
+.ankilex-root * {
+  box-sizing: border-box;
+}

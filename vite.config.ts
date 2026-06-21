@@ -2,8 +2,21 @@ import { resolve } from "node:path";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, mergeConfig, type UserConfig } from "vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
-import type { Target } from "./src/manifests";
-import { cssPlugin, iifePlugin, manifestPlugin } from "./src/plugins";
+import { cssPlugin } from "./build/css";
+import { iifePlugin } from "./build/iife";
+import { manifestPlugin } from "./build/manifest";
+import {
+  chromeManifest,
+  firefoxManifest,
+  type Target,
+  zoteroManifest,
+} from "./src/platforms/manifests";
+
+const manifestByTarget = {
+  chrome: chromeManifest,
+  firefox: firefoxManifest,
+  zotero: zoteroManifest,
+} satisfies Record<Target, unknown>;
 
 const strategies: Record<"browser" | "zotero", (target: Target) => UserConfig> = {
   browser: (target) => ({
@@ -11,21 +24,21 @@ const strategies: Record<"browser" | "zotero", (target: Target) => UserConfig> =
       iifePlugin({
         entries: [
           {
-            entry: "app/content/content.ts",
+            entry: "platforms/browser/content/content.ts",
             name: "AnkiLexContent",
-            fileName: "app/content/content.js",
+            fileName: "browser/content/content.js",
             minify: false,
           },
         ],
         modules: {
           "iife:anki-card": {
-            entry: "lib/anki/templates/card.ts",
+            entry: "services/anki/template/card.ts",
             name: "AnkiCard",
             minify: true,
           },
         },
       }),
-      manifestPlugin({ target }),
+      manifestPlugin({ manifest: manifestByTarget[target] }),
       viteStaticCopy({
         targets: [
           { src: "assets/icons/*", dest: "." },
@@ -36,17 +49,17 @@ const strategies: Record<"browser" | "zotero", (target: Target) => UserConfig> =
     build: {
       rollupOptions: {
         input: {
-          background: "src/app/background/background.ts",
-          frame: "src/app/content/frame.html",
-          offscreen: "src/app/offscreen/offscreen.html",
-          options: "src/app/options/options.html",
-          popup: "src/app/popup/popup.html",
+          background: "platforms/browser/background/background.ts",
+          frame: "platforms/browser/content/frame.html",
+          offscreen: "platforms/browser/offscreen/offscreen.html",
+          options: "platforms/browser/options/options.html",
+          popup: "platforms/browser/popup/popup.html",
         },
         output: {
           assetFileNames: "assets/[name].[ext]",
           chunkFileNames: "assets/chunks/[name].js",
           entryFileNames: (chunkInfo) =>
-            chunkInfo.name === "frame" ? "app/content/frame.js" : "app/[name]/[name].js",
+            chunkInfo.name === "frame" ? "browser/content/frame.js" : "browser/[name]/[name].js",
         },
       },
     },
@@ -57,19 +70,19 @@ const strategies: Record<"browser" | "zotero", (target: Target) => UserConfig> =
       iifePlugin({
         modules: {
           "iife:anki-card": {
-            entry: "lib/anki/templates/card.ts",
+            entry: "services/anki/template/card.ts",
             name: "AnkiCard",
             minify: true,
           },
         },
       }),
-      cssPlugin([{ entry: "zotero/prefs/prefs.css", fileName: "prefs/prefs.css" }]),
-      manifestPlugin({ target }),
+      cssPlugin([{ entry: "platforms/zotero/prefs/prefs.css", fileName: "prefs/prefs.css" }]),
+      manifestPlugin({ manifest: manifestByTarget[target] }),
       viteStaticCopy({
         targets: [
           { src: "assets/icons/*", dest: "." },
           {
-            src: "zotero/prefs/prefs.xhtml",
+            src: "platforms/zotero/prefs/prefs.xhtml",
             dest: "prefs",
             rename: { stripBase: true },
           },
@@ -78,7 +91,7 @@ const strategies: Record<"browser" | "zotero", (target: Target) => UserConfig> =
     ],
     build: {
       lib: {
-        entry: "zotero/bootstrap.ts",
+        entry: "platforms/zotero/bootstrap.ts",
         formats: ["iife"],
         name: "ZoteroPlugin",
         fileName: () => "bootstrap.js",
@@ -106,7 +119,9 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         "@assets": resolve(__dirname, "src/assets"),
-        "@lib": resolve(__dirname, "src/lib"),
+        "@common": resolve(__dirname, "src/common"),
+        "@services": resolve(__dirname, "src/services"),
+        "@views": resolve(__dirname, "src/views"),
       },
     },
     plugins: [tailwindcss()],

@@ -39,14 +39,12 @@
   --border: #deddda;
   --input: #c0bfbc;
   --ring: #3584e4;
-  /* Scrollbar */
   --scrollbar-width: 8px;
   --scrollbar-thumb: rgb(0 0 0 / 12%);
   --scrollbar-thumb-hover: rgb(0 0 0 / 18%);
   --scrollbar-track: transparent;
 }
 
-/* Adwaita Dark */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #222226;
@@ -65,7 +63,6 @@
     --border: rgb(255 255 255 / 15%);
     --input: rgb(255 255 255 / 22%);
     --ring: #62a0ea;
-    /* Scrollbar */
     --scrollbar-width: 8px;
     --scrollbar-thumb: rgb(255 255 255 / 10%);
     --scrollbar-thumb-hover: rgb(255 255 255 / 16%);
@@ -73,7 +70,6 @@
   }
 }
 
-/* Force dark theme when Anki's nightMode class is active */
 :root.nightMode,
 .nightMode :root,
 body.nightMode {
