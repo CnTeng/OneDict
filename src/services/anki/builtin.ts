@@ -1,6 +1,6 @@
 import { ANKI_MODEL_CSS } from "./template";
 
-export const ANKI_MODEL_NAME = "OneDict Modern";
+export const ANKI_MODEL_NAME = "OneDict";
 
 export const ANKI_MODEL_FIELDS = [
   "word",
