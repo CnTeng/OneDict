@@ -56,6 +56,7 @@ export class Editor {
     ) as string;
     this.textarea.spellcheck = false;
     this.textarea.autocomplete = "off";
+    this.textarea.setAttribute("contenteditable", "true");
     this.textarea.style.webkitTextFillColor = "transparent";
 
     this.element.append(this.highlight, this.placeholderEl, this.textarea);
