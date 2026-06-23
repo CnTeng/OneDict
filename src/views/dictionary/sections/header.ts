@@ -31,7 +31,7 @@ export class DictionaryHeaderSection {
 
     const wordElement = this.document.createElement("h2");
     wordElement.className = cn(
-      "text-foreground text-[1.65rem] leading-none font-bold tracking-tight",
+      "text-foreground text-[1.65rem] leading-tight font-bold tracking-tight",
     ) as string;
     wordElement.textContent = this.word;
 

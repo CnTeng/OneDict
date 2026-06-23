@@ -68,7 +68,7 @@ export class LookupPanel {
 
       this.headerWord = this.document.createElement("h2");
       this.headerWord.className = cn(
-        "text-foreground min-w-0 truncate text-[1.1rem] leading-none font-semibold tracking-tight",
+        "text-foreground min-w-0 truncate text-[1.1rem] leading-tight font-semibold tracking-tight",
       ) as string;
 
       this.providerDropdown = new DropdownButton({
