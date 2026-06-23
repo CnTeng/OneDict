@@ -2,6 +2,8 @@ import type { Definition, DictionaryEntry, Example, Pronunciation } from "@commo
 import { DictionaryProvider } from "../provider";
 import { registerDictionaryProvider } from "../registry";
 
+const normalize = (text?: string | null) => text?.replace(/\s+/g, " ").trim() || "";
+
 export class YoudaoDictionary extends DictionaryProvider {
   get id() {
     return "youdao";
@@ -58,7 +60,7 @@ export class YoudaoDictionary extends DictionaryProvider {
 
   private parseWord(container: Element): string {
     const keyword = container.querySelector("h4 .title");
-    return keyword?.textContent?.trim() || "";
+    return normalize(keyword?.textContent);
   }
 
   private parseCollinsDefinitions(container: Element): Definition[] {
@@ -70,11 +72,11 @@ export class YoudaoDictionary extends DictionaryProvider {
       if (!transNode) return;
 
       const posNode = transNode.querySelector(".additional");
-      const pos = posNode?.textContent?.trim() || "";
+      const pos = normalize(posNode?.textContent);
 
-      let fullText = transNode.textContent?.trim() || "";
+      let fullText = normalize(transNode.textContent);
       if (pos && fullText.startsWith(pos)) {
-        fullText = fullText.substring(pos.length).trim();
+        fullText = normalize(fullText.substring(pos.length));
       }
 
       const examples: Example[] = [];
@@ -83,8 +85,8 @@ export class YoudaoDictionary extends DictionaryProvider {
       exampleLis.forEach((ex) => {
         const pTags = ex.querySelectorAll("p");
         if (pTags.length >= 2) {
-          const en = pTags[0].textContent?.trim();
-          const cn = pTags[1].textContent?.trim();
+          const en = normalize(pTags[0].textContent);
+          const cn = normalize(pTags[1].textContent);
           if (en) examples.push({ text: en, translation: cn });
         }
       });
@@ -106,7 +108,7 @@ export class YoudaoDictionary extends DictionaryProvider {
     if (!container) return definitions;
 
     container.querySelectorAll("ul li").forEach((el) => {
-      const text = el.textContent?.trim() || "";
+      const text = normalize(el.textContent);
       const match = text.match(/^([a-z]+\.)\s*(.*)$/i);
 
       if (match) {
@@ -125,13 +127,14 @@ export class YoudaoDictionary extends DictionaryProvider {
   private parsePronunciations(doc: Document): Pronunciation[] {
     const pronunciations: Pronunciation[] = [];
 
-    const keyword = doc.querySelector("#phrsListTab .wordbook-js .keyword")?.textContent?.trim();
+    const keyword = normalize(doc.querySelector("#phrsListTab .wordbook-js .keyword")?.textContent);
     const containers = doc.querySelectorAll(".baav .pronounce, .wordbook-js .pronounce");
     const parse = (el: Element, type: "uk" | "us") => {
       const span = el.querySelector(".phonetic");
-      if (span?.textContent) {
+      const text = normalize(span?.textContent);
+      if (text) {
         pronunciations.push({
-          text: span.textContent.trim(),
+          text,
           type,
           audioUrl: `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(keyword || "")}&type=${type === "us" ? 2 : 1}`,
         });
@@ -159,7 +162,7 @@ export class YoudaoDictionary extends DictionaryProvider {
 
     const rankNode = container.querySelector("h4 .rank");
     if (rankNode?.textContent) {
-      metadata.tags = rankNode.textContent.split(" ").filter(Boolean);
+      metadata.tags = normalize(rankNode.textContent).split(" ").filter(Boolean);
     }
 
     return metadata;
