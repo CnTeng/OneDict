@@ -5,6 +5,7 @@ type EditorOptions = {
   ownerDocument?: Document;
   className?: string;
   placeholder?: string;
+  onChanged?: (value: string) => void;
 };
 
 type LineDiff = {
@@ -28,13 +29,15 @@ export class Editor {
   private readonly ownerDocument: Document;
   private readonly placeholder: string;
   private readonly highlight: HTMLDivElement;
+  private readonly onChanged?: (value: string) => void;
   private readonly placeholderEl: HTMLDivElement;
   private readonly textarea: HTMLTextAreaElement;
   private readonly lineCache: { text: string; el: HTMLElement }[] = [];
 
-  constructor({ ownerDocument = document, className, placeholder = "" }: EditorOptions) {
+  constructor({ ownerDocument = document, className, placeholder = "", onChanged }: EditorOptions) {
     this.ownerDocument = ownerDocument;
     this.placeholder = placeholder;
+    this.onChanged = onChanged;
 
     this.element = this.ownerDocument.createElement("div");
     this.element.className = cn("relative overflow-hidden", className) as string;
@@ -75,7 +78,10 @@ export class Editor {
   }
 
   private registerListeners() {
-    this.textarea.addEventListener("input", () => this.render());
+    this.textarea.addEventListener("input", () => {
+      this.render();
+      this.onChanged?.(this.textarea.value);
+    });
     this.textarea.addEventListener("scroll", () => this.syncScroll());
   }
 

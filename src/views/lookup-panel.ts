@@ -163,6 +163,7 @@ export class LookupPanel {
       ownerDocument: this.document,
       className: cn("h-[20%] min-h-24") as string,
       placeholder: "Context / Note (Markdown supported)...",
+      onChanged: (context) => (entry.context = context),
     });
     editor.setContent(entry.context ?? "");
     editorWrapper.append(editor.element);
