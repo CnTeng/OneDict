@@ -23,7 +23,7 @@
     "@tailwindcss/vite": "^4.3.1",
     "@types/chrome": "^0.2.0",
     "@types/jsdom": "^28.0.3",
-    "@types/node": "^26.0.0",
+    "@types/node": "^26.0.1",
     "@vitest/browser": "^4.1.9",
     "adm-zip": "^0.5.17",
     "jsdom": "^29.1.1",
