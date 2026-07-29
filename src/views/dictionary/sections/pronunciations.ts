@@ -62,7 +62,7 @@ export class DictionaryPronunciationsSection {
         anchor.className = buttonStyles({ variant: "ghost", size: "iconXs" });
         item.append(anchor);
       } else if (audioUrl) {
-        const audio = this.document.createElement("audio");
+        const audio = document.createElement("audio");
         audio.src = audioUrl;
 
         const audioButton = this.document.createElement("button");
