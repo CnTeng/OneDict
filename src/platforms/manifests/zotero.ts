@@ -1,4 +1,4 @@
-import { author, description, name, version } from "./base";
+import { author, description, name, version } from "./base.ts";
 
 export const zoteroManifest = {
   name,

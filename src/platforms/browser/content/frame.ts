@@ -1,5 +1,5 @@
 import type { Context } from "@common/types";
-import { BrowserPlatformServices } from "@services";
+import { BrowserPlatformServices } from "@services/browser";
 import { LookupPanel } from "@views/lookup-panel";
 import { cx } from "tailwind-variants";
 

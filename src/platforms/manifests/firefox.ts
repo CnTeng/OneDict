@@ -1,4 +1,4 @@
-import { browserManifest } from "./base";
+import { browserManifest } from "./base.ts";
 
 export const firefoxManifest = {
   ...browserManifest,

@@ -1,5 +1,5 @@
 import { extractContext } from "@common/context";
-import { LocalPlatformServices } from "@services";
+import { LocalPlatformServices } from "@services/local";
 import { LookupPanel } from "@views/lookup-panel";
 import { cx } from "tailwind-variants";
 import popupStyle from "./popup.css?inline";

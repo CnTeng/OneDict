@@ -1,10 +1,10 @@
-import { chromeManifest } from "./chrome";
-import { firefoxManifest } from "./firefox";
-import { zoteroManifest } from "./zotero";
+import { chromeManifest } from "./chrome.ts";
+import { firefoxManifest } from "./firefox.ts";
+import { zoteroManifest } from "./zotero.ts";
 
-export { chromeManifest } from "./chrome";
-export { firefoxManifest } from "./firefox";
-export { zoteroManifest } from "./zotero";
+export { chromeManifest } from "./chrome.ts";
+export { firefoxManifest } from "./firefox.ts";
+export { zoteroManifest } from "./zotero.ts";
 
 export type Target = "chrome" | "firefox" | "zotero";
 

@@ -2,15 +2,15 @@ import { resolve } from "node:path";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, mergeConfig, type UserConfig } from "vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
-import { cssPlugin } from "./build/css";
-import { iifePlugin } from "./build/iife";
-import { manifestPlugin } from "./build/manifest";
+import { cssPlugin } from "./build/css.ts";
+import { iifePlugin } from "./build/iife.ts";
+import { manifestPlugin } from "./build/manifest.ts";
 import {
   chromeManifest,
   firefoxManifest,
   type Target,
   zoteroManifest,
-} from "./src/platforms/manifests";
+} from "./src/platforms/manifests/index.ts";
 
 const manifestByTarget = {
   chrome: chromeManifest,
@@ -118,17 +118,17 @@ export default defineConfig(({ mode }) => {
     root: "src",
     resolve: {
       alias: {
-        "@assets": resolve(__dirname, "src/assets"),
-        "@common": resolve(__dirname, "src/common"),
-        "@services": resolve(__dirname, "src/services"),
-        "@views": resolve(__dirname, "src/views"),
+        "@assets": resolve(import.meta.dirname, "src/assets"),
+        "@common": resolve(import.meta.dirname, "src/common"),
+        "@services": resolve(import.meta.dirname, "src/services"),
+        "@views": resolve(import.meta.dirname, "src/views"),
       },
     },
     plugins: [tailwindcss()],
     build: {
       target: "esnext",
       minify: false,
-      outDir: resolve(__dirname, `dist/${target}`),
+      outDir: resolve(import.meta.dirname, `dist/${target}`),
       emptyOutDir: true,
     },
   };

@@ -1,4 +1,4 @@
-import { BrowserPlatformServices } from "@services";
+import { BrowserPlatformServices } from "@services/browser";
 import { LookupPanel } from "@views/lookup-panel";
 import { SearchBar } from "@views/search-bar";
 import { cx } from "tailwind-variants";

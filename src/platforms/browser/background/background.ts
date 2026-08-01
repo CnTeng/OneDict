@@ -1,3 +1,3 @@
-import { BrowserServiceHost } from "@services";
+import { BrowserServiceHost } from "@services/browser";
 
 new BrowserServiceHost().register();
