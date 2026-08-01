@@ -1,6 +1,6 @@
 import type { Event } from "@common/event";
 import type { AnkiConfig, IAnkiConfigService, IAnkiService } from "@common/types";
-import { createButton, createInput, Icon, setButtonLoading } from "@views/components";
+import { Icon, createButton, createInput, setButtonLoading } from "@views/components";
 import { RefreshCw } from "lucide";
 import { cn } from "tailwind-variants";
 import { SectionIntro, SettingsGroup, SettingsRow, type StatusLevel } from "./elements";

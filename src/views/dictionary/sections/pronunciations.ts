@@ -1,5 +1,5 @@
 import type { Pronunciation } from "@common/types";
-import { buttonStyles, Icon } from "@views/components";
+import { Icon, buttonStyles } from "@views/components";
 import { Play } from "lucide";
 import { cn } from "tailwind-variants";
 

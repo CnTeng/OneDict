@@ -7,7 +7,7 @@ import type {
   IDictionaryService,
   SelectOption,
 } from "@common/types";
-import { createButton, createSelect, SortableList } from "@views/components";
+import { SortableList, createButton, createSelect } from "@views/components";
 import { cn } from "tailwind-variants";
 import { SectionIntro, SettingsGroup, SettingsRow } from "./elements";
 

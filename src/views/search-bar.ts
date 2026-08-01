@@ -1,6 +1,6 @@
 import { Event } from "@common/event";
 import type { DictionaryEntry, IDictionaryService } from "@common/types";
-import { buttonStyles, Icon } from "@views/components";
+import { Icon, buttonStyles } from "@views/components";
 import { Search, Settings } from "lucide";
 import { cn } from "tailwind-variants";
 

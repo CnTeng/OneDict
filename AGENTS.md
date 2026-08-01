@@ -11,7 +11,8 @@ Follow these rules when generating or editing code.
 - Bundler: Vite
 - Module system: ESM ("type": "module")
 - Tests: Vitest (jsdom, globals)
-- Formatter: Prettier
+- Formatter: Oxfmt
+- Linter: Oxlint
 - Styling: TailwindCSS
 - Alias: `@lib/*` -> `src/lib/*`
 
@@ -37,10 +38,15 @@ Follow these rules when generating or editing code.
 
 ### Format
 
-Prettier is the source of truth for formatting.
+Oxfmt is the source of truth for formatting.
 Do not manually align code.
 
 - `npm run format`
+
+### Lint
+
+- `npm run lint`
+- `npm run lint:fix`
 
 ### Typecheck
 
@@ -76,9 +82,10 @@ Default test strategy:
 Use this order unless the task asks otherwise:
 
 1. `npm run format`
-2. Run `npx tsc --noEmit`.
-3. Skip test execution by default (test suite is currently incomplete).
-4. Run build command(s) only when packaging/build behavior is affected.
+2. Run `npm run lint`.
+3. Run `npx tsc --noEmit`.
+4. Skip test execution by default (test suite is currently incomplete).
+5. Run build command(s) only when packaging/build behavior is affected.
 
 ## Code Style Guidelines
 

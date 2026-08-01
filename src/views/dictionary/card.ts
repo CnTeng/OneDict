@@ -26,7 +26,7 @@ export class AnkiCardFront {
     this.soundLinks = soundLinks;
 
     this.element = this.document.createElement("div");
-    this.element.className = cn("mx-auto max-w-[600px] p-5 pt-10") as string;
+    this.element.className = cn("mx-auto max-w-150 p-5 pt-10") as string;
 
     this.render();
     container.append(this.element);
@@ -59,11 +59,10 @@ export class AnkiCardFront {
       ) as string;
     }
 
-    const contextSection = new DictionaryContextSection({
+    new DictionaryContextSection({
       container: this.element,
       context: this.entry.context,
     });
-    const context = contextSection.isEmpty ? null : contextSection.element;
   }
 }
 
@@ -82,7 +81,7 @@ export class AnkiCardBack {
     this.entry = entry;
 
     this.element = this.document.createElement("div");
-    this.element.className = cn("mx-auto max-w-[600px] p-5 pt-0 text-left") as string;
+    this.element.className = cn("mx-auto max-w-150 p-5 pt-0 text-left") as string;
 
     this.render();
     container.append(this.element);

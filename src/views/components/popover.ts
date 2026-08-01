@@ -1,9 +1,9 @@
 import {
-  autoUpdate,
-  computePosition,
   type Middleware,
   type Placement,
   type ReferenceElement,
+  autoUpdate,
+  computePosition,
 } from "@floating-ui/dom";
 
 type PopoverOptions = {

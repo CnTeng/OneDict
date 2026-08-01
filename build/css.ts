@@ -1,6 +1,6 @@
 import path from "node:path";
 import tailwindcss from "@tailwindcss/vite";
-import { build, type Plugin, type ResolvedConfig } from "vite";
+import { type Plugin, type ResolvedConfig, build } from "vite";
 
 interface CssEntry {
   /** Source path relative to Vite root */

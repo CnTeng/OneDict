@@ -1,5 +1,5 @@
 import path from "node:path";
-import { build, type Plugin, type ResolvedConfig } from "vite";
+import { type Plugin, type ResolvedConfig, build } from "vite";
 
 interface IifeEntry {
   entry: string;

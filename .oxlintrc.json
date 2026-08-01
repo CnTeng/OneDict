@@ -1,0 +1,14 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "warn"
+  },
+  "rules": {
+    "typescript/consistent-type-imports": "warn",
+    "typescript/no-explicit-any": "warn",
+    "typescript/no-non-null-assertion": "warn",
+    "sort-imports": ["warn", { "ignoreDeclarationSort": true }],
+    "no-else-return": "warn",
+    "eqeqeq": ["error", "always", { "null": "ignore" }]
+  }
+}

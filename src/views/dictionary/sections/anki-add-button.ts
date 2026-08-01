@@ -1,4 +1,4 @@
-import { buttonStyles, Icon } from "@views/components";
+import { Icon, buttonStyles } from "@views/components";
 import { Check, Plus, X } from "lucide";
 
 type DefinitionButtonState = "idle" | "loading" | "success" | "error";

@@ -1,13 +1,14 @@
 {
   "name": "onedict",
   "version": "0.0.1",
+  "private": true,
   "description": "Look up words in online dictionaries and add to Anki",
   "author": "CnTeng",
-  "private": true,
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "format": "prettier --write .",
+    "format": "oxfmt",
+    "lint": "oxlint",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",
     "build:chrome": "tsx scripts/build.ts chrome",
@@ -19,6 +20,14 @@
     "package:zotero": "tsx scripts/build.ts zotero --package",
     "package": "npm run clean && run-p -sl package:*"
   },
+  "dependencies": {
+    "@floating-ui/dom": "^1.8.0",
+    "eld": "^2.0.3",
+    "lucide": "^1.28.0",
+    "sentencex-ts": "^0.1.13-ts",
+    "tailwind-merge": "^3.6.0",
+    "tailwind-variants": "^3.3.0"
+  },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "@types/chrome": "^0.2.5",
@@ -28,8 +37,8 @@
     "adm-zip": "^0.6.0",
     "jsdom": "^30.0.1",
     "npm-run-all2": "^9.0.3",
-    "prettier": "^3.9.6",
-    "prettier-plugin-tailwindcss": "^0.8.1",
+    "oxfmt": "^0.61.0",
+    "oxlint": "^1.76.0",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.1",
     "typescript": "^7.0.2",
@@ -37,24 +46,5 @@
     "vite-plugin-static-copy": "^4.1.1",
     "vitest": "^4.1.10",
     "zotero-types": "^4.1.3"
-  },
-  "dependencies": {
-    "@floating-ui/dom": "^1.8.0",
-    "eld": "^2.0.3",
-    "lucide": "^1.28.0",
-    "sentencex-ts": "^0.1.13-ts",
-    "tailwind-merge": "^3.6.0",
-    "tailwind-variants": "^3.3.0"
-  },
-  "prettier": {
-    "printWidth": 100,
-    "plugins": [
-      "prettier-plugin-tailwindcss"
-    ],
-    "tailwindFunctions": [
-      "tv",
-      "cn",
-      "cx"
-    ]
   }
 }

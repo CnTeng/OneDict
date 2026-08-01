@@ -33,16 +33,14 @@ export class DictionaryEntry {
     const { metadata, pronunciations, definitions } = this.entry;
     const fragment = this.document.createDocumentFragment();
 
-    [
-      new DictionaryMetadataSection({ container: fragment, metadata }),
-      new DictionaryPronunciationsSection({ container: fragment, pronunciations }),
-      new DictionaryDefinitionsSection({
-        container: fragment,
-        definitions,
-        showAddButton: this.showAddButton,
-        onAddClick: async (index) => this.addDefinitionToAnki(index),
-      }),
-    ];
+    new DictionaryMetadataSection({ container: fragment, metadata });
+    new DictionaryPronunciationsSection({ container: fragment, pronunciations });
+    new DictionaryDefinitionsSection({
+      container: fragment,
+      definitions,
+      showAddButton: this.showAddButton,
+      onAddClick: async (index) => this.addDefinitionToAnki(index),
+    });
 
     this.element.replaceChildren(fragment);
   }

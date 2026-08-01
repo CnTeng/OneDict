@@ -1,14 +1,14 @@
 import { resolve } from "node:path";
 import tailwindcss from "@tailwindcss/vite";
-import { defineConfig, mergeConfig, type UserConfig } from "vite";
+import { type UserConfig, defineConfig, mergeConfig } from "vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import { cssPlugin } from "./build/css.ts";
 import { iifePlugin } from "./build/iife.ts";
 import { manifestPlugin } from "./build/manifest.ts";
 import {
+  type Target,
   chromeManifest,
   firefoxManifest,
-  type Target,
   zoteroManifest,
 } from "./src/platforms/manifests/index.ts";
 
