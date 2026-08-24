@@ -15,7 +15,7 @@ export const zoteroManifest = {
     zotero: {
       id: "onedict-zotero@onedict.com",
       strict_min_version: "7.0",
-      strict_max_version: "9.0.*",
+      strict_max_version: "10.0.*",
       update_url: "https://raw.githubusercontent.com/cnteng/onedict/main/update.json",
     },
   },
