@@ -1,5 +1,5 @@
 import { type TokenType, tokenize } from "@common/tokenizer";
-import { cn } from "tailwind-variants";
+import { cn } from "cn";
 
 type EditorOptions = {
   ownerDocument?: Document;
@@ -16,11 +16,11 @@ type LineDiff = {
 
 const TOKEN_STYLES: Record<TokenType, string> = {
   text: "",
-  marker: cn("text-foreground/50") as string,
-  code: cn("bg-muted text-foreground rounded-sm px-1") as string,
-  bold: cn("underline decoration-2 underline-offset-2") as string,
-  italic: cn("underline decoration-dotted underline-offset-2") as string,
-  strike: cn("line-through") as string,
+  marker: cn("text-foreground/50"),
+  code: cn("bg-muted text-foreground rounded-sm px-1"),
+  bold: cn("underline decoration-2 underline-offset-2"),
+  italic: cn("underline decoration-dotted underline-offset-2"),
+  strike: cn("line-through"),
 };
 
 export class Editor {
@@ -40,23 +40,23 @@ export class Editor {
     this.onChanged = onChanged;
 
     this.element = this.ownerDocument.createElement("div");
-    this.element.className = cn("relative overflow-hidden", className) as string;
+    this.element.className = cn("relative overflow-hidden", className);
 
     this.highlight = this.ownerDocument.createElement("div");
     this.highlight.className = cn(
       "pointer-events-none absolute inset-0 overflow-auto p-3 font-mono text-sm leading-6 tab-2",
-    ) as string;
+    );
     this.highlight.setAttribute("aria-hidden", "true");
 
     this.placeholderEl = this.ownerDocument.createElement("div");
     this.placeholderEl.className = cn(
       "text-foreground/45 pointer-events-none absolute inset-0 p-3 font-mono text-sm leading-6 tab-2",
-    ) as string;
+    );
 
     this.textarea = this.ownerDocument.createElement("textarea");
     this.textarea.className = cn(
       "caret-foreground absolute inset-0 h-full w-full resize-none border-0 bg-transparent p-3 font-mono text-sm leading-6 tab-2 text-transparent outline-none",
-    ) as string;
+    );
     this.textarea.spellcheck = false;
     this.textarea.autocomplete = "off";
     this.textarea.setAttribute("contenteditable", "true");
@@ -141,7 +141,7 @@ function diffLines(oldLines: string[], newLines: string[]): LineDiff {
 
 function createLineElement(ownerDocument: Document, line: string) {
   const div = ownerDocument.createElement("div");
-  div.className = cn("wrap-break-word whitespace-pre-wrap") as string;
+  div.className = cn("wrap-break-word whitespace-pre-wrap");
 
   for (const token of tokenize(line)) {
     const span = ownerDocument.createElement("span");

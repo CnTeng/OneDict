@@ -4,6 +4,6 @@
     "newlinesBetween": false
   },
   "sortTailwindcss": {
-    "functions": ["tv", "cn", "cx"]
+    "functions": ["cn"]
   }
 }

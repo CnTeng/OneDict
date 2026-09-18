@@ -1,15 +1,14 @@
 import { BrowserPlatformServices } from "@services/browser";
 import { LookupPanel } from "@views/lookup-panel";
 import { SearchBar } from "@views/search-bar";
-import { cx } from "tailwind-variants";
+import { cn } from "cn";
 
 async function init() {
   const services = new BrowserPlatformServices();
   const app = document.createElement("div");
-  app.className =
-    cx(
-      "bg-background/96 text-foreground border-border/60 flex h-12 min-h-0 flex-col overflow-hidden border shadow-[0_10px_30px_rgb(0_0_0/0.10)] backdrop-blur-sm transition-[height] duration-300 ease-out data-[state=expanded]:h-[480px]",
-    ) ?? "";
+  app.className = cn(
+    "bg-background/96 text-foreground border-border/60 flex h-12 min-h-0 flex-col overflow-hidden border shadow-[0_10px_30px_rgb(0_0_0/0.10)] backdrop-blur-sm transition-[height] duration-300 ease-out data-[state=expanded]:h-[480px]",
+  );
   app.dataset.state = "collapsed";
 
   document.body.append(app);
@@ -21,7 +20,7 @@ async function init() {
 
   const stateView = new LookupPanel({
     container: app,
-    className: cx("flex min-h-0 flex-1 flex-col overflow-hidden"),
+    className: cn("flex min-h-0 flex-1 flex-col overflow-hidden"),
     ankiService: services.anki,
     configService: services.config.dictionary,
     dictionaryService: services.dictionary,

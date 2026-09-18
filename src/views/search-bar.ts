@@ -1,8 +1,8 @@
 import { Event } from "@common/event";
 import type { DictionaryEntry, IDictionaryService } from "@common/types";
 import { Icon, buttonStyles } from "@views/components";
+import { cn } from "cn";
 import { Search, Settings } from "lucide";
-import { cn } from "tailwind-variants";
 
 export interface SearchBarOptions {
   container: HTMLElement;
@@ -29,7 +29,7 @@ export class SearchBar {
     this.dictionaryService = dictionaryService;
 
     this.element = this.document.createElement("div");
-    this.element.className = cn("border-border bg-background w-full border-b px-3 py-2") as string;
+    this.element.className = cn("border-border bg-background w-full border-b px-3 py-2");
 
     this.render(this.element);
     container.append(this.element);
@@ -55,7 +55,7 @@ export class SearchBar {
     const row = this.document.createElement("div");
     row.className = cn(
       "border-border bg-muted focus-within:border-ring focus-within:ring-ring/20 grid w-full grid-cols-[32px_minmax(0,1fr)_32px] items-center rounded-full border shadow-sm transition-all focus-within:ring-2",
-    ) as string;
+    );
 
     this.renderSearchIcon(row);
     this.renderInput(row);
@@ -66,7 +66,7 @@ export class SearchBar {
 
   private renderSearchIcon(container: HTMLElement): void {
     const wrapper = this.document.createElement("span");
-    wrapper.className = cn("text-muted-foreground flex items-center justify-center") as string;
+    wrapper.className = cn("text-muted-foreground flex items-center justify-center");
 
     const icon = new Icon({
       doc: this.document,
@@ -82,7 +82,7 @@ export class SearchBar {
     this.searchInput = this.document.createElement("input");
     this.searchInput.className = cn(
       "text-foreground placeholder:text-muted-foreground w-full border-none bg-transparent px-2 py-1.5 text-sm shadow-none outline-none hover:border-transparent focus-visible:border-transparent focus-visible:shadow-none",
-    ) as string;
+    );
     this.searchInput.type = "text";
     this.searchInput.required = true;
     this.searchInput.placeholder = "Search ...";
@@ -98,7 +98,7 @@ export class SearchBar {
     button.className = cn(
       buttonStyles({ variant: "ghost", size: "iconSm" }),
       "text-muted-foreground hover:text-foreground",
-    ) as string;
+    );
     button.append(
       new Icon({
         doc: this.document,

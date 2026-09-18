@@ -8,7 +8,7 @@ import type {
   SelectOption,
 } from "@common/types";
 import { SortableList, createButton, createSelect } from "@views/components";
-import { cn } from "tailwind-variants";
+import { cn } from "cn";
 import { SectionIntro, SettingsGroup, SettingsRow } from "./elements";
 
 export interface DictionaryOptionsDependencies {
@@ -53,10 +53,10 @@ export class DictionaryOptions {
     this.deckOptions = [];
 
     this.element = this.document.createElement("section");
-    this.element.className = cn("space-y-4") as string;
+    this.element.className = cn("space-y-4");
 
     this.rulesBody = this.document.createElement("div");
-    this.rulesBody.className = cn("space-y-2") as string;
+    this.rulesBody.className = cn("space-y-2");
 
     this.addProviderSelect = this.createSelect();
     this.addButton = createButton({
@@ -135,7 +135,7 @@ export class DictionaryOptions {
 
   private renderAddProviderRow() {
     const controls = this.document.createElement("div");
-    controls.className = cn("flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center") as string;
+    controls.className = cn("flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center");
     controls.append(this.addProviderSelect, this.addButton);
 
     return new SettingsGroup(this.document, [
@@ -168,16 +168,14 @@ export class DictionaryOptions {
   ) {
     if (dictionaryConfig.length === 0) {
       const empty = this.document.createElement("p");
-      empty.className = cn(
-        "border-border text-muted-foreground rounded-md border p-4 text-sm",
-      ) as string;
+      empty.className = cn("border-border text-muted-foreground rounded-md border p-4 text-sm");
       empty.textContent = "No providers added.";
       this.rulesBody.replaceChildren(empty);
       return;
     }
 
     const rows = this.document.createElement("div");
-    rows.className = cn("border-border overflow-hidden rounded-md border") as string;
+    rows.className = cn("border-border overflow-hidden rounded-md border");
     rows.append(
       this.createRulesHeader(),
       new SortableList({
@@ -202,7 +200,7 @@ export class DictionaryOptions {
     const row = this.document.createElement("div");
     row.className = cn(
       "bg-muted/30 text-muted-foreground hidden px-4 py-2 text-xs font-medium md:grid md:grid-cols-[auto_minmax(0,1.1fr)_minmax(0,0.8fr)_minmax(0,1fr)_auto] md:gap-3",
-    ) as string;
+    );
 
     ["", "Provider", "Languages", "Deck", ""].forEach((text) => {
       const cell = this.document.createElement("div");
@@ -221,10 +219,10 @@ export class DictionaryOptions {
     const row = this.document.createElement("div");
     row.className = cn(
       "bg-background grid gap-3 p-4 md:grid-cols-[auto_minmax(0,1.1fr)_minmax(0,0.8fr)_minmax(0,1fr)_auto] md:items-center",
-    ) as string;
+    );
 
     const handleCell = this.document.createElement("div");
-    handleCell.className = cn("flex items-center justify-start md:justify-center") as string;
+    handleCell.className = cn("flex items-center justify-start md:justify-center");
     handleCell.append(dragHandle);
 
     const providerId = config.provider;
@@ -240,7 +238,7 @@ export class DictionaryOptions {
     );
 
     const actions = this.document.createElement("div");
-    actions.className = cn("flex flex-wrap gap-2 md:justify-end") as string;
+    actions.className = cn("flex flex-wrap gap-2 md:justify-end");
 
     const removeButton = createButton({
       doc: this.document,
@@ -262,16 +260,14 @@ export class DictionaryOptions {
 
   private renderStaticField(label: string, value: string) {
     const field = this.document.createElement("div");
-    field.className = cn("space-y-1") as string;
+    field.className = cn("space-y-1");
 
     const labelElement = this.document.createElement("p");
-    labelElement.className = cn(
-      "text-muted-foreground text-xs font-medium uppercase md:hidden",
-    ) as string;
+    labelElement.className = cn("text-muted-foreground text-xs font-medium uppercase md:hidden");
     labelElement.textContent = label;
 
     const valueElement = this.document.createElement("div");
-    valueElement.className = cn("text-foreground min-h-9 px-1 py-2 text-sm font-medium") as string;
+    valueElement.className = cn("text-foreground min-h-9 px-1 py-2 text-sm font-medium");
     valueElement.textContent = value;
 
     field.append(labelElement, valueElement);
@@ -280,12 +276,10 @@ export class DictionaryOptions {
 
   private renderControlField(label: string, control: HTMLElement) {
     const field = this.document.createElement("div");
-    field.className = cn("space-y-1") as string;
+    field.className = cn("space-y-1");
 
     const labelElement = this.document.createElement("p");
-    labelElement.className = cn(
-      "text-muted-foreground text-xs font-medium uppercase md:hidden",
-    ) as string;
+    labelElement.className = cn("text-muted-foreground text-xs font-medium uppercase md:hidden");
     labelElement.textContent = label;
 
     field.append(labelElement, control);

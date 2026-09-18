@@ -1,7 +1,7 @@
 import { extractContext } from "@common/context";
 import { LocalPlatformServices } from "@services/local";
 import { LookupPanel } from "@views/lookup-panel";
-import { cx } from "tailwind-variants";
+import { cn } from "cn";
 import popupStyle from "./popup.css?inline";
 
 const handler = (event: _ZoteroTypes.Reader.EventParams<"renderTextSelectionPopup">) => {
@@ -26,7 +26,7 @@ const handler = (event: _ZoteroTypes.Reader.EventParams<"renderTextSelectionPopu
 
   const stateView = new LookupPanel({
     container,
-    className: cx("flex min-h-0 flex-1 flex-col"),
+    className: cn("flex min-h-0 flex-1 flex-col"),
     ankiService: services.anki,
     configService: services.config.dictionary,
     dictionaryService: services.dictionary,

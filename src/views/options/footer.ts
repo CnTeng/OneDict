@@ -1,6 +1,6 @@
 import { Icon, createButton, setButtonLoading } from "@views/components";
+import { cn } from "cn";
 import { RotateCcw } from "lucide";
-import { cn } from "tailwind-variants";
 import { OptionsStatus } from "./elements";
 
 export class OptionsFooter {
@@ -18,7 +18,7 @@ export class OptionsFooter {
     this.element = this.document.createElement("div");
     this.element.className = cn(
       "border-border bg-muted/20 flex flex-col gap-3 border-t px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6",
-    ) as string;
+    );
 
     this.resetButton = this.renderResetButton();
     this.element.append(this.resetButton, this.renderMeta());
@@ -50,14 +50,12 @@ export class OptionsFooter {
 
   private renderMeta() {
     const hint = this.document.createElement("p");
-    hint.className = cn("text-muted-foreground text-xs") as string;
+    hint.className = cn("text-muted-foreground text-xs");
     hint.textContent =
       "Changes are saved automatically. Use reset only if you want to restore all defaults.";
 
     const footerRight = this.document.createElement("div");
-    footerRight.className = cn(
-      "flex w-full flex-col items-start gap-2 sm:w-auto sm:items-end",
-    ) as string;
+    footerRight.className = cn("flex w-full flex-col items-start gap-2 sm:w-auto sm:items-end");
     footerRight.append(hint, this.status.element);
     return footerRight;
   }

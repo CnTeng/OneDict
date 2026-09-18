@@ -1,9 +1,9 @@
 import { BrowserPlatformServices } from "@services/browser";
 import { OptionsPage } from "@views/options";
-import { cn } from "tailwind-variants";
+import { cn } from "cn";
 
 const root = document.createElement("div");
-root.className = cn("mx-auto min-h-screen max-w-3xl px-4 py-8 sm:py-10") as string;
+root.className = cn("mx-auto min-h-screen max-w-3xl px-4 py-8 sm:py-10");
 
 document.body.append(root);
 

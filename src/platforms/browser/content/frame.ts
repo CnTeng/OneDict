@@ -1,19 +1,18 @@
 import type { Context } from "@common/types";
 import { BrowserPlatformServices } from "@services/browser";
 import { LookupPanel } from "@views/lookup-panel";
-import { cx } from "tailwind-variants";
+import { cn } from "cn";
 
 function init() {
   const services = new BrowserPlatformServices();
   const app = document.createElement("div");
-  app.className =
-    cx("bg-background text-foreground flex h-full min-h-0 flex-col overflow-hidden") ?? "";
+  app.className = cn("bg-background text-foreground flex h-full min-h-0 flex-col overflow-hidden");
 
   document.body.append(app);
 
   const stateView = new LookupPanel({
     container: app,
-    className: cx("flex h-0 flex-1 flex-col"),
+    className: cn("flex h-0 flex-1 flex-col"),
     ankiService: services.anki,
     configService: services.config.dictionary,
     dictionaryService: services.dictionary,

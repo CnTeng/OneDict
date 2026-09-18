@@ -1,5 +1,5 @@
 import { tokenize } from "@common/tokenizer";
-import { cn } from "tailwind-variants";
+import { cn } from "cn";
 
 const MARKDOWN_TAGS = {
   bold: "strong",
@@ -25,7 +25,7 @@ export class DictionaryContextSection {
     this.context = context;
 
     this.element = this.document.createElement("div");
-    this.element.className = cn("mt-3.5 text-left") as string;
+    this.element.className = cn("mt-3.5 text-left");
     this.isEmpty = !this.context || this.context.trim() === "";
 
     if (this.isEmpty) return;
@@ -37,13 +37,13 @@ export class DictionaryContextSection {
     const label = this.document.createElement("div");
     label.className = cn(
       "text-muted-foreground mb-1.5 ml-1 text-[0.68rem] font-bold tracking-[0.14em] uppercase",
-    ) as string;
+    );
     label.textContent = "Context";
 
     const contentElement = this.document.createElement("div");
     contentElement.className = cn(
       "bg-secondary/35 text-foreground border-border/35 rounded-xl border px-4 py-3 text-[0.9rem] leading-relaxed italic shadow-sm",
-    ) as string;
+    );
     contentElement.append(this.renderMarkdown(this.context!.trim()));
 
     this.element.append(label, contentElement);
@@ -75,9 +75,7 @@ export class DictionaryContextSection {
 
     const element = this.document.createElement(MARKDOWN_TAGS[token.type] ?? "span");
     if (token.type === "code") {
-      element.className = cn(
-        "bg-muted text-foreground rounded-sm px-1 font-mono text-[0.85em]",
-      ) as string;
+      element.className = cn("bg-muted text-foreground rounded-sm px-1 font-mono text-[0.85em]");
     }
     element.textContent = token.value;
     fragment.append(element);

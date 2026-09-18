@@ -1,5 +1,5 @@
 import type { SelectOption } from "@common/types";
-import { cn } from "tailwind-variants";
+import { cn } from "cn";
 
 export type StatusLevel = "success" | "error" | "info" | "warning";
 
@@ -33,14 +33,14 @@ export class SectionIntro {
 
   private render() {
     const heading = this.doc.createElement("h2");
-    heading.className = cn("text-foreground text-xl font-semibold") as string;
+    heading.className = cn("text-foreground text-xl font-semibold");
     heading.textContent = this.title;
 
     const text = this.doc.createElement("p");
-    text.className = cn("text-muted-foreground text-sm") as string;
+    text.className = cn("text-muted-foreground text-sm");
     text.textContent = this.description;
 
-    this.element.className = cn("space-y-1") as string;
+    this.element.className = cn("space-y-1");
     this.element.append(heading, text);
   }
 }
@@ -53,7 +53,7 @@ export class SettingsGroup {
     rows: HTMLElement[],
   ) {
     this.element = this.doc.createElement("div");
-    this.element.className = cn("border-border divide-border divide-y rounded-md border") as string;
+    this.element.className = cn("border-border divide-border divide-y rounded-md border");
     this.element.append(...rows);
   }
 }
@@ -73,16 +73,16 @@ export class SettingsRow {
   private render() {
     this.element.className = cn(
       "grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_minmax(220px,320px)] sm:items-center",
-    ) as string;
+    );
     this.element.append(this.renderText(), this.renderContent());
   }
 
   private renderText() {
     const wrapper = this.doc.createElement("div");
-    wrapper.className = cn("min-w-0 space-y-1") as string;
+    wrapper.className = cn("min-w-0 space-y-1");
 
     const labelElement = this.doc.createElement("label");
-    labelElement.className = cn("text-foreground text-sm font-medium") as string;
+    labelElement.className = cn("text-foreground text-sm font-medium");
     labelElement.textContent = this.label;
     if (this.options.htmlFor) labelElement.htmlFor = this.options.htmlFor;
 
@@ -90,7 +90,7 @@ export class SettingsRow {
 
     if (this.options.description) {
       const description = this.doc.createElement("p");
-      description.className = cn("text-muted-foreground text-sm") as string;
+      description.className = cn("text-muted-foreground text-sm");
       description.textContent = this.options.description;
       wrapper.append(description);
     }
@@ -100,7 +100,7 @@ export class SettingsRow {
 
   private renderContent() {
     const content = this.doc.createElement("div");
-    content.className = cn("min-w-0") as string;
+    content.className = cn("min-w-0");
     content.append(
       ...(Array.isArray(this.options.children) ? this.options.children : [this.options.children]),
     );
@@ -140,7 +140,7 @@ export class OptionsStatus {
     this.element = this.doc.createElement("div");
     this.element.className = cn(
       "text-muted-foreground hidden translate-y-2 text-sm font-medium opacity-0 transition-all sm:max-w-md",
-    ) as string;
+    );
   }
 
   show(message: string, level: StatusLevel) {

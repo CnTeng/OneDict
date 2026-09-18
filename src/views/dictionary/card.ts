@@ -1,5 +1,5 @@
 import type { DictionaryEntry } from "@common/types";
-import { cn } from "tailwind-variants";
+import { cn } from "cn";
 import {
   DictionaryContextSection,
   DictionaryDefinitionsSection,
@@ -26,7 +26,7 @@ export class AnkiCardFront {
     this.soundLinks = soundLinks;
 
     this.element = this.document.createElement("div");
-    this.element.className = cn("mx-auto max-w-150 p-5 pt-10") as string;
+    this.element.className = cn("mx-auto max-w-150 p-5 pt-10");
 
     this.render();
     container.append(this.element);
@@ -38,14 +38,14 @@ export class AnkiCardFront {
       word: this.entry.word,
       provider: this.entry.metadata.providerName,
     }).element;
-    header.className = cn("mb-4 flex items-baseline justify-center gap-3") as string;
+    header.className = cn("mb-4 flex items-baseline justify-center gap-3");
 
     const metadataSection = new DictionaryMetadataSection({
       container: this.element,
       metadata: this.entry.metadata,
     });
     const metadata = metadataSection.isEmpty ? null : metadataSection.element;
-    if (metadata) metadata.className = cn("mb-4 flex justify-center") as string;
+    if (metadata) metadata.className = cn("mb-4 flex justify-center");
 
     const pronunciationsSection = new DictionaryPronunciationsSection({
       container: this.element,
@@ -54,9 +54,7 @@ export class AnkiCardFront {
     });
     const pronunciations = pronunciationsSection.isEmpty ? null : pronunciationsSection.element;
     if (pronunciations) {
-      pronunciations.className = cn(
-        "text-foreground/60 flex justify-center gap-6 text-[1rem]",
-      ) as string;
+      pronunciations.className = cn("text-foreground/60 flex justify-center gap-6 text-[1rem]");
     }
 
     new DictionaryContextSection({
@@ -81,7 +79,7 @@ export class AnkiCardBack {
     this.entry = entry;
 
     this.element = this.document.createElement("div");
-    this.element.className = cn("mx-auto max-w-150 p-5 pt-0 text-left") as string;
+    this.element.className = cn("mx-auto max-w-150 p-5 pt-0 text-left");
 
     this.render();
     container.append(this.element);

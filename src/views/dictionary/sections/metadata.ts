@@ -1,13 +1,13 @@
 import type { Metadata } from "@common/types";
 import { Icon } from "@views/components";
+import { cn } from "cn";
 import { Star } from "lucide";
-import { cn } from "tailwind-variants";
 
 const FREQUENCY_STAR_COUNT = 5;
 const metadataBadgeClass = cn(
   "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium",
   "bg-secondary text-secondary-foreground border-[color-mix(in_srgb,var(--border)_70%,transparent)]",
-) as string;
+);
 
 export interface DictionaryMetadataSectionOptions {
   container: HTMLElement | DocumentFragment;
@@ -26,7 +26,7 @@ export class DictionaryMetadataSection {
     this.metadata = metadata;
 
     this.element = this.document.createElement("div");
-    this.element.className = cn("mb-2.5 flex items-center gap-3") as string;
+    this.element.className = cn("mb-2.5 flex items-center gap-3");
 
     const tags = this.metadata.tags ?? [];
     const frequency = this.metadata.frequency ?? 0;
@@ -49,7 +49,7 @@ export class DictionaryMetadataSection {
     if (frequency <= 0) return null;
 
     const container = this.document.createElement("div");
-    container.className = cn("flex items-center gap-0.5") as string;
+    container.className = cn("flex items-center gap-0.5");
 
     for (let i = 0; i < FREQUENCY_STAR_COUNT; i++) {
       container.append(
@@ -73,7 +73,7 @@ export class DictionaryMetadataSection {
     if (tags.length === 0) return null;
 
     const container = this.document.createElement("div");
-    container.className = cn("flex flex-wrap gap-1") as string;
+    container.className = cn("flex flex-wrap gap-1");
 
     tags.forEach((tag) => {
       const badge = this.document.createElement("span");
