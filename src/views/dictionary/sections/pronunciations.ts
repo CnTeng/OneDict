@@ -1,7 +1,7 @@
 import type { Pronunciation } from "@common/types";
 import { Icon, buttonStyles } from "@views/components";
+import { cn } from "cn";
 import { Play } from "lucide";
-import { cn } from "tailwind-variants";
 
 export interface DictionaryPronunciationsSectionOptions {
   container: HTMLElement | DocumentFragment;
@@ -23,7 +23,7 @@ export class DictionaryPronunciationsSection {
     this.soundLinks = soundLinks;
 
     this.element = this.document.createElement("div");
-    this.element.className = cn("mb-2.5 flex flex-wrap gap-3.5") as string;
+    this.element.className = cn("mb-2.5 flex flex-wrap gap-3.5");
     this.isEmpty = !this.pronunciations || this.pronunciations.length === 0;
 
     if (this.isEmpty) return;
@@ -34,20 +34,20 @@ export class DictionaryPronunciationsSection {
   private render() {
     this.pronunciations.forEach(({ type, text, audioUrl }, index) => {
       const item = this.document.createElement("div");
-      item.className = cn("flex items-center gap-1.5") as string;
+      item.className = cn("flex items-center gap-1.5");
 
       if (type) {
         const typeElement = this.document.createElement("span");
         typeElement.className = cn(
           "text-muted-foreground text-xs font-semibold uppercase opacity-70",
-        ) as string;
+        );
         typeElement.textContent = type;
         item.append(typeElement);
       }
 
       if (text) {
         const textElement = this.document.createElement("span");
-        textElement.className = cn("text-foreground font-mono text-[0.92rem]") as string;
+        textElement.className = cn("text-foreground font-mono text-[0.92rem]");
         textElement.textContent = text;
         item.append(textElement);
       }

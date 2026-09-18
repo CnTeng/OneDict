@@ -1,8 +1,4 @@
-import { tv } from "tailwind-variants";
-
-const inputStyles = tv({
-  base: "border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring block h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-[border-color,box-shadow] outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50",
-});
+import { cn } from "cn";
 
 type InputOptions = {
   doc?: Document;
@@ -23,6 +19,9 @@ export function createInput({
   input.type = type;
   if (id) input.id = id;
   if (placeholder) input.placeholder = placeholder;
-  input.className = inputStyles({ className });
+  input.className = cn(
+    "border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring block h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-[border-color,box-shadow] outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50",
+    className,
+  );
   return input;
 }

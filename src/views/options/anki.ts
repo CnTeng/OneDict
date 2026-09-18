@@ -1,8 +1,8 @@
 import type { Event } from "@common/event";
 import type { AnkiConfig, IAnkiConfigService, IAnkiService } from "@common/types";
 import { Icon, createButton, createInput, setButtonLoading } from "@views/components";
+import { cn } from "cn";
 import { RefreshCw } from "lucide";
-import { cn } from "tailwind-variants";
 import { SectionIntro, SettingsGroup, SettingsRow, type StatusLevel } from "./elements";
 
 export interface AnkiOptionsDependencies {
@@ -43,7 +43,7 @@ export class AnkiOptions {
     this.showStatus = showStatus;
 
     this.element = this.document.createElement("section");
-    this.element.className = cn("space-y-4") as string;
+    this.element.className = cn("space-y-4");
 
     this.urlInput = createInput({
       doc: this.document,
@@ -128,7 +128,7 @@ export class AnkiOptions {
 
   private renderControlRow(children: HTMLElement[]) {
     const row = this.document.createElement("div");
-    row.className = cn("flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center") as string;
+    row.className = cn("flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center");
     row.append(...children);
     return row;
   }

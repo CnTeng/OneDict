@@ -1,5 +1,5 @@
+import { cn } from "cn";
 import { GripVertical } from "lucide";
-import { cn } from "tailwind-variants";
 import { buttonStyles } from "./button";
 import { Icon } from "./icon";
 
@@ -65,7 +65,7 @@ export class SortableList<T> {
   }
 
   private render() {
-    this.element.className = cn(this.className ?? "space-y-2") as string;
+    this.element.className = cn(this.className ?? "space-y-2");
     this.element.replaceChildren(...this.items.map((item) => this.createItem(item)));
   }
 
@@ -77,7 +77,7 @@ export class SortableList<T> {
     row.draggable = false;
     row.className = cn(
       "relative rounded-lg transition-[transform,box-shadow,opacity] data-[dragging=true]:scale-[0.99] data-[dragging=true]:opacity-60",
-    ) as string;
+    );
 
     const dragHandle = this.doc.createElement("span");
     dragHandle.title = "Drag to reorder";

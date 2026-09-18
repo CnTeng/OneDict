@@ -1,5 +1,5 @@
 import type { Definition, Example } from "@common/types";
-import { cn } from "tailwind-variants";
+import { cn } from "cn";
 import { AnkiAddButton } from "./anki-add-button";
 
 export interface DictionaryDefinitionsSectionOptions {
@@ -34,7 +34,7 @@ export class DictionaryDefinitionsSection {
     this.toggleTranslation = toggleTranslation;
 
     this.element = this.document.createElement("div");
-    this.element.className = cn("divide-border flex flex-col divide-y") as string;
+    this.element.className = cn("divide-border flex flex-col divide-y");
     this.isEmpty = !this.definitions || this.definitions.length === 0;
 
     if (this.isEmpty) return;
@@ -55,7 +55,7 @@ export class DictionaryDefinitionsSection {
     if (this.toggleTranslation) {
       container.dataset.state = "closed";
       container.setAttribute("role", "button");
-      container.className = cn(baseClass, "group cursor-pointer outline-none") as string;
+      container.className = cn(baseClass, "group cursor-pointer outline-none");
       container.onclick = (event) => {
         event.stopPropagation();
         const isClosed = container.dataset.state === "closed";
@@ -66,7 +66,7 @@ export class DictionaryDefinitionsSection {
     }
 
     const headerRow = this.document.createElement("div");
-    headerRow.className = cn("flex flex-1 items-start justify-between gap-2") as string;
+    headerRow.className = cn("flex flex-1 items-start justify-between gap-2");
     headerRow.append(this.createDefinitionContent(definition));
 
     if (this.showAddButton) {
@@ -83,19 +83,17 @@ export class DictionaryDefinitionsSection {
 
   private createDefinitionContent(definition: Definition): HTMLDivElement {
     const container = this.document.createElement("div");
-    container.className = cn("leading-relaxed") as string;
+    container.className = cn("leading-relaxed");
 
     if (definition.partOfSpeech) {
       const posElement = this.document.createElement("span");
-      posElement.className = cn(
-        "text-muted-foreground mr-2 font-serif text-xs font-medium italic",
-      ) as string;
+      posElement.className = cn("text-muted-foreground mr-2 font-serif text-xs font-medium italic");
       posElement.textContent = definition.partOfSpeech;
       container.append(posElement);
     }
 
     const textElement = this.document.createElement("span");
-    textElement.className = cn("text-foreground text-[0.95rem] leading-relaxed") as string;
+    textElement.className = cn("text-foreground text-[0.95rem] leading-relaxed");
     textElement.textContent = definition.text;
     container.append(textElement);
 
@@ -106,7 +104,7 @@ export class DictionaryDefinitionsSection {
     if (!examples || examples.length === 0) return null;
 
     const list = this.document.createElement("ul");
-    list.className = cn("mt-1.5 list-disc flex-col space-y-1.5 pl-4") as string;
+    list.className = cn("mt-1.5 list-disc flex-col space-y-1.5 pl-4");
     examples.forEach((example) => {
       list.append(this.createExampleItem(example));
     });
@@ -116,7 +114,7 @@ export class DictionaryDefinitionsSection {
 
   private createExampleItem(example: Example): HTMLLIElement {
     const item = this.document.createElement("li");
-    item.className = cn("text-muted-foreground text-sm leading-relaxed") as string;
+    item.className = cn("text-muted-foreground text-sm leading-relaxed");
 
     const textElement = this.document.createElement("span");
     textElement.textContent = example.text;
@@ -132,7 +130,7 @@ export class DictionaryDefinitionsSection {
         "group-data-[state=closed]:rounded",
         "group-data-[state=closed]:px-1",
         "group-data-[state=closed]:py-0.5",
-      ) as string;
+      );
       translationElement.textContent = ` ${example.translation}`;
       item.append(translationElement);
     }

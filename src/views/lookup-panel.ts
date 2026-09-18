@@ -8,8 +8,8 @@ import type {
 } from "@common/types";
 import { DropdownButton, Editor, Icon, type IconOptions } from "@views/components";
 import { DictionaryEntry as DictionaryEntrySection } from "@views/dictionary/entry";
+import { cn } from "cn";
 import { LoaderCircle, SearchX, TriangleAlert } from "lucide";
-import { cn } from "tailwind-variants";
 
 interface LookupRequest {
   word: string;
@@ -57,19 +57,19 @@ export class LookupPanel {
     this.dictionaryService = dictionaryService;
 
     this.element = this.document.createElement("div");
-    this.element.className = className ?? cn("flex min-h-0 flex-1 flex-col") ?? "";
+    this.element.className = className ?? cn("flex min-h-0 flex-1 flex-col");
 
     if (this.configService && this.dictionaryService) {
       this.header = this.document.createElement("div");
       this.header.className = cn(
         "border-border/80 bg-background/95 flex items-center justify-between gap-3 border-b px-4 py-3",
-      ) as string;
+      );
       this.header.hidden = true;
 
       this.headerWord = this.document.createElement("h2");
       this.headerWord.className = cn(
         "text-foreground min-w-0 truncate text-[1.1rem] leading-tight font-semibold tracking-tight",
-      ) as string;
+      );
 
       this.providerDropdown = new DropdownButton({
         doc: this.document,
@@ -89,7 +89,7 @@ export class LookupPanel {
     }
 
     this.content = this.document.createElement("div");
-    this.content.className = cn("flex min-h-0 flex-1 flex-col") as string;
+    this.content.className = cn("flex min-h-0 flex-1 flex-col");
     this.element.append(this.content);
 
     container.append(this.element);
@@ -139,14 +139,14 @@ export class LookupPanel {
 
   private createContent(entry: DictionaryEntry) {
     const container = this.document.createElement("div");
-    container.className = cn("flex h-0 flex-1 flex-col overflow-hidden") as string;
+    container.className = cn("flex h-0 flex-1 flex-col overflow-hidden");
     container.append(this.renderScrollArea(entry), this.renderEditorWrapper(entry));
     return container;
   }
 
   private renderScrollArea(entry: DictionaryEntry) {
     const scrollArea = this.document.createElement("div");
-    scrollArea.className = cn("h-0 flex-1 overflow-y-auto px-4 py-3") as string;
+    scrollArea.className = cn("h-0 flex-1 overflow-y-auto px-4 py-3");
     new DictionaryEntrySection({
       container: scrollArea,
       entry,
@@ -157,11 +157,11 @@ export class LookupPanel {
 
   private renderEditorWrapper(entry: DictionaryEntry) {
     const editorWrapper = this.document.createElement("div");
-    editorWrapper.className = cn("border-border/80 bg-muted/80 shrink-0 border-t") as string;
+    editorWrapper.className = cn("border-border/80 bg-muted/80 shrink-0 border-t");
 
     const editor = new Editor({
       ownerDocument: this.document,
-      className: cn("h-[20%] min-h-24") as string,
+      className: cn("h-[20%] min-h-24"),
       placeholder: "Context / Note (Markdown supported)...",
       onChanged: (context) => (entry.context = context),
     });
@@ -178,8 +178,8 @@ export class LookupPanel {
       iconClassName: "animate-spin",
       containerClassName: cn(
         "text-foreground/80 flex flex-col items-center justify-center gap-3 py-8",
-      ) as string,
-      textClassName: cn("text-foreground animate-pulse text-sm") as string,
+      ),
+      textClassName: cn("text-foreground animate-pulse text-sm"),
     });
   }
 
@@ -189,8 +189,8 @@ export class LookupPanel {
       iconNode: SearchX,
       containerClassName: cn(
         "text-foreground/80 flex flex-col items-center justify-center gap-3 py-8",
-      ) as string,
-      textClassName: cn("text-foreground text-sm") as string,
+      ),
+      textClassName: cn("text-foreground text-sm"),
     });
   }
 
@@ -199,7 +199,7 @@ export class LookupPanel {
       message,
       iconNode: TriangleAlert,
       containerClassName: "flex flex-col items-center justify-center gap-3 py-8",
-      textClassName: cn("text-destructive text-sm") as string,
+      textClassName: cn("text-destructive text-sm"),
     });
   }
 

@@ -1,4 +1,4 @@
-import { cn } from "tailwind-variants";
+import { cn } from "cn";
 import { buttonStyles } from "./button";
 
 export interface DropdownButtonOption {
@@ -35,7 +35,7 @@ export class DropdownButton {
     this.onSelect = onSelect;
 
     this.element = doc.createElement("div");
-    this.element.className = cn("relative shrink-0") as string;
+    this.element.className = cn("relative shrink-0");
 
     this.button = doc.createElement("button");
     this.button.type = "button";
@@ -44,13 +44,13 @@ export class DropdownButton {
       buttonStyles({ variant: "ghost" }),
       "text-muted-foreground hover:text-foreground h-8 min-h-8 rounded-full px-3 py-1 text-xs font-medium",
       buttonClassName,
-    ) as string;
+    );
 
     this.menu = doc.createElement("div");
     this.menu.className = cn(
       "border-border bg-background absolute top-full right-0 z-20 mt-2 hidden min-w-52 overflow-hidden rounded-xl border p-1 shadow-lg",
       menuClassName,
-    ) as string;
+    );
 
     this.button.addEventListener("click", () => this.toggle());
     doc.addEventListener("mousedown", this.handleDocumentMouseDown);
@@ -76,7 +76,7 @@ export class DropdownButton {
           "hover:bg-muted text-foreground flex w-full items-center rounded-lg px-3 py-2 text-left text-sm",
           value === selectedValue ? "bg-muted font-medium" : "",
           this.optionClassName,
-        ) as string;
+        );
         option.textContent = label;
         option.addEventListener("click", () => {
           this.hide();

@@ -1,6 +1,6 @@
 import { Event } from "@common/event";
 import type { IAnkiService, IConfigService, IDictionaryService } from "@common/types";
-import { cn } from "tailwind-variants";
+import { cn } from "cn";
 import { AnkiOptions } from "./anki";
 import { DictionaryOptions } from "./dict";
 import { OptionsFooter } from "./footer";
@@ -62,10 +62,10 @@ export class OptionsPage {
     const frame = this.document.createElement("div");
     frame.className = cn(
       "border-border bg-background w-full overflow-hidden rounded-lg border shadow-xs",
-    ) as string;
+    );
 
     const sections = this.document.createElement("div");
-    sections.className = cn("space-y-10 px-4 py-6 sm:px-6") as string;
+    sections.className = cn("space-y-10 px-4 py-6 sm:px-6");
 
     this.dictionaryOptions = new DictionaryOptions({
       container: sections,
@@ -120,7 +120,7 @@ export class OptionsPage {
 
   private static createStateMessage(doc: Document, message: string) {
     const element = doc.createElement("div");
-    element.className = cn("p-4 text-sm") as string;
+    element.className = cn("p-4 text-sm");
     element.textContent = message;
     return element;
   }

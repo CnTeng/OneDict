@@ -1,25 +1,17 @@
-import { tv } from "tailwind-variants";
+import { cn } from "cn";
 
-export const buttonStyles = tv({
-  base: "inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md border px-3 text-sm font-medium whitespace-nowrap shadow-xs transition-[background-color,border-color,color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50",
-  variants: {
-    variant: {
-      outline:
-        "border-input bg-background text-foreground hover:bg-muted/70 focus-visible:border-ring focus-visible:ring-ring focus-visible:ring-1",
-      ghost:
-        "text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-ring border-transparent bg-transparent shadow-none focus-visible:ring-1",
-    },
-    size: {
-      default: "",
-      iconSm: "h-8 w-8 p-0",
-      iconXs: "h-6 w-6 p-0",
-    },
-  },
-  defaultVariants: {
-    variant: "outline",
-    size: "default",
-  },
-});
+const buttonVariants = {
+  outline:
+    "border-input bg-background text-foreground hover:bg-muted/70 focus-visible:border-ring focus-visible:ring-ring focus-visible:ring-1",
+  ghost:
+    "text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-ring border-transparent bg-transparent shadow-none focus-visible:ring-1",
+};
+
+const buttonSizes = {
+  default: "",
+  iconSm: "h-8 w-8 p-0",
+  iconXs: "h-6 w-6 p-0",
+};
 
 const previousDisabledState = new WeakMap<HTMLButtonElement, boolean>();
 
@@ -27,9 +19,22 @@ type ButtonOptions = {
   doc?: Document;
   title?: string;
   className?: string;
-  variant?: "outline" | "ghost";
-  size?: "default" | "iconSm" | "iconXs";
+  variant?: keyof typeof buttonVariants;
+  size?: keyof typeof buttonSizes;
 };
+
+export function buttonStyles({
+  variant = "outline",
+  size = "default",
+  className,
+}: Pick<ButtonOptions, "variant" | "size" | "className"> = {}) {
+  return cn(
+    "inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md border px-3 text-sm font-medium whitespace-nowrap shadow-xs transition-[background-color,border-color,color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50",
+    buttonVariants[variant],
+    buttonSizes[size],
+    className,
+  );
+}
 
 export function createButton({
   doc = document,
