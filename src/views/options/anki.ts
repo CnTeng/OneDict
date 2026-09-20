@@ -1,15 +1,19 @@
-import type { Event } from "@common/event";
-import type { AnkiConfig, IAnkiConfigService, IAnkiService } from "@common/types";
-import { Icon, createButton, createInput, setButtonLoading } from "@views/components";
+import type { AnkiConfig, IAnkiConfigService, IAnkiService, SelectOption } from "@common/types";
+import { Icon, createButton, createInput, createSelect, setButtonLoading } from "@views/components";
 import { cn } from "cn";
 import { RefreshCw } from "lucide";
-import { SectionIntro, SettingsGroup, SettingsRow, type StatusLevel } from "./elements";
+import {
+  SectionIntro,
+  SelectOptions,
+  SettingsGroup,
+  SettingsRow,
+  type StatusLevel,
+} from "./elements";
 
 export interface AnkiOptionsDependencies {
   container: HTMLElement;
   ankiService: IAnkiService;
   configService: IAnkiConfigService;
-  didChangeDecks: Event<void>;
   showStatus: (level: StatusLevel, message: string) => void;
 }
 
@@ -19,27 +23,21 @@ export class AnkiOptions {
   private readonly document: Document;
   private readonly ankiService: IAnkiService;
   private readonly configService: IAnkiConfigService;
-  private readonly didChangeDecks: Event<void>;
   private readonly showStatus: (level: StatusLevel, message: string) => void;
 
   private readonly urlInput: HTMLInputElement;
+  private readonly deckSelect: HTMLSelectElement;
   private readonly refreshButton: HTMLButtonElement;
   private readonly setupButton: HTMLButtonElement;
 
-  private config: AnkiConfig = { connectUrl: "" };
+  private config: AnkiConfig = { connectUrl: "", deck: "" };
+  private deckOptions: SelectOption[] = [];
   private readonly unsubscribeConfigChange: () => void;
 
-  constructor({
-    container,
-    ankiService,
-    configService,
-    didChangeDecks,
-    showStatus,
-  }: AnkiOptionsDependencies) {
+  constructor({ container, ankiService, configService, showStatus }: AnkiOptionsDependencies) {
     this.document = container.ownerDocument;
     this.ankiService = ankiService;
     this.configService = configService;
-    this.didChangeDecks = didChangeDecks;
     this.showStatus = showStatus;
 
     this.element = this.document.createElement("section");
@@ -50,6 +48,8 @@ export class AnkiOptions {
       id: "anki-url",
       placeholder: this.config.connectUrl,
     });
+
+    this.deckSelect = createSelect({ doc: this.document, id: "anki-deck" });
 
     this.refreshButton = createButton({
       doc: this.document,
@@ -97,10 +97,26 @@ export class AnkiOptions {
 
   render() {
     this.urlInput.value = this.config.connectUrl;
+    const deckOptions = this.deckOptions.some(({ value }) => value === this.config.deck)
+      ? this.deckOptions
+      : [{ value: this.config.deck, label: this.config.deck }, ...this.deckOptions].filter(
+          ({ value }) => value,
+        );
+    new SelectOptions(
+      this.document,
+      this.deckSelect,
+      [{ value: "", label: "No deck" }, ...deckOptions],
+      this.config.deck,
+    ).render();
   }
 
   private async load() {
-    this.updateConfig(await this.configService.get());
+    const [config, decks] = await Promise.all([
+      this.configService.get(),
+      this.ankiService.getDecks().catch(() => []),
+    ]);
+    this.updateConfig(config);
+    this.deckOptions = this.toSelectOptions(decks);
     this.render();
   }
 
@@ -109,6 +125,11 @@ export class AnkiOptions {
       new SettingsRow(this.document, "AnkiConnect URL", {
         htmlFor: "anki-url",
         children: this.renderControlRow([this.urlInput, this.refreshButton]),
+      }).element,
+      new SettingsRow(this.document, "Deck", {
+        htmlFor: "anki-deck",
+        children: this.deckSelect,
+        description: "New cards are always added to this deck.",
       }).element,
       new SettingsRow(this.document, "Template", {
         children: this.renderControlRow([this.setupButton]),
@@ -120,7 +141,7 @@ export class AnkiOptions {
       new SectionIntro(
         this.document,
         "Anki",
-        "Connect to Anki and keep the built-in note template up to date.",
+        "Connect to Anki, choose where cards are saved, and keep the template up to date.",
       ).element,
       group,
     );
@@ -144,6 +165,16 @@ export class AnkiOptions {
       });
     });
 
+    this.deckSelect.addEventListener("change", () => {
+      this.config = {
+        ...this.config,
+        deck: this.deckSelect.value,
+      };
+      void this.configService.update(this.config).catch((error) => {
+        this.showActionError("Failed to save Anki deck", error);
+      });
+    });
+
     this.refreshButton.addEventListener("click", () => {
       void this.refreshAnkiState();
     });
@@ -159,8 +190,9 @@ export class AnkiOptions {
 
     await this.ankiService
       .getDecks()
-      .then(() => {
-        this.didChangeDecks.emit();
+      .then((decks) => {
+        this.deckOptions = this.toSelectOptions(decks);
+        this.render();
         this.showStatus("success", "Anki connection successful!");
       })
       .catch((error) => {
@@ -181,7 +213,6 @@ export class AnkiOptions {
     await this.ankiService
       .syncTemplate()
       .then(() => {
-        this.didChangeDecks.emit();
         this.showStatus("success", "Anki template is up to date!");
       })
       .catch((error) => {
@@ -200,5 +231,9 @@ export class AnkiOptions {
       "error",
       `${message}: ${error instanceof Error ? error.message : String(error)}`,
     );
+  }
+
+  private toSelectOptions(values: string[]): SelectOption[] {
+    return values.map((value) => ({ value, label: value }));
   }
 }

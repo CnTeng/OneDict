@@ -8,5 +8,6 @@ export function normalizeAnkiConfig(ankiConfig?: unknown): AnkiConfig {
   return {
     connectUrl:
       typeof config.connectUrl === "string" ? config.connectUrl : DEFAULT_ANKI_CONFIG.connectUrl,
+    deck: typeof config.deck === "string" ? config.deck : DEFAULT_ANKI_CONFIG.deck,
   };
 }

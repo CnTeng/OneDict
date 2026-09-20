@@ -13,7 +13,6 @@ function normalizeProviderConfig(config: unknown): ProviderConfig {
 
   return {
     provider: typeof providerConfig.provider === "string" ? providerConfig.provider : "",
-    deck: typeof providerConfig.deck === "string" ? providerConfig.deck : "",
   };
 }
 

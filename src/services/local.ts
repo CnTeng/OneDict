@@ -6,7 +6,6 @@ import type {
   IAnkiService,
   IConfigService,
   IDictionaryService,
-  ProviderConfig,
 } from "@common/types";
 import { type AnkiClient, createAnkiClient } from "@services/anki";
 import { config as configService } from "@services/config";
@@ -65,36 +64,10 @@ function resolveLookupProviders(
   dictionaryConfig: DictionaryConfig,
 ) {
   const selectedProvider = context?.provider?.trim();
-  if (selectedProvider) {
-    return [
-      {
-        provider: selectedProvider,
-        deck: "",
-      } satisfies ProviderConfig,
-    ];
-  }
+  if (selectedProvider) return [{ provider: selectedProvider }];
 
   if (!language) return [];
   return resolveConfiguredProvider(language, dictionaryConfig);
-}
-
-function getProviderRule(
-  dictionaryConfig: DictionaryConfig,
-  providerId: string | undefined,
-  language: string | undefined,
-) {
-  if (!providerId) return null;
-
-  return (
-    dictionaryConfig.find(
-      (config) =>
-        config.provider === providerId &&
-        (!language ||
-          dictionary.getProvider(config.provider)?.supportedLanguages.includes(language)),
-    ) ??
-    dictionaryConfig.find((config) => config.provider === providerId) ??
-    null
-  );
 }
 
 class LocalDictionaryService implements IDictionaryService {
@@ -137,14 +110,9 @@ class LocalAnkiService implements IAnkiService {
 
   async createNote(result: DictionaryEntry): Promise<void> {
     const userConfig = await this.configService.get();
-    const providerRule = getProviderRule(
-      userConfig.dictionary,
-      result.metadata.providerId,
-      result.metadata.language,
-    );
-    if (!providerRule?.deck) return;
+    if (!userConfig.anki.deck) return;
 
-    await (await this.getAnki()).createNote(providerRule.deck, result);
+    await (await this.getAnki()).createNote(userConfig.anki.deck, result);
   }
 
   async getDecks(): Promise<string[]> {
