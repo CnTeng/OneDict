@@ -1,11 +1,8 @@
-import type { Event } from "@common/event";
 import type {
   DictionaryConfig,
   DictionaryProviderInfo,
-  IAnkiService,
   IDictionaryConfigService,
   IDictionaryService,
-  SelectOption,
 } from "@common/types";
 import { SortableList, createButton, createSelect } from "@views/components";
 import { cn } from "cn";
@@ -13,9 +10,7 @@ import { SectionIntro, SettingsGroup, SettingsRow } from "./elements";
 
 export interface DictionaryOptionsDependencies {
   container: HTMLElement;
-  ankiService: IAnkiService;
   configService: IDictionaryConfigService;
-  didChangeDecks: Event<void>;
   dictionaryService: IDictionaryService;
 }
 
@@ -23,9 +18,7 @@ export class DictionaryOptions {
   readonly element: HTMLElement;
 
   private readonly document: Document;
-  private readonly ankiService: IAnkiService;
   private readonly configService: IDictionaryConfigService;
-  private readonly didChangeDecks: Event<void>;
   private readonly dictionaryService: IDictionaryService;
   private readonly languageDisplayNames = new Intl.DisplayNames(["en"], { type: "language" });
   private readonly rulesBody: HTMLDivElement;
@@ -33,24 +26,13 @@ export class DictionaryOptions {
   private readonly addButton: HTMLButtonElement;
   private config: DictionaryConfig = [];
   private providers: DictionaryProviderInfo[];
-  private deckOptions: SelectOption[];
   private readonly unsubscribeConfigChange: () => void;
-  private readonly unsubscribeDecksChange: () => void;
 
-  constructor({
-    container,
-    ankiService,
-    configService,
-    didChangeDecks,
-    dictionaryService,
-  }: DictionaryOptionsDependencies) {
+  constructor({ container, configService, dictionaryService }: DictionaryOptionsDependencies) {
     this.document = container.ownerDocument;
-    this.ankiService = ankiService;
     this.configService = configService;
-    this.didChangeDecks = didChangeDecks;
     this.dictionaryService = dictionaryService;
     this.providers = [];
-    this.deckOptions = [];
 
     this.element = this.document.createElement("section");
     this.element.className = cn("space-y-4");
@@ -68,11 +50,6 @@ export class DictionaryOptions {
 
     this.renderStructure();
     this.registerListeners();
-    this.unsubscribeDecksChange = this.didChangeDecks.on(() => {
-      void this.refreshDeckOptions().catch((error) => {
-        this.showConfigError(error);
-      });
-    });
     this.unsubscribeConfigChange = this.configService.onDidChange((config) => {
       this.updateConfig(config);
       this.render();
@@ -85,7 +62,6 @@ export class DictionaryOptions {
   }
 
   dispose() {
-    this.unsubscribeDecksChange();
     this.unsubscribeConfigChange();
   }
 
@@ -94,19 +70,12 @@ export class DictionaryOptions {
   }
 
   async load() {
-    const [config, providers, decks] = await Promise.all([
+    const [config, providers] = await Promise.all([
       this.configService.get(),
       this.dictionaryService.getProviders(),
-      this.ankiService.getDecks().catch(() => []),
     ]);
     this.config = config;
     this.providers = providers;
-    this.deckOptions = this.toSelectOptions(decks);
-    this.render();
-  }
-
-  async refreshDeckOptions() {
-    this.deckOptions = this.toSelectOptions(await this.ankiService.getDecks());
     this.render();
   }
 
@@ -123,11 +92,8 @@ export class DictionaryOptions {
 
   private renderStructure() {
     this.element.append(
-      new SectionIntro(
-        this.document,
-        "Dictionary",
-        "Add providers, sort their priority, and choose the deck used when that provider wins.",
-      ).element,
+      new SectionIntro(this.document, "Dictionary", "Add providers and sort their lookup priority.")
+        .element,
       this.renderAddProviderRow(),
       this.rulesBody,
     );
@@ -199,10 +165,10 @@ export class DictionaryOptions {
   private createRulesHeader() {
     const row = this.document.createElement("div");
     row.className = cn(
-      "bg-muted/30 text-muted-foreground hidden px-4 py-2 text-xs font-medium md:grid md:grid-cols-[auto_minmax(0,1.1fr)_minmax(0,0.8fr)_minmax(0,1fr)_auto] md:gap-3",
+      "bg-muted/30 text-muted-foreground hidden px-4 py-2 text-xs font-medium md:grid md:grid-cols-[auto_minmax(0,1.2fr)_minmax(0,1fr)_auto] md:gap-3",
     );
 
-    ["", "Provider", "Languages", "Deck", ""].forEach((text) => {
+    ["", "Provider", "Languages", ""].forEach((text) => {
       const cell = this.document.createElement("div");
       cell.textContent = text;
       row.append(cell);
@@ -218,7 +184,7 @@ export class DictionaryOptions {
   ) {
     const row = this.document.createElement("div");
     row.className = cn(
-      "bg-background grid gap-3 p-4 md:grid-cols-[auto_minmax(0,1.1fr)_minmax(0,0.8fr)_minmax(0,1fr)_auto] md:items-center",
+      "bg-background grid gap-3 p-4 md:grid-cols-[auto_minmax(0,1.2fr)_minmax(0,1fr)_auto] md:items-center",
     );
 
     const handleCell = this.document.createElement("div");
@@ -231,10 +197,6 @@ export class DictionaryOptions {
       "Languages",
       provider?.supportedLanguages.map((code) => this.getLanguageLabel(code)).join(", ") ||
         "Unsupported",
-    );
-    const deckField = this.renderControlField(
-      "Deck",
-      this.createDeckSelect(providerId, config.deck),
     );
 
     const actions = this.document.createElement("div");
@@ -254,7 +216,7 @@ export class DictionaryOptions {
     });
 
     actions.append(removeButton);
-    row.append(handleCell, providerField, languagesField, deckField, actions);
+    row.append(handleCell, providerField, languagesField, actions);
     return row;
   }
 
@@ -274,33 +236,6 @@ export class DictionaryOptions {
     return field;
   }
 
-  private renderControlField(label: string, control: HTMLElement) {
-    const field = this.document.createElement("div");
-    field.className = cn("space-y-1");
-
-    const labelElement = this.document.createElement("p");
-    labelElement.className = cn("text-muted-foreground text-xs font-medium uppercase md:hidden");
-    labelElement.textContent = label;
-
-    field.append(labelElement, control);
-    return field;
-  }
-
-  private createDeckSelect(providerId: string, selectedValue: string) {
-    const select = this.createSelect();
-    this.setSelectOptions(
-      select,
-      [{ value: "", label: "No deck" }, ...this.deckOptions.filter((option) => option.value)],
-      selectedValue,
-    );
-    select.addEventListener("change", () => {
-      void this.configService.updateProvider(providerId, { deck: select.value }).catch((error) => {
-        this.showConfigError(error);
-      });
-    });
-    return select;
-  }
-
   private registerListeners() {
     this.addButton.addEventListener("click", () => {
       void this.createProvider().catch((error) => {
@@ -313,20 +248,6 @@ export class DictionaryOptions {
     return createSelect({ doc: this.document });
   }
 
-  private setSelectOptions(select: HTMLSelectElement, options: SelectOption[], value: string) {
-    select.replaceChildren(
-      ...options.map((option) => {
-        const element = this.document.createElement("option");
-        element.value = option.value;
-        element.textContent = option.label;
-        return element;
-      }),
-    );
-    select.value = options.some((option) => option.value === value)
-      ? value
-      : (options[0]?.value ?? "");
-  }
-
   private async createProvider() {
     const providerId = this.addProviderSelect.value;
     if (!providerId) return;
@@ -336,7 +257,6 @@ export class DictionaryOptions {
 
     await this.configService.createProvider({
       provider: provider.id,
-      deck: "",
     });
   }
 
@@ -346,9 +266,5 @@ export class DictionaryOptions {
 
   private showConfigError(error: unknown) {
     console.error("Failed to save dictionary settings:", error);
-  }
-
-  private toSelectOptions(values: string[]): SelectOption[] {
-    return values.map((value) => ({ value, label: value }));
   }
 }

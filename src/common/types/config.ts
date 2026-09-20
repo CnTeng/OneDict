@@ -1,10 +1,10 @@
 export interface AnkiConfig {
   connectUrl: string;
+  deck: string;
 }
 
 export interface ProviderConfig {
   provider: string;
-  deck: string;
 }
 
 export type DictionaryConfig = ProviderConfig[];

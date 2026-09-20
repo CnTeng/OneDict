@@ -1,4 +1,3 @@
-import { Event } from "@common/event";
 import type { IAnkiService, IConfigService, IDictionaryService } from "@common/types";
 import { cn } from "cn";
 import { AnkiOptions } from "./anki";
@@ -16,8 +15,6 @@ export class OptionsPage {
   private footer!: OptionsFooter;
   private dictionaryOptions!: DictionaryOptions;
   private ankiOptions!: AnkiOptions;
-
-  private readonly didChangeDecks = new Event<void>();
 
   constructor({
     container,
@@ -55,7 +52,6 @@ export class OptionsPage {
   dispose() {
     this.dictionaryOptions?.dispose();
     this.ankiOptions?.dispose();
-    this.didChangeDecks.clear();
   }
 
   private renderStructure() {
@@ -69,9 +65,7 @@ export class OptionsPage {
 
     this.dictionaryOptions = new DictionaryOptions({
       container: sections,
-      ankiService: this.ankiService,
       configService: this.configService.dictionary,
-      didChangeDecks: this.didChangeDecks,
       dictionaryService: this.dictionaryService,
     });
 
@@ -79,7 +73,6 @@ export class OptionsPage {
       container: sections,
       ankiService: this.ankiService,
       configService: this.configService.anki,
-      didChangeDecks: this.didChangeDecks,
       showStatus: (level, message) => this.footer.status.show(message, level),
     });
 
