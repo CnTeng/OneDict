@@ -1,4 +1,5 @@
 import type { AnkiNote, Definition, DictionaryEntry, Example, Pronunciation } from "@common/types";
+import * as z from "zod";
 import {
   ANKI_AUDIO_FILENAME_PREFIX,
   ANKI_MODEL_NAME,
@@ -6,6 +7,8 @@ import {
   ANKI_TEMPLATE_VERSION,
 } from "./builtin";
 import type { AnkiRequest } from "./request";
+
+const noteIdSchema = z.number();
 
 function serializeField(value: string | undefined, json: false): string;
 function serializeField(value: unknown | undefined, json?: true): string;
@@ -57,7 +60,7 @@ function createAnkiNote(deckName: string, modelName: string, entry: DictionaryEn
 }
 
 async function createNote(request: AnkiRequest, note: AnkiNote): Promise<void> {
-  await request<number>("addNote", { note });
+  await request("addNote", noteIdSchema, { note });
 }
 
 export async function createNoteFromEntry(

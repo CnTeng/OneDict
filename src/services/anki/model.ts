@@ -1,4 +1,5 @@
 import type { AnkiModel, AnkiModelTemplate } from "@common/types";
+import * as z from "zod";
 import {
   ANKI_MODEL_FIELDS,
   ANKI_MODEL_NAME,
@@ -7,6 +8,11 @@ import {
 } from "./builtin";
 import type { AnkiRequest } from "./request";
 import { ANKI_MODEL_TEMPLATE } from "./template";
+
+const emptyResultSchema = z.null().transform(() => undefined);
+const modelSchema = z.record(z.string(), z.unknown());
+const modelStylingSchema = z.object({ css: z.string() });
+const stringArraySchema = z.array(z.string());
 
 export async function checkModel(request: AnkiRequest, modelName: string): Promise<void> {
   assertDefaultFields(await getModelFields(request, modelName));
@@ -27,11 +33,11 @@ export async function syncModel(request: AnkiRequest): Promise<void> {
 }
 
 function getModels(request: AnkiRequest): Promise<string[]> {
-  return request<string[]>("modelNames");
+  return request("modelNames", stringArraySchema);
 }
 
 async function createModel(request: AnkiRequest, model: AnkiModel): Promise<void> {
-  await request<void>("createModel", { ...model });
+  await request("createModel", modelSchema, { ...model });
 }
 
 async function updateModel(request: AnkiRequest, model: AnkiModel): Promise<void> {
@@ -45,11 +51,11 @@ async function updateModel(request: AnkiRequest, model: AnkiModel): Promise<void
 }
 
 function getModelFields(request: AnkiRequest, modelName: string): Promise<string[]> {
-  return request<string[]>("modelFieldNames", { modelName });
+  return request("modelFieldNames", stringArraySchema, { modelName });
 }
 
 function getModelStyling(request: AnkiRequest, modelName: string): Promise<{ css: string }> {
-  return request<{ css: string }>("modelStyling", { modelName });
+  return request("modelStyling", modelStylingSchema, { modelName });
 }
 
 function assertDefaultFields(fields: string[]): void {
@@ -73,7 +79,7 @@ async function addMissingModelFields(
 ): Promise<void> {
   const currentFieldSet = new Set(currentFields);
   for (const fieldName of nextFields.filter((field) => !currentFieldSet.has(field))) {
-    await request<void>("modelFieldAdd", { modelName, fieldName });
+    await request("modelFieldAdd", emptyResultSchema, { modelName, fieldName });
   }
 }
 
@@ -85,7 +91,7 @@ async function removeExtraModelFields(
 ): Promise<void> {
   const nextFieldSet = new Set(nextFields);
   for (const fieldName of currentFields.filter((field) => !nextFieldSet.has(field))) {
-    await request<void>("modelFieldRemove", { modelName, fieldName });
+    await request("modelFieldRemove", emptyResultSchema, { modelName, fieldName });
   }
 }
 
@@ -95,12 +101,14 @@ async function repositionModelFields(
   fields: string[],
 ): Promise<void> {
   for (const [index, fieldName] of fields.entries()) {
-    await request<void>("modelFieldReposition", { modelName, fieldName, index });
+    await request("modelFieldReposition", emptyResultSchema, { modelName, fieldName, index });
   }
 }
 
 function updateModelStyling(request: AnkiRequest, modelName: string, css: string): Promise<void> {
-  return request<void>("updateModelStyling", { model: { name: modelName, css } });
+  return request("updateModelStyling", emptyResultSchema, {
+    model: { name: modelName, css },
+  });
 }
 
 function updateModelTemplates(
@@ -108,7 +116,7 @@ function updateModelTemplates(
   modelName: string,
   templates: AnkiModelTemplate[],
 ): Promise<void> {
-  return request<void>("updateModelTemplates", {
+  return request("updateModelTemplates", emptyResultSchema, {
     model: {
       name: modelName,
       templates: Object.fromEntries(

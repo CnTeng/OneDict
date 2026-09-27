@@ -1,10 +1,6 @@
+import { errorMessage } from "@common/error";
 import { registerPopup, unregisterPopup } from "./popup";
 import { mountPrefs, registerPrefs, unregisterPrefs } from "./prefs";
-
-Object.defineProperty(globalThis, "document", {
-  configurable: true,
-  get: () => Zotero.getMainWindow().document,
-});
 
 type ZoteroWithOneDict = typeof Zotero & {
   OneDict?: {
@@ -40,7 +36,7 @@ export async function startup(
   registerPopup(params.id);
   await registerPrefs(params.id).catch((error) => {
     Zotero.logError(error);
-    Zotero.log(`Failed to register OneDict preferences pane: ${String(error)}`);
+    Zotero.log(`Failed to register OneDict preferences pane: ${errorMessage(error)}`);
   });
 }
 
@@ -55,7 +51,9 @@ export async function onMainWindowLoad(params: {
 
   await registerPrefs(params.id).catch((error) => {
     Zotero.logError(error);
-    Zotero.log(`Failed to register OneDict preferences pane on window load: ${String(error)}`);
+    Zotero.log(
+      `Failed to register OneDict preferences pane on window load: ${errorMessage(error)}`,
+    );
   });
 }
 

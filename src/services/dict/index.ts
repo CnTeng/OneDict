@@ -1,39 +1,53 @@
-import type { DictionaryEntry, DictionaryProviderInfo } from "@common/types";
-import { getDictionaryProvider, listDictionaryProviders } from "./registry";
-import "./providers/jisho";
-import "./providers/youdao";
-import "./providers/zdic";
+import { resolveSupportedLanguages } from "@common/language";
+import type {
+  Context,
+  DictionaryLookupResult,
+  DictionaryLookupTask,
+  IDictionaryService,
+} from "@common/types";
+import { dictionaryProviders } from "./providers";
 
-function listProviderInfos(): DictionaryProviderInfo[] {
-  return listDictionaryProviders().map((provider) => ({
-    id: provider.id,
-    name: provider.name,
-    supportedLanguages: provider.supportedLanguages,
-  }));
-}
+export class DictionaryService implements IDictionaryService {
+  lookup(word: string, context?: Context): DictionaryLookupTask[] {
+    const languages = resolveSupportedLanguages(
+      word,
+      [...new Set(dictionaryProviders.flatMap((provider) => provider.supportedLanguages))],
+      context?.lang,
+    );
 
-export const dictionary = {
-  getProvider(id: string) {
-    return getDictionaryProvider(id);
-  },
+    return dictionaryProviders
+      .filter((provider) =>
+        provider.supportedLanguages.some((language) => languages.includes(language)),
+      )
+      .map((provider) => {
+        const source = {
+          providerId: provider.id,
+          providerName: provider.name,
+          providerIconUrl: provider.iconUrl,
+        };
+        const language = provider.supportedLanguages.find((language) =>
+          languages.includes(language),
+        );
+        const result = Promise.resolve()
+          .then(() => provider.lookup(word))
+          .then((entry): DictionaryLookupResult =>
+            entry
+              ? {
+                  status: "found",
+                  entry: {
+                    ...entry,
+                    metadata: { ...entry.metadata, ...(language ? { language } : {}) },
+                    ...(context?.context ? { context: context.context } : {}),
+                  },
+                }
+              : { status: "empty" },
+          )
+          .catch((error: unknown): DictionaryLookupResult => ({
+            status: "failed",
+            error,
+          }));
 
-  getProviders(): DictionaryProviderInfo[] {
-    return listProviderInfos();
-  },
-
-  async lookup(word: string, providerId: string): Promise<DictionaryEntry | null> {
-    const provider = getDictionaryProvider(providerId);
-    if (!provider) return null;
-    return provider.lookup(word);
-  },
-
-  async lookupWithFallback(word: string, providerIds: string[]): Promise<DictionaryEntry | null> {
-    for (const providerId of providerIds) {
-      const result = await this.lookup(word, providerId).catch((_) => {
-        return null;
+        return { ...source, result };
       });
-      if (result) return result;
-    }
-    return null;
-  },
-};
+  }
+}

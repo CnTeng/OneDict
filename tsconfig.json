@@ -1,12 +1,15 @@
 {
   "compilerOptions": {
     "target": "esnext",
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "types": ["chrome", "zotero-types"],
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "paths": {
+      "@assets/*": ["./src/assets/*"],
       "@common/*": ["./src/common/*"],
       "@services/*": ["./src/services/*"],
       "@views/*": ["./src/views/*"]

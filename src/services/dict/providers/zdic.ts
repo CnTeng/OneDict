@@ -1,29 +1,18 @@
+import iconUrl from "@assets/providers/zdic.png?inline";
 import type { Definition, DictionaryEntry, Example, Pronunciation } from "@common/types";
 import { DictionaryProvider } from "../provider";
-import { registerDictionaryProvider } from "../registry";
 
 export class ZdicDictionary extends DictionaryProvider {
   private readonly baseUrl = "https://zdic.net/hans";
+  readonly id = "zdic";
+  readonly name = "Zdic Chinese Dictionary";
+  readonly iconUrl = iconUrl;
+  readonly supportedLanguages = ["zh"] as const;
 
-  get id() {
-    return "zdic";
-  }
-
-  get name() {
-    return "Zdic Chinese Dictionary";
-  }
-
-  get supportedLanguages() {
-    return ["zh"];
-  }
-
-  async lookup(word: string): Promise<DictionaryEntry | null> {
-    const url = `${this.baseUrl}/${encodeURIComponent(word)}`;
-    const response = await this.fetchWithTimeout(url);
-    if (!response.ok)
-      throw new Error(`Failed to lookup from Zdic: HTTP error! status: ${response.status}`);
-
-    return this.parseHtml(await response.text());
+  lookup(word: string): Promise<DictionaryEntry | null> {
+    return this.fetchDocument(`${this.baseUrl}/${encodeURIComponent(word)}`).then((doc) =>
+      this.parseDocument(doc),
+    );
   }
 
   public parseDocument(doc: Document): DictionaryEntry | null {
@@ -34,25 +23,19 @@ export class ZdicDictionary extends DictionaryProvider {
       word: this.parseWord(container),
       definitions: this.parseDefinitions(container),
       pronunciations: this.parsePronunciations(container),
-      metadata: {
-        providerId: this.id,
-        providerName: this.name,
-      },
+      metadata: { providerId: this.id, providerName: this.name },
     };
   }
 
   private parseWord(container: Element): string {
-    return container.querySelector(".gy-reading__char")?.textContent?.trim() || "";
+    return this.normalizeText(container.querySelector(".gy-reading__char")?.textContent);
   }
 
   private parseDefinitions(container: Element): Definition[] {
     const definitions: Definition[] = [];
 
     const normalize = (text?: string | null) =>
-      text
-        ?.replace(/\s+/g, " ")
-        .replace(/([，。；：！？])\s+/g, "$1")
-        .trim() || "";
+      this.normalizeText(text).replace(/([，。；：！？])\s+/g, "$1");
 
     const parseSense = (sense: Element, partOfSpeech?: string) => {
       const text = normalize(sense.querySelector(".gy-sense__def")?.textContent);
@@ -92,7 +75,7 @@ export class ZdicDictionary extends DictionaryProvider {
     const pronunciations: Pronunciation[] = [];
 
     container.querySelectorAll(".gy-reading__py").forEach((row) => {
-      const text = row.firstChild?.textContent?.trim().replace(/\s+/g, " ") || "";
+      const text = this.normalizeText(row.firstChild?.textContent);
       if (!text || pronunciations.some((pronunciation) => pronunciation.text === text)) return;
 
       const audios = row.nextElementSibling?.getAttribute("data-audio")?.split(",").filter(Boolean);
@@ -107,5 +90,3 @@ export class ZdicDictionary extends DictionaryProvider {
     return pronunciations;
   }
 }
-
-registerDictionaryProvider(new ZdicDictionary());

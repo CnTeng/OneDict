@@ -1,6 +1,6 @@
 import type { Context } from "@common/types";
-import { eld } from "eld/medium";
 import { getSentenceBoundaries } from "sentencex-ts";
+import { detectLanguage } from "./language";
 
 const blockSelector =
   "p, pre, div, li, blockquote, h1, h2, h3, h4, h5, h6, section, article, main, header, footer";
@@ -210,13 +210,6 @@ function cleanText(text: string): string {
   return text.replace(/\s+/g, " ").trim();
 }
 
-function detectLanguage(word: string, fallback?: string): string | null {
-  const result = eld.detect(word);
-  if (result.isReliable()) return result.language;
-
-  return fallback?.split("-")[0]?.trim() || null;
-}
-
 export function extractContext(range?: Range, lang?: string): Context | null {
   if (!range || range.collapsed) return null;
 
@@ -234,7 +227,6 @@ export function extractContext(range?: Range, lang?: string): Context | null {
   if (!mapped) return null;
 
   const language = detectLanguage(mapped.text, lang);
-  if (!language) return null;
 
   const sentence = findSentence(mapped, language);
   if (!sentence) return null;
