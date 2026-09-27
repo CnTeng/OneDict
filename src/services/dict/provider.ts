@@ -1,35 +1,30 @@
 import type { DictionaryEntry, IDictionaryProvider } from "@common/types";
-import { parseWithDom, parseWithOffscreen } from "./parser";
-
-const REQUEST_TIMEOUT_MS = 10_000;
+import ky, { type Options, type StandardSchemaV1 } from "ky";
 
 export abstract class DictionaryProvider implements IDictionaryProvider {
-  abstract get id(): string;
-  abstract get name(): string;
-  abstract get supportedLanguages(): string[];
+  abstract readonly id: string;
+  abstract readonly name: string;
+  abstract readonly iconUrl: string;
+  abstract readonly supportedLanguages: readonly string[];
 
   abstract lookup(word: string): Promise<DictionaryEntry | null>;
-  abstract parseDocument(doc: Document): DictionaryEntry | null;
 
-  protected async fetchWithTimeout(url: string): Promise<Response> {
-    let timeoutId: ReturnType<typeof setTimeout>;
-    return Promise.race([
-      fetch(url),
-      new Promise<Response>((_, reject) => {
-        timeoutId = setTimeout(
-          () => reject(new Error(`Request timed out after ${REQUEST_TIMEOUT_MS}ms`)),
-          REQUEST_TIMEOUT_MS,
-        );
-      }),
-    ]).finally(() => clearTimeout(timeoutId));
+  protected fetchDocument(url: string, options?: Options): Promise<Document> {
+    return ky
+      .get(url, options)
+      .text()
+      .then((html) => new DOMParser().parseFromString(html, "text/html"));
   }
 
-  protected async parseHtml(html: string): Promise<DictionaryEntry | null> {
-    const parser =
-      typeof chrome !== "undefined" && chrome.offscreen ? parseWithOffscreen : parseWithDom;
+  protected fetchJson<Schema extends StandardSchemaV1>(
+    schema: Schema,
+    url: string,
+    options?: Options,
+  ) {
+    return ky.get(url, options).json(schema);
+  }
 
-    return parser(html, this.id).catch((_) => {
-      return null;
-    });
+  protected normalizeText(text?: string | null): string {
+    return text?.replace(/\s+/g, " ").trim() ?? "";
   }
 }

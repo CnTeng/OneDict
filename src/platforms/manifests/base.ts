@@ -17,7 +17,6 @@ export const browserManifest = {
     "128": "assets/icons/icon128.png",
   },
   manifest_version: 3,
-  default_locale: "en",
   action: {
     default_icon: {
       "16": "assets/icons/icon16.png",

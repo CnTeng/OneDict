@@ -4,12 +4,11 @@ import frontHbs from "./front.hbs?raw";
 import css from "./card.css?inline";
 
 const front = frontHbs.replace("{{! FRONT_SCRIPT }}", bundle);
-const back = backHbs.replace("{{! BACK_SCRIPT }}", bundle);
 
 export const ANKI_MODEL_TEMPLATE = {
   Name: "OneDict",
   Front: front,
-  Back: back,
+  Back: backHbs,
 };
 
 export const ANKI_MODEL_CSS = css;

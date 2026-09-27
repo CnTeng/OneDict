@@ -2,11 +2,7 @@ import { browserManifest } from "./base.ts";
 
 export const firefoxManifest = {
   ...browserManifest,
-  background: {
-    scripts: ["browser/background/background.js"],
-    type: "module",
-  },
-  permissions: ["storage", "contextMenus", "notifications", "activeTab"],
+  permissions: ["storage"],
   options_ui: {
     page: "platforms/browser/options/options.html",
     open_in_tab: true,

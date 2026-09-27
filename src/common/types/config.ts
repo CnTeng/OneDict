@@ -1,18 +1,4 @@
-export interface AnkiConfig {
-  connectUrl: string;
-  deck: string;
-}
-
-export interface ProviderConfig {
-  provider: string;
-}
-
-export type DictionaryConfig = ProviderConfig[];
-
-export interface UserConfig {
-  dictionary: DictionaryConfig;
-  anki: AnkiConfig;
-}
+export type { AnkiConfig } from "../config";
 
 export interface SelectOption {
   value: string;

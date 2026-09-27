@@ -1,4 +1,4 @@
-export type Value = string | number | boolean | object | Array<unknown> | null;
+export type Value = string | number | boolean | object | null;
 
 export interface StorageChange {
   oldValue: unknown;
@@ -6,43 +6,66 @@ export interface StorageChange {
 }
 
 interface StorageAdapter {
-  get<T = Value>(key: string): Promise<T | null>;
+  get(key: string): Promise<unknown>;
   set(key: string, value: Value): Promise<void>;
   remove(key: string): Promise<void>;
-  subscribe?: (key: string, listener: (change: StorageChange) => void) => () => void;
+  subscribe(key: string, listener: (change: StorageChange) => void): () => void;
+}
+
+type ZoteroStorageListener = (event: { key: string; change: StorageChange }) => void;
+
+const zoteroStorageListeners = new Set<ZoteroStorageListener>();
+
+function emitZoteroStorageChange(key: string, change: StorageChange) {
+  [...zoteroStorageListeners].forEach((listener) => listener({ key, change }));
+}
+
+function getZoteroValue(key: string) {
+  const raw = Zotero.Prefs.get(key);
+  if (raw == null) return undefined;
+  if (typeof raw !== "string") return raw;
+
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return raw;
+  }
 }
 
 const zoteroStorage: StorageAdapter = {
-  async get<T = Value>(key: string): Promise<T | null> {
-    const raw = Zotero.Prefs.get(key);
-    if (raw == null) return null;
-    if (typeof raw !== "string") return raw as T;
-
-    try {
-      return JSON.parse(raw) as T;
-    } catch {
-      return raw as T;
-    }
+  async get(key: string): Promise<unknown> {
+    return getZoteroValue(key);
   },
 
   async set(key: string, value: Value): Promise<void> {
+    const oldValue = getZoteroValue(key);
     if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
       Zotero.Prefs.set(key, value);
-      return;
+    } else {
+      Zotero.Prefs.set(key, JSON.stringify(value));
     }
-
-    Zotero.Prefs.set(key, JSON.stringify(value));
+    emitZoteroStorageChange(key, { oldValue, newValue: value });
   },
 
   async remove(key: string): Promise<void> {
+    const oldValue = getZoteroValue(key);
     Zotero.Prefs.clear(key);
+    emitZoteroStorageChange(key, { oldValue, newValue: undefined });
+  },
+
+  subscribe(key: string, listener: (change: StorageChange) => void) {
+    const handleChange: ZoteroStorageListener = (event) => {
+      if (event.key === key) listener(event.change);
+    };
+    zoteroStorageListeners.add(handleChange);
+    return () => zoteroStorageListeners.delete(handleChange);
   },
 };
 
 const chromeStorage: StorageAdapter = {
-  async get<T = Value>(key: string): Promise<T | null> {
+  async get(key: string): Promise<unknown> {
     const result = await chrome.storage.sync.get(key);
-    return (result[key] as T) ?? null;
+    return result[key];
   },
 
   async set(key: string, value: Value): Promise<void> {
@@ -74,10 +97,8 @@ const isZotero = typeof Zotero !== "undefined" && typeof Zotero.Prefs !== "undef
 const storageAdapter = isZotero ? zoteroStorage : chromeStorage;
 
 export const storage = {
-  hasChangeEvents: Boolean(storageAdapter.subscribe),
-
-  async get<T = Value>(key: string): Promise<T | null> {
-    return storageAdapter.get<T>(key);
+  async get(key: string): Promise<unknown> {
+    return storageAdapter.get(key);
   },
 
   async set(key: string, value: Value): Promise<void> {
@@ -89,6 +110,6 @@ export const storage = {
   },
 
   subscribe(key: string, listener: (change: StorageChange) => void) {
-    return storageAdapter.subscribe?.(key, listener) ?? (() => {});
+    return storageAdapter.subscribe(key, listener);
   },
 };

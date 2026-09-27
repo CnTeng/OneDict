@@ -61,6 +61,9 @@ The project follows a clean service-oriented architecture:
 - `src/platforms/` - Platform entrypoints, manifests, and packaged assets.
 - `src/services/` - Service implementations (Config, Anki, Dictionary, platform adapters).
 
+See [Dictionary providers and concurrent lookup](docs/dictionary-providers.md) for the provider and
+lookup architecture.
+
 ## License
 
 MIT

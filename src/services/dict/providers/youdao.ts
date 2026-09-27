@@ -1,48 +1,24 @@
+import iconUrl from "@assets/providers/youdao.png?inline";
 import type { Definition, DictionaryEntry, Example, Pronunciation } from "@common/types";
 import { DictionaryProvider } from "../provider";
-import { registerDictionaryProvider } from "../registry";
-
-const normalize = (text?: string | null) => text?.replace(/\s+/g, " ").trim() || "";
 
 export class YoudaoDictionary extends DictionaryProvider {
-  get id() {
-    return "youdao";
-  }
-  get name() {
-    return "Collins (via Youdao)";
-  }
-  get supportedLanguages() {
-    return ["en"];
-  }
+  readonly id = "youdao";
+  readonly name = "Youdao";
+  readonly iconUrl = iconUrl;
+  readonly supportedLanguages = ["en"] as const;
 
   async lookup(word: string): Promise<DictionaryEntry | null> {
-    let url = `https://dict.youdao.com/w/${encodeURIComponent(word)}`;
+    const entry = this.parseDocument(
+      await this.fetchDocument(`https://dict.youdao.com/w/${encodeURIComponent(word)}`),
+    );
+    if (entry || word === word.toLowerCase()) return entry;
 
-    try {
-      let response = await this.fetchWithTimeout(url);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const html = await response.text();
-      let entry = await this.parseHtml(html);
-
-      if (!entry && word !== word.toLowerCase()) {
-        url = `https://dict.youdao.com/w/${encodeURIComponent(word.toLowerCase())}`;
-        response = await this.fetchWithTimeout(url);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const lowerHtml = await response.text();
-        entry = await this.parseHtml(lowerHtml);
-      }
-
-      return entry;
-    } catch (e) {
-      throw new Error(
-        `Failed to fetch definition from Youdao: ${e instanceof Error ? e.message : String(e)}`,
-      );
-    }
+    return this.parseDocument(
+      await this.fetchDocument(
+        `https://dict.youdao.com/w/${encodeURIComponent(word.toLowerCase())}`,
+      ),
+    );
   }
 
   public parseDocument(doc: Document): DictionaryEntry | null {
@@ -63,7 +39,7 @@ export class YoudaoDictionary extends DictionaryProvider {
 
   private parseWord(container: Element): string {
     const keyword = container.querySelector("h4 .title");
-    return normalize(keyword?.textContent);
+    return this.normalizeText(keyword?.textContent);
   }
 
   private parseCollinsDefinitions(container: Element): Definition[] {
@@ -75,11 +51,11 @@ export class YoudaoDictionary extends DictionaryProvider {
       if (!transNode) return;
 
       const posNode = transNode.querySelector(".additional");
-      const pos = normalize(posNode?.textContent);
+      const pos = this.normalizeText(posNode?.textContent);
 
-      let fullText = normalize(transNode.textContent);
+      let fullText = this.normalizeText(transNode.textContent);
       if (pos && fullText.startsWith(pos)) {
-        fullText = normalize(fullText.substring(pos.length));
+        fullText = this.normalizeText(fullText.substring(pos.length));
       }
 
       const examples: Example[] = [];
@@ -88,8 +64,8 @@ export class YoudaoDictionary extends DictionaryProvider {
       exampleLis.forEach((ex) => {
         const pTags = ex.querySelectorAll("p");
         if (pTags.length >= 2) {
-          const en = normalize(pTags[0].textContent);
-          const cn = normalize(pTags[1].textContent);
+          const en = this.normalizeText(pTags[0].textContent);
+          const cn = this.normalizeText(pTags[1].textContent);
           if (en) examples.push({ text: en, translation: cn });
         }
       });
@@ -111,7 +87,7 @@ export class YoudaoDictionary extends DictionaryProvider {
     if (!container) return definitions;
 
     container.querySelectorAll("ul li").forEach((el) => {
-      const text = normalize(el.textContent);
+      const text = this.normalizeText(el.textContent);
       const match = text.match(/^([a-z]+\.)\s*(.*)$/i);
 
       if (match) {
@@ -130,11 +106,13 @@ export class YoudaoDictionary extends DictionaryProvider {
   private parsePronunciations(doc: Document): Pronunciation[] {
     const pronunciations: Pronunciation[] = [];
 
-    const keyword = normalize(doc.querySelector("#phrsListTab .wordbook-js .keyword")?.textContent);
+    const keyword = this.normalizeText(
+      doc.querySelector("#phrsListTab .wordbook-js .keyword")?.textContent,
+    );
     const containers = doc.querySelectorAll(".baav .pronounce, .wordbook-js .pronounce");
     const parse = (el: Element, type: "uk" | "us") => {
       const span = el.querySelector(".phonetic");
-      const text = normalize(span?.textContent);
+      const text = this.normalizeText(span?.textContent);
       if (text) {
         pronunciations.push({
           text,
@@ -165,11 +143,9 @@ export class YoudaoDictionary extends DictionaryProvider {
 
     const rankNode = container.querySelector("h4 .rank");
     if (rankNode?.textContent) {
-      metadata.tags = normalize(rankNode.textContent).split(" ").filter(Boolean);
+      metadata.tags = this.normalizeText(rankNode.textContent).split(" ").filter(Boolean);
     }
 
     return metadata;
   }
 }
-
-registerDictionaryProvider(new YoudaoDictionary());

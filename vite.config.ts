@@ -24,7 +24,7 @@ const strategies: Record<"browser" | "zotero", (target: Target) => UserConfig> =
       iifePlugin({
         entries: [
           {
-            entry: "platforms/browser/content/content.ts",
+            entry: "platforms/browser/content/content.tsx",
             name: "OneDictContent",
             fileName: "browser/content/content.js",
             minify: false,
@@ -32,7 +32,7 @@ const strategies: Record<"browser" | "zotero", (target: Target) => UserConfig> =
         ],
         modules: {
           "iife:anki-card": {
-            entry: "services/anki/template/card.ts",
+            entry: "views/anki/card.tsx",
             name: "AnkiCard",
             minify: true,
           },
@@ -40,18 +40,13 @@ const strategies: Record<"browser" | "zotero", (target: Target) => UserConfig> =
       }),
       manifestPlugin({ manifest: manifestByTarget[target] }),
       viteStaticCopy({
-        targets: [
-          { src: "assets/icons/*", dest: "." },
-          { src: "_locales/**/*", dest: "." },
-        ],
+        targets: [{ src: "assets/icons/*", dest: "." }],
       }),
     ],
     build: {
       rollupOptions: {
         input: {
-          background: "platforms/browser/background/background.ts",
           frame: "platforms/browser/content/frame.html",
-          offscreen: "platforms/browser/offscreen/offscreen.html",
           options: "platforms/browser/options/options.html",
           popup: "platforms/browser/popup/popup.html",
         },
@@ -70,7 +65,7 @@ const strategies: Record<"browser" | "zotero", (target: Target) => UserConfig> =
       iifePlugin({
         modules: {
           "iife:anki-card": {
-            entry: "services/anki/template/card.ts",
+            entry: "views/anki/card.tsx",
             name: "AnkiCard",
             minify: true,
           },

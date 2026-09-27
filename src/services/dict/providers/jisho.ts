@@ -1,61 +1,59 @@
+import iconUrl from "@assets/providers/jisho.png?inline";
 import type { Definition, DictionaryEntry, Pronunciation } from "@common/types";
+import * as z from "zod";
 import { DictionaryProvider } from "../provider";
-import { registerDictionaryProvider } from "../registry";
 
-interface JishoResponse {
-  data: JishoEntry[];
-}
+const JISHO_ORIGIN = "https://jisho.org";
 
-interface JishoEntry {
-  slug: string;
-  tags: string[];
-  jlpt: string[];
-  japanese: JishoJapanese[];
-  senses: JishoSense[];
-}
+const jishoEntrySchema = z.object({
+  slug: z.string().default(""),
+  tags: z.array(z.string()).default(() => []),
+  jlpt: z.array(z.string()).default(() => []),
+  japanese: z
+    .array(
+      z.object({
+        word: z.string().optional(),
+        reading: z.string().optional(),
+      }),
+    )
+    .default(() => []),
+  senses: z
+    .array(
+      z.object({
+        english_definitions: z.array(z.string()).default(() => []),
+        parts_of_speech: z.array(z.string()).default(() => []),
+      }),
+    )
+    .default(() => []),
+});
 
-interface JishoJapanese {
-  word?: string;
-  reading?: string;
-}
+const jishoResponseSchema = z.object({
+  data: z.array(jishoEntrySchema),
+});
 
-interface JishoSense {
-  english_definitions: string[];
-  parts_of_speech: string[];
-}
+type JishoEntry = z.infer<typeof jishoEntrySchema>;
 
 function normalizeAudioUrl(url: string): string {
-  return url.startsWith("//") ? `https:${url}` : url;
+  return new URL(url, JISHO_ORIGIN).href;
 }
 
 export class JishoDictionary extends DictionaryProvider {
-  private readonly baseUrl = "https://jisho.org/api/v1/search/words";
-  private readonly wordBaseUrl = "https://jisho.org/word";
-
-  get id() {
-    return "jisho";
-  }
-
-  get name() {
-    return "Jisho Japanese Dictionary";
-  }
-
-  get supportedLanguages() {
-    return ["ja"];
-  }
+  private readonly baseUrl = `${JISHO_ORIGIN}/api/v1/search/words`;
+  private readonly wordBaseUrl = `${JISHO_ORIGIN}/word`;
+  readonly id = "jisho";
+  readonly name = "Jisho Japanese Dictionary";
+  readonly iconUrl = iconUrl;
+  readonly supportedLanguages = ["ja"] as const;
 
   async lookup(word: string): Promise<DictionaryEntry | null> {
-    const response = await this.fetchWithTimeout(
-      `${this.baseUrl}?keyword=${encodeURIComponent(word)}`,
+    const result = this.parseResponse(
+      await this.fetchJson(jishoResponseSchema, this.baseUrl, {
+        searchParams: { keyword: word },
+      }),
     );
-    if (!response.ok)
-      throw new Error(`Failed to lookup from Jisho: HTTP error! status: ${response.status}`);
-
-    const json: unknown = await response.json();
-    const result = this.parseResponse(json as JishoResponse);
     if (!result) return null;
 
-    const [audioUrl] = await this.lookupAudioUrls(result.word);
+    const audioUrl = await this.lookupAudioUrl(result.word);
     if (!audioUrl) return result;
 
     return {
@@ -67,12 +65,8 @@ export class JishoDictionary extends DictionaryProvider {
     };
   }
 
-  public parseDocument(): DictionaryEntry | null {
-    return null;
-  }
-
-  private parseResponse(payload: JishoResponse): DictionaryEntry | null {
-    const item = payload.data?.find((entry) => this.parseDefinitions(entry).length > 0);
+  private parseResponse(payload: z.infer<typeof jishoResponseSchema>): DictionaryEntry | null {
+    const item = payload.data.find((entry) => this.parseDefinitions(entry).length > 0);
     if (!item) return null;
 
     const first = item.japanese[0];
@@ -92,7 +86,7 @@ export class JishoDictionary extends DictionaryProvider {
   }
 
   private parseDefinitions(item: JishoEntry): Definition[] {
-    return (item.senses ?? []).flatMap((sense) => {
+    return item.senses.flatMap((sense) => {
       const text = sense.english_definitions
         ?.map((d) => d.trim())
         .filter(Boolean)
@@ -110,7 +104,7 @@ export class JishoDictionary extends DictionaryProvider {
 
   private parsePronunciations(item: JishoEntry): Pronunciation[] {
     const seen = new Set<string>();
-    return (item.japanese ?? []).flatMap((entry) => {
+    return item.japanese.flatMap((entry) => {
       const text = entry.reading?.trim() || entry.word?.trim() || "";
       if (!text || seen.has(text)) return [];
       seen.add(text);
@@ -118,48 +112,28 @@ export class JishoDictionary extends DictionaryProvider {
     });
   }
 
-  private async lookupAudioUrls(word: string): Promise<string[]> {
-    return this.fetchWithTimeout(`${this.wordBaseUrl}/${encodeURIComponent(word)}`)
-      .then((response) => (response.ok ? response.text() : ""))
-      .then((html) => this.parseAudioUrls(html))
-      .catch(() => []);
-  }
-
-  private parseAudioUrls(html: string): string[] {
-    if (!html) return [];
-
-    if (typeof DOMParser !== "undefined") {
-      const doc = new DOMParser().parseFromString(html, "text/html");
-      return this.uniqueAudioUrls(
+  private lookupAudioUrl(word: string): Promise<string | undefined> {
+    return this.fetchDocument(`${this.wordBaseUrl}/${encodeURIComponent(word)}`)
+      .then((doc) =>
         Array.from(doc.querySelectorAll(".concept_light-status audio source[src]")).map(
           (source) => source.getAttribute("src") || "",
         ),
-      );
-    }
-
-    return this.uniqueAudioUrls(
-      Array.from(html.matchAll(/<audio\b[\s\S]*?<\/audio>/gi)).flatMap(([audio]) =>
-        Array.from(audio.matchAll(/<source\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi)).map(
-          ([, url]) => url,
-        ),
-      ),
-    );
+      )
+      .then(
+        (urls) =>
+          Array.from(new Set(urls.filter(Boolean).map(normalizeAudioUrl))).sort((a, b) => {
+            const aIsMp3 = a.includes(".mp3");
+            const bIsMp3 = b.includes(".mp3");
+            return aIsMp3 === bIsMp3 ? 0 : aIsMp3 ? -1 : 1;
+          })[0],
+      )
+      .catch(() => undefined);
   }
 
-  private uniqueAudioUrls(urls: string[]): string[] {
-    return Array.from(new Set(urls.map(normalizeAudioUrl).filter(Boolean))).sort((a, b) => {
-      const aIsMp3 = a.includes(".mp3");
-      const bIsMp3 = b.includes(".mp3");
-      return aIsMp3 === bIsMp3 ? 0 : aIsMp3 ? -1 : 1;
-    });
-  }
-
-  private parseMetadata(item: JishoEntry): Record<string, unknown> | undefined {
+  private parseMetadata(item: JishoEntry): Record<string, unknown> {
     const metadata: Record<string, unknown> = {};
-    const tags = [...(item.tags ?? []), ...(item.jlpt ?? [])].filter(Boolean);
+    const tags = [...item.tags, ...item.jlpt].filter(Boolean);
     if (tags.length > 0) metadata.tags = tags;
-    return Object.keys(metadata).length > 0 ? metadata : undefined;
+    return metadata;
   }
 }
-
-registerDictionaryProvider(new JishoDictionary());

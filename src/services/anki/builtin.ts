@@ -13,7 +13,7 @@ export const ANKI_MODEL_FIELDS = [
   "version",
 ] as const;
 
-export const ANKI_TEMPLATE_VERSION = 3;
+export const ANKI_TEMPLATE_VERSION = 4;
 
 export const ANKI_TEMPLATE_MARKER = `onedict-template:${ANKI_TEMPLATE_VERSION}`;
 
