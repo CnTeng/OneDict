@@ -1,4 +1,4 @@
-import type { DictionaryEntry, IDictionaryProvider } from "@common/types";
+import type { IDictionaryProvider, WordEntry } from "@common/types";
 import ky, { type Options, type StandardSchemaV1 } from "ky";
 
 export abstract class DictionaryProvider implements IDictionaryProvider {
@@ -7,7 +7,7 @@ export abstract class DictionaryProvider implements IDictionaryProvider {
   abstract readonly iconUrl: string;
   abstract readonly supportedLanguages: readonly string[];
 
-  abstract lookup(word: string): Promise<DictionaryEntry | null>;
+  abstract lookup(word: string): Promise<WordEntry | null>;
 
   protected fetchDocument(url: string, options?: Options): Promise<Document> {
     return ky

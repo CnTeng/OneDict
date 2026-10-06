@@ -11,7 +11,7 @@ export interface AnkiModel {
   cardTemplates: AnkiModelTemplate[];
 }
 
-export interface AnkiMedia {
+interface AnkiMedia {
   url?: string;
   filename?: string;
   fields?: string[];

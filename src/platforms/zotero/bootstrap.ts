@@ -1,6 +1,8 @@
+import "./runtime";
 import { errorMessage } from "@common/error";
-import { registerPopup, unregisterPopup } from "./popup";
-import { mountPrefs, registerPrefs, unregisterPrefs } from "./prefs";
+import { registerPopup, unregisterPopup } from "./popup/popup";
+import { mountPrefs, registerPrefs, unregisterPrefs } from "./prefs/prefs";
+import "./prefs/prefs.css";
 
 type ZoteroWithOneDict = typeof Zotero & {
   OneDict?: {
@@ -10,20 +12,10 @@ type ZoteroWithOneDict = typeof Zotero & {
 
 const zoteroWithOneDict = Zotero as ZoteroWithOneDict;
 
-function registerGlobals(): void {
-  zoteroWithOneDict.OneDict = { mountPrefs };
-}
-
-function unregisterGlobals(): void {
-  delete zoteroWithOneDict.OneDict;
-}
-
 export function install() {}
 
 export function uninstall() {
-  unregisterPopup();
-  unregisterPrefs();
-  unregisterGlobals();
+  shutdown();
 }
 
 export async function startup(
@@ -32,7 +24,7 @@ export async function startup(
 ) {
   await Zotero.initializationPromise;
 
-  registerGlobals();
+  zoteroWithOneDict.OneDict = { mountPrefs };
   registerPopup(params.id);
   await registerPrefs(params.id).catch((error) => {
     Zotero.logError(error);
@@ -40,25 +32,8 @@ export async function startup(
   });
 }
 
-export async function onMainWindowLoad(params: {
-  id: string;
-  version: string;
-  rootURI: string;
-  window: Window;
-}) {
-  await Zotero.initializationPromise;
-  registerGlobals();
-
-  await registerPrefs(params.id).catch((error) => {
-    Zotero.logError(error);
-    Zotero.log(
-      `Failed to register OneDict preferences pane on window load: ${errorMessage(error)}`,
-    );
-  });
-}
-
 export function shutdown() {
   unregisterPopup();
   unregisterPrefs();
-  unregisterGlobals();
+  delete zoteroWithOneDict.OneDict;
 }

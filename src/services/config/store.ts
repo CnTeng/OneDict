@@ -1,47 +1,31 @@
-import type { IConfigStore } from "@common/types";
+import type { IConfigStore, IStorageAdapter } from "@common/types";
 import type * as z from "zod";
-import { storage } from "./storage";
 
-export function createConfigStore<S extends z.ZodType<Record<string, unknown>>>(
-  key: string,
-  schema: S,
-) {
-  type Config = z.output<S>;
+export class ConfigStore<T extends Record<string, unknown>> implements IConfigStore<T> {
+  private pendingWrite = Promise.resolve();
 
-  const parse = (value: unknown): Config => schema.parse(value);
-  let pending = Promise.resolve();
+  constructor(
+    private readonly key: string,
+    private readonly schema: z.ZodType<T>,
+    private readonly adapter: IStorageAdapter,
+  ) {}
 
-  function enqueue<T>(operation: () => Promise<T>) {
-    const result = pending.then(operation);
-    pending = result.then(
-      () => undefined,
-      () => undefined,
-    );
-    return result;
+  get(): Promise<T> {
+    return this.pendingWrite
+      .then(() => this.adapter.get(this.key))
+      .then((value) => this.schema.parse(value));
   }
 
-  const store = {
-    get: () => pending.then(async () => parse(await storage.get(key))),
+  set(value: T): Promise<void> {
+    const write = this.pendingWrite.then(() =>
+      this.adapter.set(this.key, this.schema.parse(value)),
+    );
+    // Keep the queue usable after a failed write; callers still receive the rejection.
+    this.pendingWrite = write.catch(() => undefined);
+    return write;
+  }
 
-    set: (value: Config) => enqueue(() => storage.set(key, parse(value))),
-
-    update: (patch: Partial<Config>) =>
-      enqueue(async () => {
-        const next = parse({ ...parse(await storage.get(key)), ...patch });
-        await storage.set(key, next);
-        return next;
-      }),
-
-    reset: () =>
-      enqueue(async () => {
-        await storage.remove(key);
-        return parse(undefined);
-      }),
-
-    onDidChange(listener: (config: Config) => void) {
-      return storage.subscribe(key, ({ newValue }) => listener(parse(newValue)));
-    },
-  } satisfies IConfigStore<Config>;
-
-  return store;
+  onDidChange(listener: (config: T) => void): () => void {
+    return this.adapter.subscribe(this.key, (value) => listener(this.schema.parse(value)));
+  }
 }

@@ -1,21 +1,14 @@
-import type { DictionaryLookupTask, IDictionaryService } from "@common/types";
 import { IconButton } from "@views/components/button";
-import { LucideIcon } from "@views/components/icon";
 import { Input } from "@views/components/input";
-import { Search, Settings } from "lucide";
+import { Search, Settings } from "lucide-preact";
 import { useEffect, useRef } from "preact/hooks";
 
-export interface SearchBarOptions {
-  dictionaryService: IDictionaryService;
-  onSubmit: (submission: SearchSubmission) => void;
+interface SearchBarProps {
+  onSearch: (text: string) => void;
+  onOpenSettings: () => void;
 }
 
-export interface SearchSubmission {
-  word: string;
-  tasks: DictionaryLookupTask[];
-}
-
-export function SearchBar({ dictionaryService, onSubmit }: SearchBarOptions) {
+export function SearchBar({ onSearch, onOpenSettings }: SearchBarProps) {
   const localInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => localInputRef.current?.focus(), []);
 
@@ -25,13 +18,13 @@ export function SearchBar({ dictionaryService, onSubmit }: SearchBarOptions) {
         class="border-border bg-muted focus-within:border-ring focus-within:ring-ring/20 grid w-full grid-cols-[32px_minmax(0,1fr)_32px] items-center rounded-full border shadow-sm transition-all focus-within:ring-2"
         onSubmit={(event) => {
           event.preventDefault();
-          const word = localInputRef.current?.value.trim();
-          if (!word) return;
-          onSubmit({ word, tasks: dictionaryService.lookup(word) });
+          const text = localInputRef.current?.value.trim();
+          if (!text) return;
+          onSearch(text);
         }}
       >
         <span class="text-muted-foreground flex items-center justify-center">
-          <LucideIcon iconNode={Search} customAttrs={{ width: 16, height: 16 }} />
+          <Search size={16} />
         </span>
         <Input
           ref={localInputRef}
@@ -43,11 +36,11 @@ export function SearchBar({ dictionaryService, onSubmit }: SearchBarOptions) {
         />
         <IconButton
           type="button"
-          title="Settings"
+          label="Settings"
           class="hover:bg-background/70 rounded-full"
-          onClick={() => void chrome.runtime.openOptionsPage()}
+          onClick={onOpenSettings}
         >
-          <LucideIcon iconNode={Settings} customAttrs={{ width: 16, height: 16 }} />
+          <Settings size={16} />
         </IconButton>
       </form>
     </div>

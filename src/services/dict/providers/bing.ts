@@ -1,5 +1,5 @@
 import iconUrl from "@assets/providers/bing.png?inline";
-import type { Definition, DictionaryEntry, Example, Pronunciation } from "@common/types";
+import type { Definition, Example, Pronunciation, WordEntry } from "@common/types";
 import { DictionaryProvider } from "../provider";
 
 const BING_ORIGIN = "https://cn.bing.com";
@@ -10,13 +10,13 @@ export class BingDictionary extends DictionaryProvider {
   readonly iconUrl = iconUrl;
   readonly supportedLanguages = ["en"] as const;
 
-  lookup(word: string): Promise<DictionaryEntry | null> {
+  lookup(word: string): Promise<WordEntry | null> {
     return this.fetchDocument(`${BING_ORIGIN}/dict/clientsearch`, {
       searchParams: { mkt: "zh-CN", setLang: "zh", q: word },
     }).then((doc) => this.parseDocument(doc));
   }
 
-  public parseDocument(doc: Document): DictionaryEntry | null {
+  public parseDocument(doc: Document): WordEntry | null {
     const word = this.normalizeText(doc.querySelector(".client_def_hd_hd")?.textContent);
     const definitions = this.parseDefinitions(doc);
     const pronunciations = this.parsePronunciations(doc);

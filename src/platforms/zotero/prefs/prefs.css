@@ -1,11 +1,17 @@
 @import "@assets/theme.css";
-@import "@assets/scrollbar.css";
-@import "tailwindcss";
-
-.onedict-root {
-  @apply text-foreground antialiased;
-}
+@import "tailwindcss" important;
 
 .onedict-root * {
   box-sizing: border-box;
+}
+
+.onedict-root button {
+  min-width: 0;
+  max-height: none;
+  margin: 0;
+}
+
+.onedict-root :is(input, select, textarea) {
+  margin: 0;
+  font: inherit;
 }

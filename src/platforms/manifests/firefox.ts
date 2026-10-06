@@ -10,7 +10,7 @@ export const firefoxManifest = {
   browser_specific_settings: {
     gecko: {
       id: "onedict@example.com",
-      strict_min_version: "109.0",
+      strict_min_version: "125.0",
     },
   },
 };

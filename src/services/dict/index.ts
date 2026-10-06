@@ -1,16 +1,16 @@
 import { resolveSupportedLanguages } from "@common/language";
 import type {
-  Context,
-  DictionaryLookupResult,
-  DictionaryLookupTask,
   IDictionaryService,
+  LookupRequest,
+  WordLookupResult,
+  WordLookupTask,
 } from "@common/types";
 import { dictionaryProviders } from "./providers";
 
 export class DictionaryService implements IDictionaryService {
-  lookup(word: string, context?: Context): DictionaryLookupTask[] {
+  lookup({ text, context }: LookupRequest): WordLookupTask[] {
     const languages = resolveSupportedLanguages(
-      word,
+      text,
       [...new Set(dictionaryProviders.flatMap((provider) => provider.supportedLanguages))],
       context?.lang,
     );
@@ -29,20 +29,19 @@ export class DictionaryService implements IDictionaryService {
           languages.includes(language),
         );
         const result = Promise.resolve()
-          .then(() => provider.lookup(word))
-          .then((entry): DictionaryLookupResult =>
+          .then(() => provider.lookup(text))
+          .then((entry): WordLookupResult =>
             entry
               ? {
                   status: "found",
                   entry: {
                     ...entry,
                     metadata: { ...entry.metadata, ...(language ? { language } : {}) },
-                    ...(context?.context ? { context: context.context } : {}),
                   },
                 }
               : { status: "empty" },
           )
-          .catch((error: unknown): DictionaryLookupResult => ({
+          .catch((error: unknown): WordLookupResult => ({
             status: "failed",
             error,
           }));

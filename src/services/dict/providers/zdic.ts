@@ -1,5 +1,5 @@
 import iconUrl from "@assets/providers/zdic.png?inline";
-import type { Definition, DictionaryEntry, Example, Pronunciation } from "@common/types";
+import type { Definition, Example, Pronunciation, WordEntry } from "@common/types";
 import { DictionaryProvider } from "../provider";
 
 export class ZdicDictionary extends DictionaryProvider {
@@ -9,13 +9,13 @@ export class ZdicDictionary extends DictionaryProvider {
   readonly iconUrl = iconUrl;
   readonly supportedLanguages = ["zh"] as const;
 
-  lookup(word: string): Promise<DictionaryEntry | null> {
+  lookup(word: string): Promise<WordEntry | null> {
     return this.fetchDocument(`${this.baseUrl}/${encodeURIComponent(word)}`).then((doc) =>
       this.parseDocument(doc),
     );
   }
 
-  public parseDocument(doc: Document): DictionaryEntry | null {
+  public parseDocument(doc: Document): WordEntry | null {
     const container = doc.querySelector("#gyjs");
     if (!container) return null;
 
@@ -83,7 +83,7 @@ export class ZdicDictionary extends DictionaryProvider {
       pronunciations.push({
         type: "pinyin",
         text,
-        audioUrl: audios?.length === 1 ? `https:${audios[0]}` : undefined,
+        audioUrl: audios?.length === 1 ? new URL(audios[0], this.baseUrl).href : undefined,
       });
     });
 

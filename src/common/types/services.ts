@@ -1,32 +1,69 @@
-import type { AnkiConfig } from "./config";
-import type { Context } from "./context";
-import type { DictionaryEntry, DictionaryLookupTask } from "./dict";
+import type { AiConfig, AnkiConfig } from "./config";
+import type { LookupRequest, WordLookupTask } from "./lookup";
+import type { TextEntry } from "./text";
+import type { Pronunciation, WordEntry } from "./word";
+
+export type StorageValue = string | number | boolean | object | null;
+
+export interface IStorageAdapter {
+  get(key: string): Promise<unknown>;
+  set(key: string, value: StorageValue): Promise<void>;
+  subscribe(key: string, listener: (value: unknown) => void): () => void;
+}
 
 export interface IConfigStore<T> {
   get(): Promise<T>;
   set(config: T): Promise<void>;
-  update(patch: Partial<T>): Promise<T>;
-  reset(): Promise<T>;
   onDidChange(listener: (config: T) => void): () => void;
 }
 
+export type IAiConfigService = IConfigStore<AiConfig>;
 export type IAnkiConfigService = IConfigStore<AnkiConfig>;
 
 export interface IConfigService {
-  anki: IAnkiConfigService;
-  reset(): Promise<void>;
+  readonly anki: IAnkiConfigService;
+  readonly ai: IAiConfigService;
+}
+
+export interface IAiService {
+  testConnection(config: AiConfig, signal?: AbortSignal): Promise<void>;
+  explain(
+    request: LookupRequest,
+    signal?: AbortSignal,
+    onContent?: (content: string) => void,
+  ): Promise<TextEntry>;
+  listModels(config: AiConfig, signal?: AbortSignal): Promise<string[]>;
 }
 
 export interface IDictionaryService {
-  lookup(word: string, context?: Context): DictionaryLookupTask[];
+  lookup(request: LookupRequest): WordLookupTask[];
+}
+
+export interface IDictionaryProvider {
+  readonly id: string;
+  readonly name: string;
+  readonly iconUrl: string;
+  readonly supportedLanguages: readonly string[];
+
+  lookup(word: string): Promise<WordEntry | null>;
 }
 
 export interface IAudioService {
-  play(url: string): Promise<void>;
+  canPlay(pronunciation: Pronunciation, index: number): boolean;
+  play(pronunciation: Pronunciation, index: number): Promise<void>;
 }
 
 export interface IAnkiService {
-  createNote(result: DictionaryEntry): Promise<void>;
-  getDecks(): Promise<string[]>;
-  syncTemplate(): Promise<void>;
+  createWordNote(entry: WordEntry, context?: string): Promise<void>;
+  createTextNote(entry: TextEntry, context?: string): Promise<void>;
+  getDecks(config?: AnkiConfig, signal?: AbortSignal): Promise<string[]>;
+  syncTemplate(config?: AnkiConfig, signal?: AbortSignal): Promise<void>;
+}
+
+export interface IAppServices {
+  readonly config: IConfigService;
+  readonly dictionary: IDictionaryService;
+  readonly anki: IAnkiService;
+  readonly ai: IAiService;
+  readonly audio: IAudioService;
 }
