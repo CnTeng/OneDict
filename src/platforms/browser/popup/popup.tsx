@@ -1,34 +1,38 @@
-import { AppServices } from "@services/app";
-import { LookupPanel } from "@views/lookup-panel";
+import type { IAppServices, LookupRequest, WordLookupTask } from "@common/types";
+import { LookupPanel } from "@views/lookup";
 import { SearchBar } from "@views/search-bar";
 import { render } from "preact";
 import { useState } from "preact/hooks";
+import { createAppServices } from "../app";
 
-function PopupApp({ services }: { services: AppServices }) {
+function PopupApp({ services }: { services: IAppServices }) {
   const [lookup, setLookup] = useState<{
     id: number;
-    word: string;
-    tasks: ReturnType<typeof services.dictionary.lookup>;
+    request: LookupRequest;
+    tasks: WordLookupTask[];
   }>();
 
   return (
     <div
-      class="bg-background/96 text-foreground border-border/60 flex h-12 min-h-0 flex-col overflow-hidden border shadow-[0_10px_30px_rgb(0_0_0/0.10)] backdrop-blur-sm transition-[height] duration-300 ease-out data-[state=expanded]:h-120"
+      class="border-border/60 bg-background/96 text-foreground flex h-12 min-h-0 flex-col overflow-hidden border shadow-[0_10px_30px_rgb(0_0_0/0.10)] backdrop-blur-sm transition-[height] duration-300 ease-out data-[state=expanded]:h-120"
       data-state={lookup ? "expanded" : "collapsed"}
     >
       <SearchBar
-        dictionaryService={services.dictionary}
-        onSubmit={({ word, tasks }) => {
-          setLookup((current) => ({ id: (current?.id ?? 0) + 1, word, tasks }));
+        onOpenSettings={() => void chrome.runtime.openOptionsPage()}
+        onSearch={(text) => {
+          const request = { text };
+          const tasks = services.dictionary.lookup(request);
+          setLookup((current) => ({ id: (current?.id ?? 0) + 1, request, tasks }));
         }}
       />
       <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
         <LookupPanel
           key={lookup?.id}
-          ownerDocument={document}
+          audioService={services.audio}
           tasks={lookup?.tasks}
-          request={lookup ? { word: lookup.word } : undefined}
+          request={lookup?.request}
           ankiService={services.anki}
+          aiService={services.ai}
         />
       </div>
     </div>
@@ -36,21 +40,22 @@ function PopupApp({ services }: { services: AppServices }) {
 }
 
 function init() {
-  const services = new AppServices();
+  const services = createAppServices();
   const app = document.createElement("div");
   render(<PopupApp services={services} />, app);
   document.body.append(app);
-
-  return () => {
-    render(null, app);
-    app.remove();
-  };
+  window.addEventListener(
+    "pagehide",
+    () => {
+      render(null, app);
+      app.remove();
+    },
+    { once: true },
+  );
 }
 
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => {
-    window.addEventListener("pagehide", init(), { once: true });
-  });
+  document.addEventListener("DOMContentLoaded", init, { once: true });
 } else {
-  window.addEventListener("pagehide", init(), { once: true });
+  init();
 }

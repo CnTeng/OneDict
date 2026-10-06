@@ -1,5 +1,5 @@
 import iconUrl from "@assets/providers/jisho.png?inline";
-import type { Definition, DictionaryEntry, Pronunciation } from "@common/types";
+import type { Definition, Pronunciation, WordEntry } from "@common/types";
 import * as z from "zod";
 import { DictionaryProvider } from "../provider";
 
@@ -45,7 +45,7 @@ export class JishoDictionary extends DictionaryProvider {
   readonly iconUrl = iconUrl;
   readonly supportedLanguages = ["ja"] as const;
 
-  async lookup(word: string): Promise<DictionaryEntry | null> {
+  async lookup(word: string): Promise<WordEntry | null> {
     const result = this.parseResponse(
       await this.fetchJson(jishoResponseSchema, this.baseUrl, {
         searchParams: { keyword: word },
@@ -65,7 +65,7 @@ export class JishoDictionary extends DictionaryProvider {
     };
   }
 
-  private parseResponse(payload: z.infer<typeof jishoResponseSchema>): DictionaryEntry | null {
+  private parseResponse(payload: z.infer<typeof jishoResponseSchema>): WordEntry | null {
     const item = payload.data.find((entry) => this.parseDefinitions(entry).length > 0);
     if (!item) return null;
 

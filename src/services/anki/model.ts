@@ -1,35 +1,41 @@
 import type { AnkiModel, AnkiModelTemplate } from "@common/types";
 import * as z from "zod";
-import {
-  ANKI_MODEL_FIELDS,
-  ANKI_MODEL_NAME,
-  ANKI_MODEL_STYLE,
-  ANKI_TEMPLATE_MARKER,
-} from "./builtin";
+import { ANKI_MODEL, ANKI_TEXT_MODEL } from "./builtin";
 import type { AnkiRequest } from "./request";
-import { ANKI_MODEL_TEMPLATE } from "./template";
 
 const emptyResultSchema = z.null().transform(() => undefined);
 const modelSchema = z.record(z.string(), z.unknown());
 const modelStylingSchema = z.object({ css: z.string() });
+const modelTemplatesSchema = z.record(
+  z.string(),
+  z.object({ Front: z.string(), Back: z.string() }),
+);
 const stringArraySchema = z.array(z.string());
 
-export async function checkModel(request: AnkiRequest, modelName: string): Promise<void> {
-  assertDefaultFields(await getModelFields(request, modelName));
-  assertTemplateMarker((await getModelStyling(request, modelName)).css);
+export async function checkModel(
+  request: AnkiRequest,
+  model: AnkiModel,
+  marker: string,
+): Promise<void> {
+  const fields = new Set(await getModelFields(request, model.modelName));
+  if (!model.inOrderFields.every((field) => fields.has(field)))
+    throw new Error(`${model.modelName} is missing required fields. Please run Setup Template.`);
+  if (!(await getModelStyling(request, model.modelName)).css.includes(marker))
+    throw new Error(`${model.modelName} template is out of date. Please run Setup Template.`);
+  const templates = await request("modelTemplates", modelTemplatesSchema, {
+    modelName: model.modelName,
+  });
+  if (!model.cardTemplates.every(({ Name }) => Name in templates))
+    throw new Error(`${model.modelName} card types are out of date. Please run Setup Template.`);
 }
 
 export async function syncModel(request: AnkiRequest): Promise<void> {
-  const model = {
-    modelName: ANKI_MODEL_NAME,
-    inOrderFields: [...ANKI_MODEL_FIELDS],
-    css: ANKI_MODEL_STYLE,
-    cardTemplates: [ANKI_MODEL_TEMPLATE],
-  } satisfies AnkiModel;
-
-  await ((await getModels(request)).includes(model.modelName)
-    ? updateModel(request, model)
-    : createModel(request, model));
+  const models = await getModels(request);
+  for (const model of [ANKI_MODEL, ANKI_TEXT_MODEL]) {
+    await (models.includes(model.modelName)
+      ? updateModel(request, model)
+      : createModel(request, model));
+  }
 }
 
 function getModels(request: AnkiRequest): Promise<string[]> {
@@ -46,8 +52,8 @@ async function updateModel(request: AnkiRequest, model: AnkiModel): Promise<void
   await removeExtraModelFields(request, model.modelName, currentFields, model.inOrderFields);
   await repositionModelFields(request, model.modelName, model.inOrderFields);
 
-  await updateModelStyling(request, model.modelName, model.css);
   await updateModelTemplates(request, model.modelName, model.cardTemplates);
+  await updateModelStyling(request, model.modelName, model.css);
 }
 
 function getModelFields(request: AnkiRequest, modelName: string): Promise<string[]> {
@@ -56,19 +62,6 @@ function getModelFields(request: AnkiRequest, modelName: string): Promise<string
 
 function getModelStyling(request: AnkiRequest, modelName: string): Promise<{ css: string }> {
   return request("modelStyling", modelStylingSchema, { modelName });
-}
-
-function assertDefaultFields(fields: string[]): void {
-  const fieldSet = new Set(fields);
-  if (ANKI_MODEL_FIELDS.every((fieldName) => fieldSet.has(fieldName))) return;
-  throw new Error("Current note type is missing required fields. Please run Setup Template.");
-}
-
-function assertTemplateMarker(css: string): void {
-  if (css.includes(ANKI_TEMPLATE_MARKER)) return;
-  throw new Error(
-    "Current note type template was not created by Anki-Lex. Please run Setup Template.",
-  );
 }
 
 async function addMissingModelFields(
@@ -111,11 +104,24 @@ function updateModelStyling(request: AnkiRequest, modelName: string, css: string
   });
 }
 
-function updateModelTemplates(
+async function updateModelTemplates(
   request: AnkiRequest,
   modelName: string,
   templates: AnkiModelTemplate[],
 ): Promise<void> {
+  const current = await request("modelTemplates", modelTemplatesSchema, { modelName });
+  const legacyNames =
+    modelName === ANKI_MODEL.modelName ? ["OneDict", "Word"] : ["OneDict AI", "Text"];
+  for (const { Name } of templates) {
+    if (Name in current) continue;
+    const legacyName = legacyNames.find((name) => name in current);
+    if (!legacyName) throw new Error(`${modelName} is missing its card template: ${Name}.`);
+    await request("modelTemplateRename", emptyResultSchema, {
+      modelName,
+      oldTemplateName: legacyName,
+      newTemplateName: Name,
+    });
+  }
   return request("updateModelTemplates", emptyResultSchema, {
     model: {
       name: modelName,

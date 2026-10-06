@@ -6,6 +6,10 @@
 }
 
 .onedict-popover {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 2147483647;
   margin: 0;
   padding: 0;
   border: none;
@@ -27,6 +31,10 @@
 
 .onedict-floating-btn {
   all: initial;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 2147483647;
   display: inline-flex;
   align-items: center;
   justify-content: center;

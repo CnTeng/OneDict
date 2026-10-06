@@ -14,7 +14,7 @@ export function Badge({ children, variant = "muted", class: className }: BadgePr
         "inline-flex items-center rounded-full border px-2 py-0.5 font-medium",
         variant === "muted"
           ? "border-border/50 bg-muted/70 text-muted-foreground"
-          : "bg-secondary text-secondary-foreground border-[color-mix(in_srgb,var(--border)_70%,transparent)]",
+          : "border-border/70 bg-secondary text-secondary-foreground",
         className,
       )}
     >

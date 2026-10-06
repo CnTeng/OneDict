@@ -1,19 +1,20 @@
-import { LucideIcon } from "@views/components/icon";
 import { cn } from "cn";
-import { CircleCheck, Info, TriangleAlert } from "lucide";
+import { CircleCheck, Info, TriangleAlert } from "lucide-preact";
 import { useCallback, useEffect, useState } from "preact/hooks";
 
-export interface SettingsStatus {
+interface SettingsStatus {
   level: "success" | "error" | "info";
   message: string;
 }
 
 const statusClasses: Record<SettingsStatus["level"], string> = {
-  success:
-    "border-[color:color-mix(in_srgb,var(--success)_45%,var(--border))] bg-[color:color-mix(in_srgb,var(--success)_12%,var(--background))] text-[var(--success)]",
-  error:
-    "border-[color:color-mix(in_srgb,var(--destructive)_45%,var(--border))] bg-[color:color-mix(in_srgb,var(--destructive)_12%,var(--background))] text-[var(--destructive)]",
-  info: "border-[color:color-mix(in_srgb,var(--info)_45%,var(--border))] bg-[color:color-mix(in_srgb,var(--info)_12%,var(--background))] text-[var(--info)]",
+  success: cn(
+    "bg-success/12 text-success border-[color:color-mix(in_srgb,var(--success)_45%,var(--border))]",
+  ),
+  error: cn(
+    "bg-destructive/12 text-destructive border-[color:color-mix(in_srgb,var(--destructive)_45%,var(--border))]",
+  ),
+  info: cn("bg-info/12 text-info border-[color:color-mix(in_srgb,var(--info)_45%,var(--border))]"),
 };
 
 const statusIcons = {
@@ -42,6 +43,7 @@ export function useSettingsStatus() {
 
 export function SettingsNotice({ status }: { status?: SettingsStatus }) {
   if (!status) return null;
+  const Icon = statusIcons[status.level];
 
   return (
     <div
@@ -51,11 +53,7 @@ export function SettingsNotice({ status }: { status?: SettingsStatus }) {
         statusClasses[status.level],
       )}
     >
-      <LucideIcon
-        iconNode={statusIcons[status.level]}
-        className="mt-0.5 shrink-0"
-        customAttrs={{ width: 16, height: 16 }}
-      />
+      <Icon class="mt-0.5 shrink-0" size={16} />
       <span>{status.message}</span>
     </div>
   );

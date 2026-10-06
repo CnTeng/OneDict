@@ -22,11 +22,13 @@
   },
   "dependencies": {
     "@floating-ui/dom": "^1.8.0",
+    "@lezer/common": "^1.5.2",
     "@lezer/highlight": "^1.2.5",
     "@lezer/markdown": "^1.7.2",
     "cn": "^0.4.0",
     "ky": "^2.1.0",
-    "lucide": "^1.52.0",
+    "lucide-preact": "^1.52.0",
+    "openai": "^7.28.0",
     "preact": "11.0.0",
     "sentencex-ts": "^0.1.13-ts",
     "zod": "^4.6.5"
@@ -34,7 +36,6 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "@types/chrome": "^0.3.4",
-    "@types/jsdom": "^30.0.0",
     "@types/node": "^26.6.4",
     "adm-zip": "^0.6.1",
     "jsdom": "^30.1.2",

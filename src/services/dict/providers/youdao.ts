@@ -1,5 +1,5 @@
 import iconUrl from "@assets/providers/youdao.png?inline";
-import type { Definition, DictionaryEntry, Example, Pronunciation } from "@common/types";
+import type { Definition, Example, Pronunciation, WordEntry } from "@common/types";
 import { DictionaryProvider } from "../provider";
 
 export class YoudaoDictionary extends DictionaryProvider {
@@ -8,7 +8,7 @@ export class YoudaoDictionary extends DictionaryProvider {
   readonly iconUrl = iconUrl;
   readonly supportedLanguages = ["en"] as const;
 
-  async lookup(word: string): Promise<DictionaryEntry | null> {
+  async lookup(word: string): Promise<WordEntry | null> {
     const entry = this.parseDocument(
       await this.fetchDocument(`https://dict.youdao.com/w/${encodeURIComponent(word)}`),
     );
@@ -21,13 +21,14 @@ export class YoudaoDictionary extends DictionaryProvider {
     );
   }
 
-  public parseDocument(doc: Document): DictionaryEntry | null {
+  public parseDocument(doc: Document): WordEntry | null {
     const container = doc.querySelector("#collinsResult");
     if (!container) return null;
+    const definitions = this.parseCollinsDefinitions(container);
 
     return {
       word: this.parseWord(container),
-      definitions: this.parseCollinsDefinitions(container) ?? this.parsePhraseDefinitions(doc),
+      definitions: definitions.length > 0 ? definitions : this.parsePhraseDefinitions(doc),
       pronunciations: this.parsePronunciations(doc),
       metadata: {
         ...this.parseMetadata(container),
@@ -57,6 +58,7 @@ export class YoudaoDictionary extends DictionaryProvider {
       if (pos && fullText.startsWith(pos)) {
         fullText = this.normalizeText(fullText.substring(pos.length));
       }
+      if (!fullText) return;
 
       const examples: Example[] = [];
       const exampleLis = defNode.querySelectorAll(".exampleLists");

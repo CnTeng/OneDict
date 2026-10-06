@@ -1,6 +1,6 @@
-import type { Context } from "@common/types";
 import { getSentenceBoundaries } from "sentencex-ts";
 import { detectLanguage } from "./language";
+import type { Context } from "./types/context";
 
 const blockSelector =
   "p, pre, div, li, blockquote, h1, h2, h3, h4, h5, h6, section, article, main, header, footer";
@@ -31,18 +31,7 @@ function findTextEdge(node: Node, side: "start" | "end"): Text | null {
 
   const walker = dom.doc.createTreeWalker(node, dom.view.NodeFilter.SHOW_TEXT);
 
-  if (side === "start") {
-    return walker.nextNode() as Text | null;
-  }
-
-  let current = walker.nextNode() as Text | null;
-  if (!current) return null;
-
-  for (let next = walker.nextNode() as Text | null; next; next = walker.nextNode() as Text | null) {
-    current = next;
-  }
-
-  return current;
+  return (side === "start" ? walker.firstChild() : walker.lastChild()) as Text | null;
 }
 
 function resolveBaseNode(node: Node, offset: number, side: "start" | "end"): Node {

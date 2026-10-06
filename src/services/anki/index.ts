@@ -1,25 +1,43 @@
-import type { DictionaryEntry } from "@common/types";
-import { ANKI_MODEL_NAME } from "./builtin";
-import { getDecks } from "./deck";
-import { checkModel, syncModel } from "./model";
-import { createNoteFromEntry } from "./note";
-import { createAnkiRequest } from "./request";
+import type {
+  AnkiConfig,
+  IAnkiConfigService,
+  IAnkiService,
+  TextEntry,
+  WordEntry,
+} from "@common/types";
+import { AnkiClient } from "./client";
 
-export type AnkiClient = {
-  getDecks: () => Promise<string[]>;
-  syncTemplate: () => Promise<void>;
-  createNote: (deckName: string, entry: DictionaryEntry) => Promise<void>;
-};
+export class AnkiService implements IAnkiService {
+  constructor(private readonly config: IAnkiConfigService) {}
 
-export function createAnkiClient(baseUrl: string): AnkiClient {
-  const request = createAnkiRequest(baseUrl);
+  private async getAnki(config?: AnkiConfig, signal?: AbortSignal): Promise<AnkiClient> {
+    return new AnkiClient((config ?? (await this.config.get())).connectUrl, signal);
+  }
 
-  return {
-    getDecks: () => getDecks(request),
-    syncTemplate: () => syncModel(request),
-    createNote: (deckName, entry) =>
-      checkModel(request, ANKI_MODEL_NAME).then(() =>
-        createNoteFromEntry(request, deckName, entry),
-      ),
-  };
+  createWordNote(entry: WordEntry, context?: string): Promise<void> {
+    return this.getNoteConfig().then((config) =>
+      new AnkiClient(config.connectUrl).createWordNote(config.deck, entry, context),
+    );
+  }
+
+  createTextNote(entry: TextEntry, context?: string): Promise<void> {
+    return this.getNoteConfig().then((config) =>
+      new AnkiClient(config.connectUrl).createTextNote(config.deck, entry, context),
+    );
+  }
+
+  private getNoteConfig(): Promise<AnkiConfig> {
+    return this.config.get().then((config) => {
+      if (!config.deck) throw new Error("Choose an Anki deck in Settings before adding cards.");
+      return config;
+    });
+  }
+
+  getDecks(config?: AnkiConfig, signal?: AbortSignal): Promise<string[]> {
+    return this.getAnki(config, signal).then((anki) => anki.getDecks());
+  }
+
+  syncTemplate(config?: AnkiConfig, signal?: AbortSignal): Promise<void> {
+    return this.getAnki(config, signal).then((anki) => anki.syncTemplate());
+  }
 }

@@ -1,22 +1,15 @@
-:root {
-  --sb-w: var(--scrollbar-width, 8px);
-  --sb-thumb: var(--scrollbar-thumb, rgba(0, 0, 0, 0.12));
-  --sb-thumb-hover: var(--scrollbar-thumb-hover, rgba(0, 0, 0, 0.18));
-  --sb-track: var(--scrollbar-track, transparent);
-}
-
 * {
-  @apply [&::-webkit-scrollbar]:w-(--sb-w);
+  @apply [&::-webkit-scrollbar]:w-(--scrollbar-width);
   @apply [&::-webkit-scrollbar-thumb]:rounded-full;
   &::-webkit-scrollbar-thumb {
-    background: var(--sb-thumb);
+    background: var(--scrollbar-thumb);
   }
 
   &:hover::-webkit-scrollbar-thumb {
-    background: var(--sb-thumb-hover);
+    background: var(--scrollbar-thumb-hover);
   }
 
   &::-webkit-scrollbar-track {
-    background: var(--sb-track);
+    background: var(--scrollbar-track);
   }
 }

@@ -1,36 +1,24 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import AdmZip from "adm-zip";
-import { build } from "vite";
+import { createBuilder } from "vite";
+import pkg from "../package.json" with { type: "json" };
 import type { Target } from "../src/platforms/manifests/index.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const resolve = (p: string) => path.resolve(__dirname, p);
-
-async function runVite(mode: string) {
-  await build({
-    logLevel: "warn",
-    mode,
-  });
-}
+const resolve = (p: string) => path.resolve(import.meta.dirname, p);
 
 const runBuild = async (target: Target) => {
   const start = Date.now();
   console.info(`🛠️ Building: ${target}...`);
 
-  await runVite(target);
+  const builder = await createBuilder({ logLevel: "warn", mode: target });
+  await builder.buildApp();
 
   const duration = ((Date.now() - start) / 1000).toFixed(2);
   console.info(`✅ Done: ${target} built in ${duration}s`);
 };
 
-interface PackageJson {
-  name: string;
-  version: string;
-}
-
-const runPackage = async (target: Target, pkg: PackageJson) => {
+const runPackage = async (target: Target) => {
   const start = Date.now();
 
   const { name, version } = pkg;
@@ -50,14 +38,13 @@ const runPackage = async (target: Target, pkg: PackageJson) => {
 };
 
 const main = async () => {
-  const pkg = JSON.parse(await fs.readFile(resolve("../package.json"), "utf8"));
   const target = process.argv[2] as Target;
   const shouldPackage = process.argv.includes("--package");
 
   try {
     await runBuild(target);
     if (shouldPackage) {
-      await runPackage(target, pkg);
+      await runPackage(target);
     }
   } catch (err) {
     console.error(`\n 🛑 FAILED  ${target}:`, err);
