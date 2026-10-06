@@ -1,7 +1,7 @@
 import type { Definition, Example } from "@common/types";
+import { AddToAnkiButton } from "@views/components/add-to-anki-button";
 import { cn } from "cn";
 import { useState } from "preact/hooks";
-import { AddButton } from "./add-button";
 
 interface DictionaryDefinitionsSectionProps {
   definitions: Definition[];
@@ -45,6 +45,7 @@ function DefinitionRow({ definition, index, onAddClick, toggleTranslation }: Def
 
   return (
     <div
+      data-def-index={index}
       data-state={translationVisible ? "open" : "closed"}
       role={toggleTranslation ? "button" : undefined}
       class={cn(
@@ -62,7 +63,7 @@ function DefinitionRow({ definition, index, onAddClick, toggleTranslation }: Def
     >
       <div class="flex flex-1 items-start justify-between gap-2">
         <DefinitionContent definition={definition} />
-        {onAddClick && <AddButton index={index} onAddClick={onAddClick} />}
+        {onAddClick && <AddToAnkiButton onAdd={() => onAddClick(index)} />}
       </div>
       <Examples examples={definition.examples} />
     </div>

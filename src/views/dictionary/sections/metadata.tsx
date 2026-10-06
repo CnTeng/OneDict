@@ -1,8 +1,7 @@
 import type { Metadata } from "@common/types";
 import { Badge } from "@views/components/badge";
-import { LucideIcon } from "@views/components/icon";
 import { cn } from "cn";
-import { Star } from "lucide";
+import { Star } from "lucide-preact";
 
 const FREQUENCY_STAR_COUNT = 5;
 
@@ -21,10 +20,9 @@ export function DictionaryMetadataSection({ metadata, className }: DictionaryMet
       {frequency > 0 && (
         <div class="flex items-center gap-0.5">
           {Array.from({ length: FREQUENCY_STAR_COUNT }, (_, index) => (
-            <LucideIcon
+            <Star
               key={index}
-              iconNode={Star}
-              className={cn(
+              class={cn(
                 "h-4 w-4",
                 index < frequency ? "text-warning fill-current" : "text-muted-foreground",
               )}

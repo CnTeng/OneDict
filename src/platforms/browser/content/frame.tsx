@@ -1,10 +1,19 @@
 import type { Context } from "@common/types";
-import { AppServices } from "@services/app";
 import { LookupPanel } from "@views/lookup-panel";
 import { render } from "preact";
 import { useEffect, useState } from "preact/hooks";
+import * as z from "zod";
+import { createAppServices } from "../app";
 
-function FrameApp({ services }: { services: AppServices }) {
+const lookupMessageSchema = z.object({
+  action: z.literal("onedict:lookup"),
+  data: z.object({
+    word: z.string().min(1),
+    context: z.object({ context: z.string(), lang: z.string() }).optional(),
+  }),
+});
+
+function FrameApp({ services }: { services: ReturnType<typeof createAppServices> }) {
   const [lookup, setLookup] = useState<{
     id: number;
     word: string;
@@ -14,12 +23,10 @@ function FrameApp({ services }: { services: AppServices }) {
 
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
-      if (event.data?.action !== "onedict:lookup") return;
-      const { word, context } = (event.data?.data ?? {}) as {
-        word?: string;
-        context?: Context;
-      };
-      if (!word) return;
+      if (event.source !== window.parent) return;
+      const message = lookupMessageSchema.safeParse(event.data);
+      if (!message.success) return;
+      const { word, context } = message.data.data;
       const tasks = services.dictionary.lookup(word, context);
       setLookup((current) => ({
         id: (current?.id ?? 0) + 1,
@@ -38,10 +45,11 @@ function FrameApp({ services }: { services: AppServices }) {
       <div class="flex h-0 flex-1 flex-col">
         <LookupPanel
           key={lookup?.id}
-          ownerDocument={document}
+          audioService={services.audio}
           tasks={lookup?.tasks}
           request={lookup ? { word: lookup.word, context: lookup.context } : undefined}
           ankiService={services.anki}
+          aiService={services.ai}
         />
       </div>
     </div>
@@ -50,7 +58,7 @@ function FrameApp({ services }: { services: AppServices }) {
 
 const app = document.createElement("div");
 app.className = "h-full";
-const services = new AppServices();
+const services = createAppServices();
 render(<FrameApp services={services} />, app);
 document.body.append(app);
 window.addEventListener("pagehide", () => render(null, app), { once: true });

@@ -1,29 +1,21 @@
 import { extractContext } from "@common/context";
-import { AppServices } from "@services/app";
-import { HtmlAudioService } from "@services/audio";
 import { LookupPanel } from "@views/lookup-panel";
 import { render } from "preact";
+import { createAppServices } from "../app";
 import { observeDetachedRoot } from "../mount";
 import { configureZoteroPreact } from "../preact";
 import popupStyle from "./popup.css?inline";
 
-let audioService: HtmlAudioService | undefined;
 const mountedPopups = new Set<() => void>();
 
-function getAudioService() {
-  audioService ??= new HtmlAudioService(Zotero.getMainWindow().document);
-  return audioService;
-}
-
 const handler = (event: _ZoteroTypes.Reader.EventParams<"renderTextSelectionPopup">) => {
-  const services = new AppServices();
+  const services = createAppServices();
   const { reader, params, append } = event;
   // Zotero obtains this document through `event.detail.wrappedJSObject`, whose
   // Xray waiver is transitive. Rewrap it so UI-library expandos and event
   // callbacks are observed through the same chrome-side DOM reflector.
   const doc: Document = Cu.unwaiveXrays(event.doc);
-  const popup = doc.querySelector(".selection-popup") as HTMLDivElement;
-  popup.style.maxWidth = "none";
+  doc.querySelector<HTMLElement>(".selection-popup")?.style.setProperty("max-width", "none");
 
   const expression = params.annotation.text.trim();
 
@@ -43,11 +35,11 @@ const handler = (event: _ZoteroTypes.Reader.EventParams<"renderTextSelectionPopu
   root.className = "flex min-h-0 flex-1 flex-col";
   render(
     <LookupPanel
-      ownerDocument={doc}
       tasks={services.dictionary.lookup(expression, context ?? undefined)}
       request={{ word: expression, context: context ?? undefined }}
       ankiService={services.anki}
-      audioService={getAudioService()}
+      aiService={services.ai}
+      audioService={services.audio}
     />,
     root,
   );
@@ -81,9 +73,5 @@ export function unregisterPopup() {
 
   Zotero.Reader.unregisterEventListener("renderTextSelectionPopup", handler);
 
-  const readerWithPluginCleanup = Zotero.Reader as typeof Zotero.Reader & {
-    _unregisterEventListenerByPluginID?: (pluginId: string) => void;
-  };
-  readerWithPluginCleanup._unregisterEventListenerByPluginID?.(registeredPluginId);
   registeredPluginId = null;
 }

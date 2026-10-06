@@ -1,18 +1,32 @@
 import { cn } from "cn";
-import { useLayoutEffect, useMemo, useRef, useState } from "preact/hooks";
-import { getMarkdownHighlightSegments } from "./markdown";
+import { useLayoutEffect, useMemo, useRef } from "preact/hooks";
+import { highlightMarkdown } from "./markdown";
 
 interface EditorProps {
-  initialValue?: string;
+  value: string;
+  ariaLabel?: string;
+  disabled?: boolean;
+  appearance?: "note" | "content";
   className?: string;
   placeholder?: string;
-  onChanged?: (value: string) => void;
+  onChanged: (value: string) => void;
 }
 
-export function Editor({ initialValue = "", className, placeholder = "", onChanged }: EditorProps) {
-  const [value, setValue] = useState(initialValue);
+export function Editor({
+  value,
+  ariaLabel,
+  disabled,
+  appearance = "note",
+  className,
+  placeholder = "",
+  onChanged,
+}: EditorProps) {
+  const textClass =
+    appearance === "content"
+      ? "p-0 text-[0.95rem] leading-relaxed"
+      : "p-3 font-mono text-sm leading-6";
   const highlight = useMemo(
-    () => getMarkdownHighlightSegments(value.endsWith("\n") ? `${value} ` : value),
+    () => highlightMarkdown(value.endsWith("\n") ? `${value} ` : value),
     [value],
   );
   const highlightRef = useRef<HTMLDivElement>(null);
@@ -35,30 +49,27 @@ export function Editor({ initialValue = "", className, placeholder = "", onChang
       <div
         ref={highlightRef}
         aria-hidden="true"
-        class="text-foreground pointer-events-none absolute inset-0 overflow-auto p-3 font-mono text-sm leading-6 wrap-break-word whitespace-pre-wrap tab-2"
-      >
-        {highlight.map(({ text, className }, index) =>
-          className ? (
-            <span key={index} class={className}>
-              {text}
-            </span>
-          ) : (
-            text
-          ),
+        class={cn(
+          "text-foreground pointer-events-none wrap-break-word whitespace-pre-wrap tab-2",
+          appearance === "content" ? "min-h-24" : "absolute inset-0 overflow-auto",
+          textClass,
         )}
+      >
+        {highlight}
       </div>
       <textarea
         ref={textareaRef}
-        defaultValue={initialValue}
-        class="caret-foreground placeholder:text-foreground/45 absolute inset-0 h-full w-full resize-none overflow-auto border-0 bg-transparent p-3 font-mono text-sm leading-6 wrap-break-word whitespace-pre-wrap tab-2 text-transparent outline-none"
+        value={value}
+        aria-label={ariaLabel}
+        disabled={disabled}
+        class={cn(
+          "caret-foreground placeholder:text-foreground/45 absolute inset-0 h-full w-full resize-none overflow-auto border-0 bg-transparent wrap-break-word whitespace-pre-wrap tab-2 text-transparent shadow-none outline-none",
+          textClass,
+        )}
         placeholder={placeholder}
         spellcheck={false}
         autocomplete="off"
-        onInput={(event) => {
-          const nextValue = event.currentTarget.value;
-          setValue(nextValue);
-          onChanged?.(nextValue);
-        }}
+        onInput={(event) => onChanged(event.currentTarget.value)}
         onScroll={syncScroll}
       />
     </div>

@@ -1,45 +1,44 @@
 import type { DictionaryEntry, IAudioService } from "@common/types";
+import { ContentHeader } from "@views/components/content-header";
+import { ContextSection } from "@views/components/context-section";
 import {
-  DictionaryContextSection,
   DictionaryDefinitionsSection,
-  DictionaryHeaderSection,
   DictionaryMetadataSection,
   DictionaryPronunciationsSection,
-} from "./sections";
+} from "@views/dictionary/sections";
+import { CardLayout } from "./components/card-layout";
 
-interface AnkiCardFrontProps {
+interface WordCardFrontProps {
   entry: DictionaryEntry;
-  soundLinks?: HTMLAnchorElement[];
-  audioService?: IAudioService;
+  audioService: IAudioService;
 }
 
-export function AnkiCardFront({ entry, soundLinks = [], audioService }: AnkiCardFrontProps) {
+export function WordCardFront({ entry, audioService }: WordCardFrontProps) {
   return (
-    <div class="mx-auto max-w-150 p-5 pt-10">
-      <DictionaryHeaderSection
-        word={entry.word}
-        provider={entry.metadata.providerName}
-        className="mb-4 flex items-baseline justify-center gap-3"
+    <CardLayout side="front">
+      <ContentHeader
+        text={entry.word}
+        source={entry.metadata.providerName}
+        className="mb-4 justify-center"
       />
       <DictionaryMetadataSection metadata={entry.metadata} className="mb-4 justify-center" />
       <DictionaryPronunciationsSection
         pronunciations={entry.pronunciations}
-        soundLinks={soundLinks}
         audioService={audioService}
         className="text-foreground/60 justify-center gap-6 text-[1rem]"
       />
-      <DictionaryContextSection context={entry.context} />
-    </div>
+      <ContextSection context={entry.context} />
+    </CardLayout>
   );
 }
 
-interface AnkiCardBackProps {
+interface WordCardBackProps {
   entry: DictionaryEntry;
 }
 
-export function AnkiCardBack({ entry }: AnkiCardBackProps) {
+export function WordCardBack({ entry }: WordCardBackProps) {
   return (
-    <div class="mx-auto max-w-150 p-5 pt-0 text-left">
+    <CardLayout side="back">
       <div id="onedict-definitions">
         <DictionaryDefinitionsSection
           definitions={entry.definitions}
@@ -47,6 +46,6 @@ export function AnkiCardBack({ entry }: AnkiCardBackProps) {
           className="text-foreground leading-relaxed"
         />
       </div>
-    </div>
+    </CardLayout>
   );
 }

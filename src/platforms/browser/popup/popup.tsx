@@ -1,10 +1,10 @@
-import { AppServices } from "@services/app";
 import { LookupPanel } from "@views/lookup-panel";
 import { SearchBar } from "@views/search-bar";
 import { render } from "preact";
 import { useState } from "preact/hooks";
+import { createAppServices } from "../app";
 
-function PopupApp({ services }: { services: AppServices }) {
+function PopupApp({ services }: { services: ReturnType<typeof createAppServices> }) {
   const [lookup, setLookup] = useState<{
     id: number;
     word: string;
@@ -18,6 +18,7 @@ function PopupApp({ services }: { services: AppServices }) {
     >
       <SearchBar
         dictionaryService={services.dictionary}
+        onOpenSettings={() => void chrome.runtime.openOptionsPage()}
         onSubmit={({ word, tasks }) => {
           setLookup((current) => ({ id: (current?.id ?? 0) + 1, word, tasks }));
         }}
@@ -25,10 +26,11 @@ function PopupApp({ services }: { services: AppServices }) {
       <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
         <LookupPanel
           key={lookup?.id}
-          ownerDocument={document}
+          audioService={services.audio}
           tasks={lookup?.tasks}
           request={lookup ? { word: lookup.word } : undefined}
           ankiService={services.anki}
+          aiService={services.ai}
         />
       </div>
     </div>
@@ -36,7 +38,7 @@ function PopupApp({ services }: { services: AppServices }) {
 }
 
 function init() {
-  const services = new AppServices();
+  const services = createAppServices();
   const app = document.createElement("div");
   render(<PopupApp services={services} />, app);
   document.body.append(app);

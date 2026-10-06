@@ -4,6 +4,7 @@ export function manifestPlugin({ manifest }: { manifest: unknown }): Plugin {
   return {
     name: "vite-plugin-extension-manifest",
     apply: "build",
+    applyToEnvironment: (environment) => environment.name === "client",
 
     generateBundle() {
       this.emitFile({

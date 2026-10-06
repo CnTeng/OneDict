@@ -1,20 +1,35 @@
-import type { AnkiConfig } from "./config";
+import type { TextCard } from "./anki";
+import type { AiConfig, AnkiConfig } from "./config";
 import type { Context } from "./context";
-import type { DictionaryEntry, DictionaryLookupTask } from "./dict";
+import type { DictionaryEntry, DictionaryLookupTask, Pronunciation } from "./dict";
 
 export interface IConfigStore<T> {
   get(): Promise<T>;
   set(config: T): Promise<void>;
-  update(patch: Partial<T>): Promise<T>;
-  reset(): Promise<T>;
   onDidChange(listener: (config: T) => void): () => void;
 }
 
 export type IAnkiConfigService = IConfigStore<AnkiConfig>;
+export type IAiConfigService = IConfigStore<AiConfig>;
+
+export interface AiExplanationRequest {
+  word: string;
+  context?: Context;
+}
+
+export interface IAiService {
+  testConnection(config: AiConfig, signal?: AbortSignal): Promise<void>;
+  explain(
+    request: AiExplanationRequest,
+    signal?: AbortSignal,
+    onContent?: (content: string) => void,
+  ): Promise<string>;
+  listModels(config: AiConfig, signal?: AbortSignal): Promise<string[]>;
+}
 
 export interface IConfigService {
   anki: IAnkiConfigService;
-  reset(): Promise<void>;
+  ai: IAiConfigService;
 }
 
 export interface IDictionaryService {
@@ -22,11 +37,13 @@ export interface IDictionaryService {
 }
 
 export interface IAudioService {
-  play(url: string): Promise<void>;
+  canPlay(pronunciation: Pronunciation, index: number): boolean;
+  play(pronunciation: Pronunciation, index: number): Promise<void>;
 }
 
 export interface IAnkiService {
   createNote(result: DictionaryEntry): Promise<void>;
-  getDecks(): Promise<string[]>;
-  syncTemplate(): Promise<void>;
+  createTextNote(card: TextCard): Promise<void>;
+  getDecks(config?: AnkiConfig, signal?: AbortSignal): Promise<string[]>;
+  syncTemplate(config?: AnkiConfig, signal?: AbortSignal): Promise<void>;
 }

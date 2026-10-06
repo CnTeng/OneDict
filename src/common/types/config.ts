@@ -1,4 +1,4 @@
-export type { AnkiConfig } from "../config";
+export type { AiConfig, AnkiConfig } from "../config";
 
 export interface SelectOption {
   value: string;

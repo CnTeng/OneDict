@@ -1,6 +1,5 @@
-import { LucideIcon } from "@views/components/icon";
 import { cn } from "cn";
-import { CircleCheck, Info, TriangleAlert } from "lucide";
+import { CircleCheck, Info, TriangleAlert } from "lucide-preact";
 import { useCallback, useEffect, useState } from "preact/hooks";
 
 export interface SettingsStatus {
@@ -42,6 +41,7 @@ export function useSettingsStatus() {
 
 export function SettingsNotice({ status }: { status?: SettingsStatus }) {
   if (!status) return null;
+  const Icon = statusIcons[status.level];
 
   return (
     <div
@@ -51,11 +51,7 @@ export function SettingsNotice({ status }: { status?: SettingsStatus }) {
         statusClasses[status.level],
       )}
     >
-      <LucideIcon
-        iconNode={statusIcons[status.level]}
-        className="mt-0.5 shrink-0"
-        customAttrs={{ width: 16, height: 16 }}
-      />
+      <Icon class="mt-0.5 shrink-0" size={16} />
       <span>{status.message}</span>
     </div>
   );

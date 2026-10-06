@@ -6,9 +6,11 @@ import {
   pronunciationSchema,
 } from "@common/types/dict";
 import { HtmlAudioService } from "@services/audio";
-import { AnkiCardBack, AnkiCardFront } from "@views/dictionary/card";
 import { type ComponentChildren, render } from "preact";
 import type * as z from "zod";
+import { createAnkiAudioService } from "./audio";
+import { TextCardBack, TextCardFront } from "./text-card";
+import { WordCardBack, WordCardFront } from "./word-card";
 
 type RootRegistry = Map<HTMLElement, () => void>;
 
@@ -48,11 +50,11 @@ function getEntry(): DictionaryEntry | undefined {
   const metadata = parseField("raw-metadata", metadataSchema);
   const context = readField("raw-context");
 
-  if (!word || !definition || !metadata) return undefined;
+  if (!word || !metadata) return undefined;
 
   return {
     word,
-    definitions: [{ ...definition, examples }],
+    definitions: definition ? [{ ...definition, examples }] : [],
     pronunciations,
     metadata,
     context,
@@ -72,7 +74,23 @@ function mountCard(root: HTMLElement, content: ComponentChildren) {
   roots.set(root, () => render(null, root));
 }
 
-export function initAnkiFront() {
+export function initTextFront() {
+  const text = readField("raw-text");
+  const root = document.getElementById("onedict-front-root");
+  if (!text || !root) return;
+
+  mountCard(root, <TextCardFront text={text} context={readField("raw-context")} />);
+}
+
+export function initTextBack() {
+  const explanation = readField("raw-explanation");
+  const root = document.getElementById("onedict-back-root");
+  if (!explanation || !root) return;
+
+  mountCard(root, <TextCardBack explanation={explanation} />);
+}
+
+export function initWordFront() {
   const entry = getEntry();
   const root = document.getElementById("onedict-front-root");
   if (!entry || !root) return;
@@ -82,18 +100,21 @@ export function initAnkiFront() {
 
   mountCard(
     root,
-    <AnkiCardFront
+    <WordCardFront
       entry={entry}
-      soundLinks={soundLinks}
-      audioService={new HtmlAudioService(document)}
+      audioService={createAnkiAudioService(
+        entry.pronunciations,
+        soundLinks,
+        new HtmlAudioService(() => document.createElement("audio")),
+      )}
     />,
   );
 }
 
-export function initAnkiBack() {
+export function initWordBack() {
   const entry = getEntry();
   const root = document.getElementById("onedict-back-root");
   if (!entry || !root) return;
 
-  mountCard(root, <AnkiCardBack entry={entry} />);
+  mountCard(root, <WordCardBack entry={entry} />);
 }

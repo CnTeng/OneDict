@@ -1,13 +1,13 @@
 import type { DictionaryLookupTask, IDictionaryService } from "@common/types";
 import { IconButton } from "@views/components/button";
-import { LucideIcon } from "@views/components/icon";
 import { Input } from "@views/components/input";
-import { Search, Settings } from "lucide";
+import { Search, Settings } from "lucide-preact";
 import { useEffect, useRef } from "preact/hooks";
 
 export interface SearchBarOptions {
   dictionaryService: IDictionaryService;
   onSubmit: (submission: SearchSubmission) => void;
+  onOpenSettings: () => void;
 }
 
 export interface SearchSubmission {
@@ -15,7 +15,7 @@ export interface SearchSubmission {
   tasks: DictionaryLookupTask[];
 }
 
-export function SearchBar({ dictionaryService, onSubmit }: SearchBarOptions) {
+export function SearchBar({ dictionaryService, onSubmit, onOpenSettings }: SearchBarOptions) {
   const localInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => localInputRef.current?.focus(), []);
 
@@ -31,7 +31,7 @@ export function SearchBar({ dictionaryService, onSubmit }: SearchBarOptions) {
         }}
       >
         <span class="text-muted-foreground flex items-center justify-center">
-          <LucideIcon iconNode={Search} customAttrs={{ width: 16, height: 16 }} />
+          <Search size={16} />
         </span>
         <Input
           ref={localInputRef}
@@ -45,9 +45,9 @@ export function SearchBar({ dictionaryService, onSubmit }: SearchBarOptions) {
           type="button"
           title="Settings"
           class="hover:bg-background/70 rounded-full"
-          onClick={() => void chrome.runtime.openOptionsPage()}
+          onClick={onOpenSettings}
         >
-          <LucideIcon iconNode={Settings} customAttrs={{ width: 16, height: 16 }} />
+          <Settings size={16} />
         </IconButton>
       </form>
     </div>

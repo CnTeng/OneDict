@@ -25,3 +25,9 @@ export interface AnkiNote {
   audio?: AnkiMedia[];
   picture?: AnkiMedia[];
 }
+
+export interface TextCard {
+  text: string;
+  context?: string;
+  explanation: string;
+}

@@ -1,22 +1,29 @@
-import { AppServices } from "@services/app";
 import { OptionsPage } from "@views/options";
 import { render } from "preact";
+import { createAppServices } from "../app";
 import { observeDetachedRoot } from "../mount";
 import { configureZoteroPreact } from "../preact";
 
 let registeredPaneId: string | null = null;
 const mountedPrefs = new Map<Document, () => void>();
 
-export function mountPrefs(doc: Document) {
+export function mountPrefs(document: Document) {
+  // Keep Preact's DOM expandos and event callbacks on the same chrome-side reflector.
+  const doc: Document = Cu.unwaiveXrays(document);
   const root = doc.getElementById("onedict-prefpane-main");
   if (!root) return;
 
-  const services = new AppServices();
+  const services = createAppServices();
 
   mountedPrefs.get(doc)?.();
   configureZoteroPreact();
   render(
-    <OptionsPage ownerDocument={doc} configService={services.config} ankiService={services.anki} />,
+    <OptionsPage
+      configService={services.config}
+      ankiService={services.anki}
+      aiService={services.ai}
+      onOpenLink={(url) => Zotero.launchURL(url)}
+    />,
     root,
   );
   let disposed = false;

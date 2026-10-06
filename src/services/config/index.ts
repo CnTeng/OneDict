@@ -1,14 +1,11 @@
-import { ankiConfigSchema } from "@common/config";
+import { aiConfigSchema, ankiConfigSchema } from "@common/config";
 import type { IConfigService } from "@common/types";
+import type { StorageAdapter } from "./storage";
 import { createConfigStore } from "./store";
 
-const stores = {
-  anki: createConfigStore("extensions.onedict.config.anki", ankiConfigSchema),
-};
-
-export const config = {
-  ...stores,
-  async reset() {
-    await Promise.all(Object.values(stores).map((store) => store.reset()));
-  },
-} satisfies IConfigService;
+export function createConfigService(storage: StorageAdapter) {
+  return {
+    anki: createConfigStore("extensions.onedict.config.anki", ankiConfigSchema, storage),
+    ai: createConfigStore("extensions.onedict.config.ai", aiConfigSchema, storage),
+  } satisfies IConfigService;
+}

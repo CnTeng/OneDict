@@ -83,7 +83,7 @@ export class ZdicDictionary extends DictionaryProvider {
       pronunciations.push({
         type: "pinyin",
         text,
-        audioUrl: audios?.length === 1 ? `https:${audios[0]}` : undefined,
+        audioUrl: audios?.length === 1 ? new URL(audios[0], this.baseUrl).href : undefined,
       });
     });
 

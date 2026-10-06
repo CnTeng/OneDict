@@ -1,40 +1,61 @@
-import { errorMessage } from "@common/error";
-import type { IConfigService } from "@common/types";
 import { Button } from "@views/components/button";
-import { LucideIcon } from "@views/components/icon";
-import { RotateCcw } from "lucide";
+import { PlugZap, RotateCcw, Save } from "lucide-preact";
+import type { ComponentChildren } from "preact";
+import type { SettingsAction } from "./action";
 
 interface OptionsFooterProps {
-  ownerDocument: Document;
-  configService: IConfigService;
+  busy?: SettingsAction;
+  dirty: boolean;
+  onReset: () => void;
+  onTest: () => void;
+  onSave: () => void;
+  children?: ComponentChildren;
 }
 
-export function OptionsFooter({ ownerDocument, configService }: OptionsFooterProps) {
-  const reset = async () => {
-    if (
-      !ownerDocument.defaultView?.confirm("Are you sure you want to reset all options to defaults?")
-    ) {
-      return;
-    }
-
-    await configService
-      .reset()
-      .catch((error: unknown) =>
-        ownerDocument.defaultView?.alert(`Failed to reset options: ${errorMessage(error)}`),
-      );
-  };
-
+export function OptionsFooter({
+  busy,
+  dirty,
+  onReset,
+  onTest,
+  onSave,
+  children,
+}: OptionsFooterProps) {
   return (
-    <footer class="border-border bg-muted/20 border-t px-4 py-4 sm:px-6">
+    <footer class="border-border flex flex-wrap gap-2 border-t pt-4">
       <Button
-        title="Reset all options to default"
-        variant="ghost"
-        class="text-destructive w-full sm:w-auto"
-        onClick={() => void reset()}
+        variant="destructive"
+        size="icon"
+        title="Reset"
+        aria-label="Reset"
+        disabled={Boolean(busy)}
+        onClick={onReset}
       >
-        <LucideIcon iconNode={RotateCcw} customAttrs={{ width: 16, height: 16 }} />
-        Reset Defaults
+        <RotateCcw class="size-4" />
       </Button>
+      <div class="flex flex-1 flex-wrap justify-end gap-2">
+        {children}
+        <Button
+          size="icon"
+          title="Test Connection"
+          aria-label="Test Connection"
+          loading={busy === "test"}
+          disabled={Boolean(busy)}
+          onClick={onTest}
+        >
+          <PlugZap class="size-4" />
+        </Button>
+        <Button
+          variant="success"
+          size="icon"
+          title="Save"
+          aria-label="Save"
+          loading={busy === "save"}
+          disabled={Boolean(busy) || !dirty}
+          onClick={onSave}
+        >
+          <Save class="size-4" />
+        </Button>
+      </div>
     </footer>
   );
 }

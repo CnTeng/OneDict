@@ -10,19 +10,27 @@ type InputProps = Omit<
 > & {
   class?: string;
   appearance?: "field" | "bare";
+  type?: "text" | "password";
 };
 
-export function Input({ class: className, appearance = "field", ...props }: InputProps) {
-  return (
-    <input
-      {...props}
-      type="text"
-      class={cn(
-        appearance === "field"
-          ? fieldControlClass
-          : "text-foreground placeholder:text-muted-foreground w-full border-none bg-transparent text-sm shadow-none outline-none hover:border-transparent focus-visible:border-transparent focus-visible:shadow-none",
-        className,
-      )}
-    />
+export function Input({
+  class: className,
+  appearance = "field",
+  type = "text",
+  ...props
+}: InputProps) {
+  const inputProps = {
+    ...props,
+    class: cn(
+      appearance === "field"
+        ? fieldControlClass
+        : "text-foreground placeholder:text-muted-foreground w-full border-none bg-transparent text-sm shadow-none outline-none hover:border-transparent focus-visible:border-transparent focus-visible:shadow-none",
+      className,
+    ),
+  };
+  return type === "password" ? (
+    <input {...inputProps} type="password" />
+  ) : (
+    <input {...inputProps} type="text" />
   );
 }

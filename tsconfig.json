@@ -11,9 +11,10 @@
     "paths": {
       "@assets/*": ["./src/assets/*"],
       "@common/*": ["./src/common/*"],
+      "@platforms/*": ["./src/platforms/*"],
       "@services/*": ["./src/services/*"],
       "@views/*": ["./src/views/*"]
     }
   },
-  "include": ["build", "src"]
+  "include": ["build", "scripts", "src", "vite.config.ts"]
 }

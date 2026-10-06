@@ -1,12 +1,12 @@
-import { MarkdownContent } from "@views/components/markdown";
 import { cn } from "cn";
+import { MarkdownContent } from "./markdown";
 
-interface DictionaryContextSectionProps {
+interface ContextSectionProps {
   context?: string;
   className?: string;
 }
 
-export function DictionaryContextSection({ context, className }: DictionaryContextSectionProps) {
+export function ContextSection({ context, className }: ContextSectionProps) {
   const value = context?.trim();
   if (!value) return null;
 

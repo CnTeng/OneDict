@@ -1,8 +1,7 @@
 import { errorMessage } from "@common/error";
 import { IconButton } from "@views/components/button";
-import { LucideIcon } from "@views/components/icon";
 import { cn } from "cn";
-import { Check, Plus, X } from "lucide";
+import { Check, LoaderCircle, Plus, X } from "lucide-preact";
 import { useState } from "preact/hooks";
 
 type AddButtonState =
@@ -10,33 +9,35 @@ type AddButtonState =
   | { status: "error"; error: unknown };
 
 const stateClasses: Record<"loading" | "success" | "error", string> = {
-  loading: "cursor-wait opacity-70",
-  success: "bg-[color-mix(in_srgb,var(--success)_18%,var(--background))] text-[var(--success)]",
-  error:
+  loading: cn("cursor-wait opacity-70"),
+  success: cn("bg-[color-mix(in_srgb,var(--success)_18%,var(--background))] text-[var(--success)]"),
+  error: cn(
     "bg-[color-mix(in_srgb,var(--destructive)_18%,var(--background))] text-[var(--destructive)]",
+  ),
 };
 
-interface AddButtonProps {
-  index: number;
-  onAddClick: (index: number) => void | Promise<void>;
+interface AddToAnkiButtonProps {
+  onAdd: () => void | Promise<void>;
+  disabled?: boolean;
 }
 
-export function AddButton({ index, onAddClick }: AddButtonProps) {
+export function AddToAnkiButton({ onAdd, disabled }: AddToAnkiButtonProps) {
   const [state, setState] = useState<AddButtonState>({ status: "idle" });
 
   const handleClick = (event: MouseEvent) => {
     event.stopPropagation();
-    if (state.status === "loading") return;
+    if (disabled || state.status === "loading" || state.status === "success") return;
 
     setState({ status: "loading" });
     void Promise.resolve()
-      .then(() => onAddClick(index))
+      .then(onAdd)
       .then(
         () => setState({ status: "success" }),
         (error: unknown) => setState({ status: "error", error }),
       );
   };
 
+  const Icon = state.status === "success" ? Check : state.status === "error" ? X : Plus;
   const label =
     state.status === "error"
       ? `Failed to add to Anki: ${errorMessage(state.error)}`
@@ -51,19 +52,12 @@ export function AddButton({ index, onAddClick }: AddButtonProps) {
       <IconButton
         title={label}
         aria-label={label}
-        data-def-index={index}
         data-state={state.status}
-        disabled={state.status === "loading"}
+        disabled={disabled || state.status === "loading" || state.status === "success"}
         class={cn("text-foreground/60", state.status !== "idle" && stateClasses[state.status])}
         onClick={handleClick}
       >
-        {state.status === "loading" ? (
-          <span class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-        ) : (
-          <LucideIcon
-            iconNode={state.status === "success" ? Check : state.status === "error" ? X : Plus}
-          />
-        )}
+        {state.status === "loading" ? <LoaderCircle class="size-4 animate-spin" /> : <Icon />}
       </IconButton>
       {state.status === "error" && (
         <p role="alert" class="text-destructive max-w-48 text-right text-xs">

@@ -24,10 +24,11 @@ export class YoudaoDictionary extends DictionaryProvider {
   public parseDocument(doc: Document): DictionaryEntry | null {
     const container = doc.querySelector("#collinsResult");
     if (!container) return null;
+    const definitions = this.parseCollinsDefinitions(container);
 
     return {
       word: this.parseWord(container),
-      definitions: this.parseCollinsDefinitions(container) ?? this.parsePhraseDefinitions(doc),
+      definitions: definitions.length > 0 ? definitions : this.parsePhraseDefinitions(doc),
       pronunciations: this.parsePronunciations(doc),
       metadata: {
         ...this.parseMetadata(container),
@@ -57,6 +58,7 @@ export class YoudaoDictionary extends DictionaryProvider {
       if (pos && fullText.startsWith(pos)) {
         fullText = this.normalizeText(fullText.substring(pos.length));
       }
+      if (!fullText) return;
 
       const examples: Example[] = [];
       const exampleLis = defNode.querySelectorAll(".exampleLists");

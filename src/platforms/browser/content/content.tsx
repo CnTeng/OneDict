@@ -9,8 +9,7 @@ import {
   offset,
   shift,
 } from "@floating-ui/dom";
-import { LucideIcon } from "@views/components/icon";
-import { Search } from "lucide";
+import { Search } from "lucide-preact";
 import { render } from "preact";
 import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks";
 import contentStyles from "./content.css?inline";
@@ -20,6 +19,12 @@ interface SelectedText {
   context: Context;
   reference: ReferenceElement;
 }
+
+const positionOptions = {
+  placement: "right-start" as const,
+  middleware: [inline(), offset(8), flip(), shift({ padding: 8 })],
+  strategy: "fixed" as const,
+};
 
 function ContentPopover({ host }: { host: HTMLElement }) {
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -51,19 +56,56 @@ function ContentPopover({ host }: { host: HTMLElement }) {
     };
 
     const onMouseUp = (event: MouseEvent) => {
-      if (event.composedPath().includes(host)) return;
+      const path = event.composedPath();
+      if (path.includes(host)) return;
       const selection = view.getSelection();
       if (!selection?.rangeCount) return;
 
       const word = selection.toString().trim();
-      if (!word || word.length > 100) return;
+      if (!word) return;
 
-      const range = selection.getRangeAt(0);
-      const context = extractContext(range, doc.documentElement.lang);
-      if (!context) return;
+      const shadowRoots = path.filter(
+        (node): node is ShadowRoot => node instanceof view.ShadowRoot,
+      );
+      const composedRange = selection.getComposedRanges?.({ shadowRoots })[0];
+      const range = doc.createRange();
+      if (composedRange) {
+        range.setStart(composedRange.startContainer, composedRange.startOffset);
+        range.setEnd(composedRange.endContainer, composedRange.endOffset);
+      } else {
+        // Older Chromium exposes selections through ShadowRoot.getSelection().
+        const scopedSelection =
+          shadowRoots
+            .map((root) => {
+              if (!("getSelection" in root) || typeof root.getSelection !== "function") return;
+              const current = root.getSelection();
+              return current instanceof view.Selection ? current : undefined;
+            })
+            .find((current) => current?.rangeCount && !current.getRangeAt(0).collapsed) ??
+          selection;
+        const selectedRange = scopedSelection.getRangeAt(0);
+        range.setStart(selectedRange.startContainer, selectedRange.startOffset);
+        range.setEnd(selectedRange.endContainer, selectedRange.endOffset);
+      }
+      if (range.collapsed || !range.getClientRects()?.length) return;
+      const context = extractContext(range, doc.documentElement.lang) ?? {
+        context: "",
+        lang: doc.documentElement.lang,
+      };
 
       setButtonVisible(false);
-      setSelected({ word, context, reference: range });
+      setSelected({
+        word,
+        context,
+        reference: {
+          getBoundingClientRect: () => range.getBoundingClientRect(),
+          getClientRects: () => range.getClientRects() ?? [],
+          contextElement:
+            range.commonAncestorContainer.nodeType === view.Node.ELEMENT_NODE
+              ? (range.commonAncestorContainer as Element)
+              : (range.commonAncestorContainer.parentElement ?? doc.documentElement),
+        },
+      });
     };
 
     const onMouseDown = (event: MouseEvent) => {
@@ -72,35 +114,23 @@ function ContentPopover({ host }: { host: HTMLElement }) {
       setButtonVisible(false);
     };
 
-    view.addEventListener("message", onMessage);
-    doc.addEventListener("mouseup", onMouseUp);
-    doc.addEventListener("mousedown", onMouseDown);
+    const controller = new view.AbortController();
+    view.addEventListener("message", onMessage, { signal: controller.signal });
+    doc.addEventListener("mouseup", onMouseUp, { signal: controller.signal });
+    doc.addEventListener("mousedown", onMouseDown, { signal: controller.signal });
 
-    return () => {
-      view.removeEventListener("message", onMessage);
-      doc.removeEventListener("mouseup", onMouseUp);
-      doc.removeEventListener("mousedown", onMouseDown);
-    };
+    return () => controller.abort();
   }, [host]);
 
   useLayoutEffect(() => {
     const button = buttonRef.current;
-    const popover = popoverRef.current;
-    if (!selected || !button || !popover) return;
+    if (!selected || !button) return;
     let active = true;
-    const options = {
-      placement: "right-start" as const,
-      middleware: [inline(), offset(8), shift({ padding: 8 }), flip()],
-      strategy: "absolute" as const,
-    };
 
-    void computePosition(selected.reference, button, options).then(({ x, y }) => {
+    void computePosition(selected.reference, button, positionOptions).then(({ x, y }) => {
       if (!active) return;
       setButtonPosition({ x, y });
       setButtonVisible(true);
-    });
-    void computePosition(selected.reference, popover, options).then(({ x, y }) => {
-      if (active) setPopoverPosition({ x, y });
     });
 
     return () => {
@@ -109,15 +139,26 @@ function ContentPopover({ host }: { host: HTMLElement }) {
   }, [selected]);
 
   useEffect(() => {
+    const button = buttonRef.current;
+    if (!buttonVisible || !selected || !button) return;
+    let active = true;
+    const stop = autoUpdate(selected.reference, button, () => {
+      void computePosition(selected.reference, button, positionOptions).then(({ x, y }) => {
+        if (active) setButtonPosition({ x, y });
+      });
+    });
+    return () => {
+      active = false;
+      stop();
+    };
+  }, [buttonVisible, selected]);
+
+  useEffect(() => {
     const popover = popoverRef.current;
     if (!popoverOpen || !selected || !popover) return;
     let active = true;
     const stop = autoUpdate(selected.reference, popover, () => {
-      void computePosition(selected.reference, popover, {
-        placement: "right-start",
-        middleware: [inline(), offset(8), shift({ padding: 8 }), flip()],
-        strategy: "absolute",
-      }).then(({ x, y }) => {
+      void computePosition(selected.reference, popover, positionOptions).then(({ x, y }) => {
         if (active) setPopoverPosition({ x, y });
       });
     });
@@ -143,22 +184,23 @@ function ContentPopover({ host }: { host: HTMLElement }) {
         class="onedict-floating-btn"
         title="Search in One dictionary"
         style={{
-          position: "absolute",
-          display: buttonVisible ? "" : "none",
+          position: "fixed",
+          display: selected ? "" : "none",
+          visibility: buttonVisible ? "visible" : "hidden",
           left: `${buttonPosition.x}px`,
           top: `${buttonPosition.y}px`,
           zIndex: 2147483647,
         }}
         onClick={() => setButtonVisible(false)}
       >
-        <LucideIcon iconNode={Search} />
+        <Search />
       </button>
       <div
         ref={popoverRef}
         class="onedict-popover"
         popover="auto"
         style={{
-          position: "absolute",
+          position: "fixed",
           left: `${popoverPosition.x}px`,
           top: `${popoverPosition.y}px`,
           zIndex: 2147483647,
@@ -179,17 +221,19 @@ function ContentPopover({ host }: { host: HTMLElement }) {
 
 const host = document.createElement("div");
 const shadow = host.attachShadow({ mode: "open" });
-const style = document.createElement("style");
-style.textContent = contentStyles;
-const root = document.createElement("div");
-shadow.append(style, root);
 document.documentElement.append(host);
 
-render(<ContentPopover host={host} />, root);
+render(
+  <>
+    <style>{contentStyles}</style>
+    <ContentPopover host={host} />
+  </>,
+  shadow,
+);
 window.addEventListener(
   "pagehide",
   () => {
-    render(null, root);
+    render(null, shadow);
     host.remove();
   },
   { once: true },
