@@ -1,9 +1,10 @@
+import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { type Target, createZoteroUpdate } from "@platforms/manifests";
 import AdmZip from "adm-zip";
 import { createBuilder } from "vite";
 import pkg from "../package.json" with { type: "json" };
-import type { Target } from "../src/platforms/manifests/index.js";
 
 const resolve = (p: string) => path.resolve(import.meta.dirname, p);
 
@@ -28,10 +29,20 @@ const runPackage = async (target: Target) => {
 
   const zip = new AdmZip();
   zip.addLocalFolder(resolve(`../dist/${target}`));
-  zip.writeZip(outPath);
+  const archive = zip.toBuffer();
+  await fs.writeFile(outPath, archive);
+  if (target === "zotero") {
+    await fs.writeFile(
+      resolve("../dist/update.json"),
+      JSON.stringify(
+        createZoteroUpdate(outputName, createHash("sha256").update(archive).digest("hex")),
+        null,
+        2,
+      ) + "\n",
+    );
+  }
 
-  const stats = await fs.stat(outPath);
-  const size = (stats.size / 1024 / 1024).toFixed(2);
+  const size = (archive.byteLength / 1024 / 1024).toFixed(2);
   const duration = ((Date.now() - start) / 1000).toFixed(2);
 
   console.info(`📦 Package: ${outputName} (${size} MB) in ${duration}s`);
