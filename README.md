@@ -1,69 +1,51 @@
-# One dictionary
+<p align="center">
+  <img src="src/assets/icons/icon.svg" width="96" height="96" alt="One Dictionary logo">
+</p>
 
-A browser extension for looking up words in online dictionaries and adding them to Anki.
+# One Dictionary
+
+Look up words, explain text with AI, and add cards to Anki — in Chrome, Firefox, and Zotero.
 
 ## Features
 
-- **Vanilla TypeScript** - No frontend frameworks, just clean TypeScript.
-- **Service-Oriented Architecture** - Inspired by Bitwarden's extension.
-- **Direct AnkiConnect** - Direct integration with Anki desktop via AnkiConnect.
-- **Dictionary Support** - Multiple English-Chinese and English-English dictionaries.
+- Dictionary lookup with definitions, examples, pronunciation, and context.
+- AI explanations through OpenAI-compatible providers, with streaming and editable Markdown.
+- AnkiConnect integration with **OneDict Word** and **OneDict Text** note types.
+- English and Simplified Chinese interfaces, following the platform language.
 
-## Supported Dictionaries
+Supported dictionaries: **Youdao**, **Bing**, **Zdic** (Chinese), and **Jisho** (Japanese).
 
-- Youdao (有道英汉)
-- Cambridge (剑桥英汉双解)
-- Collins (柯林斯英汉双解)
-- Oxford (牛津英汉双解)
+## Installation
 
-## Getting Started
-
-### Installation
-
-1. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-2. Build and package:
-
-   ```bash
-   # Build all platforms
-   npm run build
-
-   # Package all platforms (creates .zip and .xpi files in dist/)
-   npm run package
-
-   # Build/Package specific platform
-   npm run package:chrome
-   npm run package:firefox
-   npm run package:zotero
-   ```
-
-3. Load in Chrome/Firefox/Zotero:
-   - Chrome/Firefox: Load the `dist/chrome` or `dist/firefox` folder as an unpacked extension.
-   - Zotero: Install the `.xpi` file from the `dist/` folder.
-
-### Testing
-
-Run the tests using vitest:
+Supports Chrome 114+, Firefox 125+, and Zotero 7–10. Node.js 24+ and npm are recommended for building.
 
 ```bash
-npm test
+npm ci
+npm run build
+npm run package
 ```
 
-## Architecture
+For a single platform, use `npm run build:chrome` or `npm run package:chrome`, replacing `chrome` with `firefox` or `zotero` as needed.
 
-The project follows a clean service-oriented architecture:
+- **Chrome:** Open `chrome://extensions`, enable **Developer mode**, and **Load unpacked** from `dist/chrome`.
+- **Firefox:** Open `about:debugging` → **This Firefox → Load Temporary Add-on**, then select `dist/firefox/manifest.json`. Temporary installation lasts until Firefox restarts.
+- **Zotero:** Open **Tools → Plugins** and drag `dist/onedict-zotero-v<version>.xpi` onto the Plugins window.
 
-- `src/common/` - Shared types, constants, and cross-runtime utilities.
-- `src/platforms/` - Platform entrypoints, manifests, and packaged assets.
-- `src/services/` - Service implementations (Config, Anki, Dictionary, platform adapters).
+## Usage
 
-See [Dictionary providers and concurrent lookup](docs/dictionary-providers.md) for the provider and
-lookup architecture.
+Select a word or passage, then choose a dictionary or AI from the sidebar. Selecting AI starts an explanation immediately; click **+** to add a result to Anki.
+
+- **AI setup:** Enter an API base URL and key, **Fetch Models**, select a chat model and explanation language, then **Save**. Local providers may not require a key.
+- **Anki setup:** Install [AnkiConnect](https://git.sr.ht/~foosoft/anki-connect) and keep Anki running. **Fetch Decks**, select a deck, **Save**, then run **Setup Template**.
+
+Settings require explicit saving. Browser settings, including AI credentials, use browser sync storage; Zotero uses local preferences. They do not sync between platforms.
+
+## References
+
+- [ODH](https://github.com/ninja33/ODH)
+- [Saladict](https://github.com/crimx/ext-saladict)
+- [zotero-odh](https://github.com/1ywan/zotero-odh)
 
 ## License
 
-MIT
+[MIT](LICENSE)
