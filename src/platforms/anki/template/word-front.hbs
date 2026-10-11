@@ -8,7 +8,4 @@
 <script id="raw-context" type="text/plain">{{context}}</script>
 <div id="raw-audio" style="display: none;">{{audio}}</div>
 
-<script>
-  {{! FRONT_SCRIPT }}
-  if (typeof AnkiCard !== "undefined") AnkiCard.initWordFront();
-</script>
+<script src="_onedict.js" onload="AnkiCard.initWordFront(); AnkiCard.initWordBack();"></script>

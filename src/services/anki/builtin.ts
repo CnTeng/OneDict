@@ -18,7 +18,7 @@ export const ANKI_MODEL_FIELDS = [
   "version",
 ] as const;
 
-export const ANKI_TEMPLATE_VERSION = 5;
+export const ANKI_TEMPLATE_VERSION = 6;
 
 export const ANKI_TEMPLATE_MARKER = `onedict-template:${ANKI_TEMPLATE_VERSION}`;
 
@@ -35,7 +35,7 @@ export const ANKI_MODEL = {
   cardTemplates: [ANKI_MODEL_TEMPLATE],
 } satisfies AnkiModel;
 
-export const ANKI_TEXT_TEMPLATE_VERSION = 2;
+export const ANKI_TEXT_TEMPLATE_VERSION = 3;
 export const ANKI_TEXT_TEMPLATE_MARKER = `onedict-text-template:${ANKI_TEXT_TEMPLATE_VERSION}`;
 export const ANKI_TEXT_MODEL = {
   modelName: "OneDict Text",
