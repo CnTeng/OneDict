@@ -1,5 +1,6 @@
 import { t } from "@common/i18n";
 import type { AnkiModel, AnkiModelTemplate } from "@common/types";
+import { ANKI_CARD_SCRIPT } from "@platforms/anki/template";
 import * as z from "zod";
 import { ANKI_MODEL, ANKI_TEXT_MODEL } from "./builtin";
 import type { AnkiRequest } from "./request";
@@ -43,6 +44,7 @@ export async function checkModel(
 }
 
 export async function syncModel(request: AnkiRequest): Promise<void> {
+  await request("storeMediaFile", z.literal(ANKI_CARD_SCRIPT.filename), ANKI_CARD_SCRIPT);
   const models = await getModels(request);
   for (const model of [ANKI_MODEL, ANKI_TEXT_MODEL]) {
     await (models.includes(model.modelName)

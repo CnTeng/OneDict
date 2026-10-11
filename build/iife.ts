@@ -15,7 +15,8 @@ export function iifePlugin(): Plugin {
       if (!id.endsWith("&iife")) return null;
 
       const queryIndex = id.indexOf("?");
-      const name = new URLSearchParams(id.slice(queryIndex)).get("name");
+      const query = new URLSearchParams(id.slice(queryIndex));
+      const name = query.get("name");
       if (!name) throw new Error(`IIFE import requires a global name: ${id}`);
 
       const result = await build({
@@ -45,7 +46,7 @@ export function iifePlugin(): Plugin {
       }
 
       return {
-        code: `export default ${JSON.stringify(chunk.code)};`,
+        code: `export default ${JSON.stringify(query.has("base64") ? Buffer.from(chunk.code).toString("base64") : chunk.code)};`,
         map: null,
       };
     },

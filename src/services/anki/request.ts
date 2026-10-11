@@ -14,6 +14,7 @@ type AnkiAction =
   | "modelStyling"
   | "modelTemplateRename"
   | "modelTemplates"
+  | "storeMediaFile"
   | "updateModelStyling"
   | "updateModelTemplates";
 
