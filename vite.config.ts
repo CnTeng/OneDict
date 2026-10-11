@@ -1,7 +1,7 @@
 import { resolve } from "node:path";
 import tailwindcss from "@tailwindcss/vite";
 import { type UserConfig, defineConfig, mergeConfig } from "vite";
-import { viteStaticCopy } from "vite-plugin-static-copy";
+import { assetsPlugin } from "./build/assets.ts";
 import { iifePlugin } from "./build/iife.ts";
 import { manifestPlugin } from "./build/manifest.ts";
 import { MANIFESTS, type Target } from "./src/platforms/manifests/index.ts";
@@ -44,17 +44,7 @@ const strategies: Record<"browser" | "zotero", UserConfig> = {
   },
 
   zotero: {
-    plugins: [
-      viteStaticCopy({
-        targets: [
-          {
-            src: "platforms/zotero/prefs/prefs.xhtml",
-            dest: "prefs",
-            rename: { stripBase: true },
-          },
-        ],
-      }),
-    ],
+    plugins: [assetsPlugin({ "platforms/zotero/prefs/prefs.xhtml": "prefs" })],
     build: {
       lib: {
         entry: "platforms/zotero/bootstrap.ts",
@@ -88,7 +78,7 @@ export default defineConfig(({ mode }) => {
       iifePlugin(),
       tailwindcss(),
       manifestPlugin({ manifest: MANIFESTS[target] }),
-      viteStaticCopy({ targets: [{ src: "assets/icons/*", dest: "." }] }),
+      assetsPlugin({ "assets/icons/*": "assets/icons" }),
     ],
     build: {
       target: "esnext",
