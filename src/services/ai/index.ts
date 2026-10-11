@@ -1,3 +1,4 @@
+import { t } from "@common/i18n";
 import type {
   AiConfig,
   IAiConfigService,
@@ -26,7 +27,7 @@ export class AiService implements IAiService {
     signal?: AbortSignal,
     onContent?: (content: string) => void,
   ): Promise<TextEntry> {
-    if (!text.trim()) throw new Error("Select text before requesting an AI explanation.");
+    if (!text.trim()) throw new Error(t("errors.textRequired"));
     return this.config.get().then((config) =>
       this.complete(
         config,
@@ -48,8 +49,7 @@ export class AiService implements IAiService {
       .catch((error: unknown) => this.handleError(error, signal, true))
       .then(({ data }) => {
         const models = [...new Set(data.map(({ id }) => id.trim()).filter(Boolean))].sort();
-        if (!models.length)
-          throw new Error("No models were returned. Check your API key and model access.");
+        if (!models.length) throw new Error(t("errors.noModels"));
         return models;
       });
   }
@@ -71,18 +71,15 @@ export class AiService implements IAiService {
   private handleError(error: unknown, signal?: AbortSignal, models = false): never {
     if (signal?.aborted || error instanceof OpenAI.APIUserAbortError) throw error;
     if (error instanceof OpenAI.APIConnectionTimeoutError) {
-      throw new Error("The AI request timed out. Please retry.", { cause: error });
+      throw new Error(t("errors.aiTimeout"), { cause: error });
     }
     if (error instanceof OpenAI.APIConnectionError) {
-      throw new Error("Could not connect to the AI provider. Check the API URL and connection.", {
+      throw new Error(t("errors.aiConnection"), {
         cause: error,
       });
     }
     if (models && error instanceof OpenAI.APIError && [404, 405, 501].includes(error.status ?? 0)) {
-      throw new Error(
-        "This provider does not offer a model list at this URL. Check the API base URL or use a provider that supports model discovery.",
-        { cause: error },
-      );
+      throw new Error(t("errors.modelsUnavailable"), { cause: error });
     }
     throw error;
   }
@@ -94,7 +91,7 @@ export class AiService implements IAiService {
     onContent?: (content: string) => void,
   ): Promise<string> {
     signal?.throwIfAborted();
-    if (!config.model) throw new Error("Set an AI model in Settings first.");
+    if (!config.model) throw new Error(t("errors.aiModel"));
     const stream = this.createClient(config).chat.completions.stream(
       {
         model: config.model,

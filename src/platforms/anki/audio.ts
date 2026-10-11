@@ -1,3 +1,4 @@
+import { t } from "@common/i18n";
 import type { IAudioService, Pronunciation } from "@common/types";
 
 export class AnkiAudioService implements IAudioService {
@@ -18,7 +19,7 @@ export class AnkiAudioService implements IAudioService {
 
   async play(_pronunciation: Pronunciation, index: number): Promise<void> {
     const link = this.links[index];
-    if (!link) throw new Error("No Anki audio is available for this pronunciation.");
+    if (!link) throw new Error(t("errors.ankiAudio"));
     // Activate the original element, preserving Anki's handlers and media bridge.
     link.click();
   }

@@ -1,3 +1,4 @@
+import { t } from "@common/i18n";
 import type {
   AnkiNote,
   Definition,
@@ -93,8 +94,7 @@ export async function createTextNote(
   entry: TextEntry,
   context?: string,
 ): Promise<void> {
-  if (!entry.text.trim() || !entry.explanation.trim())
-    throw new Error("Text cards require selected text and an explanation.");
+  if (!entry.text.trim() || !entry.explanation.trim()) throw new Error(t("errors.textCard"));
   await createNote(request, {
     deckName,
     modelName: ANKI_TEXT_MODEL.modelName,

@@ -1,4 +1,5 @@
 import { errorMessage } from "@common/error";
+import { t } from "@common/i18n";
 import type { IConfigStore } from "@common/types";
 import { useLayoutEffect, useState } from "preact/hooks";
 import type * as z from "zod";
@@ -68,7 +69,7 @@ export function useSettingsDraft<T extends Record<string, unknown>>(
 
   const reset = () => {
     if (actions.busy) return;
-    actions.showStatus("info", "Defaults restored.");
+    actions.showStatus("info", t("settings.restored"));
     setDraft((current) => ({ ...current, config: schema.parse(undefined) }));
   };
 
@@ -81,12 +82,12 @@ export function useSettingsDraft<T extends Record<string, unknown>>(
       async (signal) => {
         const parsed = schema.safeParse(draft.config);
         if (!parsed.success)
-          throw new Error(parsed.error.issues[0]?.message ?? "Check your settings.");
+          throw new Error(parsed.error.issues[0]?.message ?? t("settings.check"));
         return operation(parsed.data, signal).then(() => parsed.data);
       },
       {
-        pending: action === "save" ? "Saving settings..." : "Testing connection...",
-        success: action === "save" ? "Settings saved." : "Connection successful!",
+        pending: t(action === "save" ? "settings.saving" : "settings.testing"),
+        success: t(action === "save" ? "settings.saved" : "settings.connected"),
         onSuccess: action === "save" ? (config) => setDraft({ config, saved: config }) : undefined,
       },
     );

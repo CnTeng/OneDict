@@ -1,3 +1,4 @@
+import { i18n } from "@common/i18n";
 import {
   type WordEntry,
   definitionSchema,
@@ -59,6 +60,7 @@ function getEntry(): WordEntry | undefined {
 }
 
 function mountCard(root: HTMLElement, content: ComponentChildren) {
+  void i18n.changeLanguage(navigator.language);
   const roots = (ankiGlobal.__oneDictAnkiRoots ??= new Map());
 
   for (const [mountedRoot, dispose] of roots) {

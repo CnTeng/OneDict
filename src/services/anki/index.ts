@@ -1,3 +1,4 @@
+import { t } from "@common/i18n";
 import type {
   AnkiConfig,
   IAnkiConfigService,
@@ -28,7 +29,7 @@ export class AnkiService implements IAnkiService {
 
   private getNoteConfig(): Promise<AnkiConfig> {
     return this.config.get().then((config) => {
-      if (!config.deck) throw new Error("Choose an Anki deck in Settings before adding cards.");
+      if (!config.deck) throw new Error(t("errors.ankiDeck"));
       return config;
     });
   }

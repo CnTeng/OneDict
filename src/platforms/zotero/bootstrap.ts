@@ -1,5 +1,6 @@
 import "./runtime";
 import { errorMessage } from "@common/error";
+import { i18n } from "@common/i18n";
 import { registerPopup, unregisterPopup } from "./popup/popup";
 import { mountPrefs, registerPrefs, unregisterPrefs } from "./prefs/prefs";
 import "./prefs/prefs.css";
@@ -23,6 +24,8 @@ export async function startup(
   _reason: number,
 ) {
   await Zotero.initializationPromise;
+
+  void i18n.changeLanguage(Zotero.locale);
 
   zoteroWithOneDict.OneDict = { mountPrefs };
   registerPopup(params.id);

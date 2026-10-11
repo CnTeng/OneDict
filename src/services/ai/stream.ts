@@ -1,3 +1,4 @@
+import { t } from "@common/i18n";
 import OpenAI from "openai";
 import type { ChatCompletionStream } from "openai/lib/ChatCompletionStream";
 
@@ -29,12 +30,10 @@ export function readExplanation(
     .then(({ choices: [choice] }) => {
       signal?.throwIfAborted();
       // Unstructured streams do not reject these finish reasons in the SDK.
-      if (choice?.finish_reason === "length")
-        throw new Error("The AI explanation was cut short. Please retry or use another model.");
-      if (choice?.finish_reason === "content_filter")
-        throw new Error("The AI provider filtered this explanation. Try another word or model.");
+      if (choice?.finish_reason === "length") throw new Error(t("errors.aiTruncated"));
+      if (choice?.finish_reason === "content_filter") throw new Error(t("errors.aiFiltered"));
       const content = choice?.message?.content?.trim();
-      if (!content) throw new Error("The AI provider returned no explanation. Please retry.");
+      if (!content) throw new Error(t("errors.aiEmpty"));
       return content;
     });
 }

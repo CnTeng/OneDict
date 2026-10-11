@@ -1,3 +1,4 @@
+import { t } from "@common/i18n";
 import { IconButton } from "@views/components/button";
 import { Input } from "@views/components/input";
 import { Search, Settings } from "lucide-preact";
@@ -30,13 +31,13 @@ export function SearchBar({ onSearch, onOpenSettings }: SearchBarProps) {
           ref={localInputRef}
           appearance="bare"
           required
-          placeholder="Search ..."
+          placeholder={t("search.placeholder")}
           autocomplete="off"
           class="px-2 py-1.5"
         />
         <IconButton
           type="button"
-          label="Settings"
+          label={t("settings.title")}
           class="hover:bg-background/70 rounded-full"
           onClick={onOpenSettings}
         >

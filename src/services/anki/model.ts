@@ -1,3 +1,4 @@
+import { t } from "@common/i18n";
 import type { AnkiModel, AnkiModelTemplate } from "@common/types";
 import * as z from "zod";
 import { ANKI_MODEL, ANKI_TEXT_MODEL } from "./builtin";
@@ -19,14 +20,26 @@ export async function checkModel(
 ): Promise<void> {
   const fields = new Set(await getModelFields(request, model.modelName));
   if (!model.inOrderFields.every((field) => fields.has(field)))
-    throw new Error(`${model.modelName} is missing required fields. Please run Setup Template.`);
+    throw new Error(
+      t("anki.missingFields", {
+        model: model.modelName,
+      }),
+    );
   if (!(await getModelStyling(request, model.modelName)).css.includes(marker))
-    throw new Error(`${model.modelName} template is out of date. Please run Setup Template.`);
+    throw new Error(
+      t("anki.templateOutdated", {
+        model: model.modelName,
+      }),
+    );
   const templates = await request("modelTemplates", modelTemplatesSchema, {
     modelName: model.modelName,
   });
   if (!model.cardTemplates.every(({ Name }) => Name in templates))
-    throw new Error(`${model.modelName} card types are out of date. Please run Setup Template.`);
+    throw new Error(
+      t("anki.cardTypesOutdated", {
+        model: model.modelName,
+      }),
+    );
 }
 
 export async function syncModel(request: AnkiRequest): Promise<void> {
@@ -115,7 +128,7 @@ async function updateModelTemplates(
   for (const { Name } of templates) {
     if (Name in current) continue;
     const legacyName = legacyNames.find((name) => name in current);
-    if (!legacyName) throw new Error(`${modelName} is missing its card template: ${Name}.`);
+    if (!legacyName) throw new Error(t("anki.missingTemplate", { model: modelName, name: Name }));
     await request("modelTemplateRename", emptyResultSchema, {
       modelName,
       oldTemplateName: legacyName,

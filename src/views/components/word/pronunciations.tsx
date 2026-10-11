@@ -1,3 +1,4 @@
+import { t } from "@common/i18n";
 import type { IAudioService, Pronunciation } from "@common/types";
 import { cn } from "cn";
 import { Play } from "lucide-preact";
@@ -31,7 +32,7 @@ export function WordPronunciations({
             {text && <span class="text-foreground font-mono text-[0.92rem]">{text}</span>}
             {audioService?.canPlay(pronunciation, index) && (
               <IconButton
-                label={type ? `Play ${type} pronunciation` : "Play pronunciation"}
+                label={type ? t("audio.playType", { type }) : t("audio.play")}
                 size="xs"
                 class="text-foreground/60"
                 onClick={(event) => {

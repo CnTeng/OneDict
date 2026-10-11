@@ -1,3 +1,4 @@
+import { t } from "@common/i18n";
 import type { IAnkiConfigService, IAnkiService } from "@common/types";
 import { ankiConfigSchema } from "@common/types/config";
 import { Button } from "@views/components/button";
@@ -25,21 +26,21 @@ export function AnkiSettings({ configService, ankiService, onDirtyChange }: Anki
 
   const refreshDecks = () =>
     runAction("fetch", (signal) => ankiService.getDecks(config, signal), {
-      pending: "Connecting to Anki...",
-      success: "Anki connection successful!",
+      pending: t("anki.connecting"),
+      success: t("anki.connected"),
       onSuccess: setDeckOptions,
     });
 
   const syncTemplate = () =>
     runAction("template", (signal) => ankiService.syncTemplate(config, signal), {
-      pending: "Processing Anki templates...",
-      success: "Dictionary and AI templates are up to date!",
+      pending: t("anki.updatingTemplates"),
+      success: t("anki.templatesUpdated"),
     });
 
   return (
     <SettingsPage
       title="Anki"
-      description="Connect to Anki and choose a deck."
+      description={t("anki.description")}
       draft={draft}
       onTest={async (next, signal) => {
         const decks = await ankiService.getDecks(next, signal);
@@ -47,17 +48,17 @@ export function AnkiSettings({ configService, ankiService, onDirtyChange }: Anki
       }}
       footerActions={
         <Button
-          title="Create or upgrade the OneDict Word and OneDict Text note types in Anki"
-          aria-label="Setup Template"
+          title={t("anki.setupHint")}
+          aria-label={t("anki.setupTemplate")}
           loading={busy === "template"}
           disabled={Boolean(busy)}
           onClick={() => void syncTemplate()}
         >
-          Setup Template
+          {t("anki.setupTemplate")}
         </Button>
       }
     >
-      <SettingsRow label="AnkiConnect URL" htmlFor="anki-url">
+      <SettingsRow label={t("anki.connectUrl")} htmlFor="anki-url">
         <Input
           id="anki-url"
           value={config.connectUrl}
@@ -65,19 +66,15 @@ export function AnkiSettings({ configService, ankiService, onDirtyChange }: Anki
           onInput={(event) => change({ connectUrl: event.currentTarget.value })}
         />
       </SettingsRow>
-      <SettingsRow
-        label="Deck"
-        htmlFor="anki-deck"
-        description="New cards are always added to this deck."
-      >
+      <SettingsRow label={t("anki.deck")} htmlFor="anki-deck" description={t("anki.deckHint")}>
         <FetchedSelect
           id="anki-deck"
           value={config.deck}
           options={deckOptions}
           loading={busy === "fetch"}
-          placeholder="Fetch decks first"
-          fetchLabel="Fetch Decks"
-          emptyLabel="No deck"
+          placeholder={t("anki.fetchFirst")}
+          fetchLabel={t("anki.fetchDecks")}
+          emptyLabel={t("anki.noDeck")}
           onChange={(deck) => change({ deck })}
           onFetch={() => void refreshDecks()}
         />

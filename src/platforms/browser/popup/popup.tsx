@@ -1,3 +1,4 @@
+import { i18n } from "@common/i18n";
 import type { IAppServices, LookupRequest, WordLookupTask } from "@common/types";
 import { LookupPanel } from "@views/lookup";
 import { SearchBar } from "@views/search-bar";
@@ -41,6 +42,8 @@ function PopupApp({ services }: { services: IAppServices }) {
 
 function init() {
   const services = createAppServices();
+  void i18n.changeLanguage(chrome.i18n.getUILanguage());
+  document.documentElement.lang = i18n.resolvedLanguage ?? "en";
   const app = document.createElement("div");
   render(<PopupApp services={services} />, app);
   document.body.append(app);

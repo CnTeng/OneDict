@@ -1,3 +1,4 @@
+import { t } from "@common/i18n";
 import type { ComponentChildren } from "preact";
 import type { SettingsDraft } from "./draft";
 import { SettingsFooter } from "./footer";
@@ -38,20 +39,25 @@ export function SettingsPage<T extends Record<string, unknown>>({
   children,
 }: SettingsPageProps<T>) {
   const { loading, dirty, loadError, status, busy, reset, test, save } = draft;
-  if (loading) return <p class="text-muted-foreground text-sm">Loading {title} settings...</p>;
+  if (loading)
+    return <p class="text-muted-foreground text-sm">{t("settings.loading", { title })}</p>;
 
   return (
     <SettingsLayout title={title} description={description}>
       <SettingsNotice
         status={
           loadError
-            ? { level: "error", message: `Failed to load ${title} settings: ${loadError}` }
+            ? {
+                level: "error",
+                message: t("settings.loadFailed", {
+                  title,
+                  error: loadError,
+                }),
+              }
             : dirty
               ? {
                   level: status?.level ?? "info",
-                  message: [status?.message, "Unsaved changes. Click Save to apply."]
-                    .filter(Boolean)
-                    .join(" "),
+                  message: [status?.message, t("settings.dirty")].filter(Boolean).join(" "),
                 }
               : status
         }

@@ -1,3 +1,4 @@
+import { t } from "@common/i18n";
 import ky, { isNetworkError, isTimeoutError } from "ky";
 import * as z from "zod";
 
@@ -39,10 +40,7 @@ export function createAnkiRequest(baseUrl: string, signal?: AbortSignal): AnkiRe
       .json(ankiConnectResponseSchema)
       .catch((error: unknown) => {
         if (!isNetworkError(error) && !isTimeoutError(error)) throw error;
-        throw new Error(
-          "Could not connect to Anki. Please check if Anki is running and AnkiConnect is installed.",
-          { cause: error },
-        );
+        throw new Error(t("errors.ankiConnection"), { cause: error });
       });
     if (data.error !== null) throw new Error(data.error);
     return z.parse(resultSchema, data.result);
