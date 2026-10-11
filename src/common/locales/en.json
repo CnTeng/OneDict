@@ -1,4 +1,8 @@
 {
+  "manifest": {
+    "name": "One Dictionary",
+    "description": "Look up words, explain text with AI, and add cards to Anki."
+  },
   "about": {
     "title": "About",
     "version": "Version",

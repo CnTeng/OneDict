@@ -1,13 +1,16 @@
 import pkg from "../../../package.json" with { type: "json" };
 
-export const { version, description, author } = pkg;
+export const { version, author } = pkg;
 
-export const name = "One Dictionary";
+export const manifestMetadata = {
+  name: "__MSG_name__",
+  description: "__MSG_description__",
+  default_locale: "en",
+};
 
 export const browserManifest = {
-  name,
+  ...manifestMetadata,
   version,
-  description,
   author,
   icons: {
     "16": "assets/icons/icon16.png",

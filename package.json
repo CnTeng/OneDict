@@ -2,7 +2,7 @@
   "name": "onedict",
   "version": "0.0.1",
   "private": true,
-  "description": "Look up words in online dictionaries and add to Anki",
+  "description": "Look up words, explain text with AI, and add cards to Anki.",
   "author": "CnTeng",
   "type": "module",
   "scripts": {

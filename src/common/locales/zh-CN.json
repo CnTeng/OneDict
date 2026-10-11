@@ -1,4 +1,8 @@
 {
+  "manifest": {
+    "name": "One Dictionary",
+    "description": "查询词典、使用 AI 解释文本，并将卡片添加到 Anki。"
+  },
   "about": {
     "title": "关于",
     "version": "版本",

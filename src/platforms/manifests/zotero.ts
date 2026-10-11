@@ -1,9 +1,8 @@
-import { author, description, name, version } from "./base.ts";
+import { author, manifestMetadata, version } from "./base.ts";
 
 export const zoteroManifest = {
-  name,
+  ...manifestMetadata,
   version,
-  description,
   author,
   homepage_url: "https://github.com/cnteng/onedict",
   icons: {
