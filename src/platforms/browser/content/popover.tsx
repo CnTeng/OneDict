@@ -1,4 +1,5 @@
 import { extractContext } from "@common/context";
+import { t } from "@common/i18n";
 import type { LookupRequest } from "@common/types";
 import {
   type ReferenceElement,
@@ -147,7 +148,7 @@ export function ContentPopover({ host }: { host: HTMLElement }) {
         ref={buttonRef}
         type="button"
         class="onedict-floating-btn"
-        title="Search in One dictionary"
+        title={t("search.lookup")}
         style={{ display: "none" }}
       >
         <Search />

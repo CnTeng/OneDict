@@ -1,3 +1,4 @@
+import { t } from "@common/i18n";
 import { Editor } from "../editor";
 
 interface ContextEditorProps {
@@ -10,9 +11,9 @@ export function ContextEditor({ value, onChanged, className }: ContextEditorProp
   return (
     <Editor
       value={value}
-      ariaLabel="Context and note"
+      ariaLabel={t("context.label")}
       className={className}
-      placeholder="Context / Note (Markdown supported)..."
+      placeholder={t("context.placeholder")}
       onChanged={onChanged}
     />
   );

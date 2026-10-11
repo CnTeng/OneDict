@@ -1,3 +1,4 @@
+import { t } from "@common/i18n";
 import type { IAiConfigService, IAiService } from "@common/types";
 import { aiConfigSchema } from "@common/types/config";
 import { Input } from "@views/components/input";
@@ -35,25 +36,23 @@ export function AiSettings({ configService, aiService, onDirtyChange }: AiSettin
 
   const fetchModels = () =>
     runAction("fetch", (signal) => aiService.listModels(aiConfigSchema.parse(config), signal), {
-      pending: "Fetching models...",
+      pending: t("ai.fetching"),
       success: (models) =>
-        models.length + " models available. Select a model for text explanations.",
+        t("ai.modelsAvailable", {
+          count: models.length,
+        }),
       onSuccess: setModels,
     });
 
   return (
     <SettingsPage
       title="AI"
-      description="Connect an OpenAI-compatible provider."
+      description={t("ai.description")}
       draft={draft}
       onTest={(next, signal) => aiService.testConnection(next, signal)}
       allowEditingWhileFetching
     >
-      <SettingsRow
-        label="API base URL"
-        htmlFor="ai-url"
-        description="Include the API version path, for example /v1."
-      >
+      <SettingsRow label={t("ai.baseUrl")} htmlFor="ai-url" description={t("ai.baseUrlHint")}>
         <Input
           id="ai-url"
           value={config.baseUrl}
@@ -63,11 +62,7 @@ export function AiSettings({ configService, aiService, onDirtyChange }: AiSettin
           }}
         />
       </SettingsRow>
-      <SettingsRow
-        label="API key"
-        htmlFor="ai-key"
-        description="Leave empty if your local provider does not require a key."
-      >
+      <SettingsRow label={t("ai.apiKey")} htmlFor="ai-key" description={t("ai.apiKeyHint")}>
         <Input
           id="ai-key"
           type="password"
@@ -80,24 +75,20 @@ export function AiSettings({ configService, aiService, onDirtyChange }: AiSettin
           }}
         />
       </SettingsRow>
-      <SettingsRow
-        label="Model"
-        htmlFor="ai-model"
-        description="Fetch available models, then select a text chat model."
-      >
+      <SettingsRow label={t("ai.model")} htmlFor="ai-model" description={t("ai.modelHint")}>
         <FetchedSelect
           id="ai-model"
           value={config.model}
           options={models}
           loading={busy === "fetch"}
-          placeholder="Fetch models first"
-          fetchLabel="Fetch Models"
+          placeholder={t("ai.fetchFirst")}
+          fetchLabel={t("ai.fetchModels")}
           onChange={(model) => change({ model })}
           onFetch={() => void fetchModels()}
         />
       </SettingsRow>
 
-      <SettingsRow label="Explanation language" htmlFor="ai-language">
+      <SettingsRow label={t("ai.language")} htmlFor="ai-language">
         <Select
           id="ai-language"
           value={config.responseLanguage}
@@ -105,7 +96,7 @@ export function AiSettings({ configService, aiService, onDirtyChange }: AiSettin
         >
           {!explanationLanguages.some(({ value }) => value === config.responseLanguage) && (
             <option value={config.responseLanguage}>
-              {config.responseLanguage || "Chinese"} (current)
+              {t("common.current", { value: config.responseLanguage || "Chinese" })}
             </option>
           )}
           {explanationLanguages.map(({ value, label }) => (

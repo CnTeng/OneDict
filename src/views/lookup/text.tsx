@@ -1,4 +1,5 @@
 import { errorMessage } from "@common/error";
+import { t } from "@common/i18n";
 import type { IAiService, IAnkiService, LookupRequest } from "@common/types";
 import { Badge } from "@views/components/badge";
 import { IconButton } from "@views/components/button";
@@ -107,21 +108,21 @@ export function TextLookup({
 
   return (
     <LookupLayout
-      label="AI explanation"
+      label={t("ai.explanation")}
       busy={loading}
       context={contextDraft}
       onContextChange={onContextChange}
     >
       <div class="mb-2.5 flex items-center justify-between gap-3">
-        <span title="Sends the selected text and context to your configured AI provider.">
+        <span title={t("ai.privacyHint")}>
           <Badge variant="secondary" class="text-[11px]">
-            {generated ? "AI generated" : "AI explanation"}
+            {generated ? t("ai.generated") : t("ai.explanation")}
           </Badge>
         </span>
         <div class="flex shrink-0 items-center gap-0.5">
           {(generated || error || (!loading && attempted.current)) && (
             <IconButton
-              label={generated ? "Regenerate explanation" : "Retry explanation"}
+              label={generated ? t("ai.regenerate") : t("ai.retry")}
               disabled={loading}
               onClick={() => void generate()}
             >
@@ -131,7 +132,7 @@ export function TextLookup({
           {generated && (
             <>
               <IconButton
-                label={editing ? "Preview explanation" : "Edit explanation"}
+                label={editing ? t("ai.preview") : t("ai.edit")}
                 disabled={loading}
                 aria-pressed={editing}
                 onClick={() => setEditing((current) => !current)}
@@ -157,7 +158,7 @@ export function TextLookup({
           )}
           {loading && (
             <IconButton
-              label="Cancel generation"
+              label={t("ai.cancel")}
               onClick={() => {
                 controller.current?.abort();
                 controller.current = undefined;
@@ -173,7 +174,7 @@ export function TextLookup({
       {hasContent && loading && (
         <p role="status" class="text-muted-foreground mb-2 flex items-center gap-2 text-xs">
           <LoaderCircle class="size-3.5 animate-spin" />
-          Generating explanation...
+          {t("ai.generatingStatus")}
         </p>
       )}
       {generated && error && (
@@ -187,7 +188,7 @@ export function TextLookup({
           error={Boolean(error)}
           spin={waiting}
           icon={error ? TriangleAlert : waiting ? LoaderCircle : X}
-          message={error ?? (waiting ? "Generating explanation..." : "Generation canceled.")}
+          message={error ?? (waiting ? t("ai.generatingStatus") : t("ai.canceled"))}
         />
       )}
       {hasContent && (
@@ -196,9 +197,9 @@ export function TextLookup({
             <div class="text-foreground wrap-break-text min-w-0 text-[0.95rem] leading-relaxed whitespace-pre-wrap">
               <Editor
                 value={draft}
-                ariaLabel="AI explanation draft"
+                ariaLabel={t("ai.draft")}
                 appearance="content"
-                placeholder="Edit explanation (Markdown supported)..."
+                placeholder={t("ai.editorPlaceholder")}
                 onChanged={setDraft}
               />
             </div>
@@ -206,9 +207,7 @@ export function TextLookup({
             <TextExplanation explanation={content} className="wrap-break-text min-w-0" />
           ) : (
             <div class="text-foreground wrap-break-text min-w-0 text-[0.95rem] leading-relaxed whitespace-pre-wrap">
-              <span class="text-muted-foreground">
-                The explanation is empty. Use Edit to write a note.
-              </span>
+              <span class="text-muted-foreground">{t("ai.emptyExplanation")}</span>
             </div>
           )}
         </div>

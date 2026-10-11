@@ -1,3 +1,4 @@
+import { t } from "@common/i18n";
 import { Button } from "@views/components/button";
 import { Select } from "@views/components/select";
 import { RefreshCw } from "lucide-preact";
@@ -35,9 +36,11 @@ export function FetchedSelect({
         onChange={(event) => onChange(event.currentTarget.value)}
       >
         <option value="" selected={!value} disabled={!emptyLabel || !options.length}>
-          {options.length ? (emptyLabel ?? "Select an option") : placeholder}
+          {options.length ? (emptyLabel ?? t("common.selectOption")) : placeholder}
         </option>
-        {value && !options.includes(value) && <option value={value}>{value} (current)</option>}
+        {value && !options.includes(value) && (
+          <option value={value}>{t("common.current", { value })}</option>
+        )}
         {options.map((option) => (
           <option key={option} value={option}>
             {option}

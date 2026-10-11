@@ -1,4 +1,5 @@
 import { errorMessage } from "@common/error";
+import { t } from "@common/i18n";
 import { IconButton } from "@views/components/button";
 import { Check, Plus, X } from "lucide-preact";
 import { useState } from "preact/hooks";
@@ -32,12 +33,12 @@ export function AddButton({ onAdd, disabled }: AddButtonProps) {
   const Icon = state.status === "success" ? Check : state.status === "error" ? X : Plus;
   const label =
     state.status === "error"
-      ? `Failed to add to Anki: ${state.message}`
+      ? t("anki.addFailed", { error: state.message })
       : state.status === "success"
-        ? "Added to Anki"
+        ? t("anki.added")
         : state.status === "loading"
-          ? "Adding to Anki"
-          : "Add to Anki";
+          ? t("anki.adding")
+          : t("anki.add");
 
   return (
     <div class="flex shrink-0 flex-col items-end gap-1">

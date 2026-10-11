@@ -1,4 +1,5 @@
 import { errorMessage } from "@common/error";
+import { t } from "@common/i18n";
 import type { IAnkiService, IAudioService } from "@common/types";
 import { WordDefinition, WordMetadata, WordPronunciations } from "@views/components/word";
 import { LoaderCircle, SearchX, TriangleAlert } from "lucide-preact";
@@ -20,28 +21,40 @@ export function WordLookup({
   context?: string;
   onContextChange: (value: string) => void;
 }) {
-  if (!result) return <StatusMessage message="No result" icon={SearchX} />;
+  if (!result) return <StatusMessage message={t("lookup.empty")} icon={SearchX} />;
   if (result.result.status === "loading") {
     return (
-      <StatusMessage message={`Looking up ${result.providerName}...`} icon={LoaderCircle} spin />
+      <StatusMessage
+        message={t("lookup.providerLoading", { provider: result.providerName })}
+        icon={LoaderCircle}
+        spin
+      />
     );
   }
   if (result.result.status === "failed") {
     return <StatusMessage message={errorMessage(result.result.error)} icon={TriangleAlert} error />;
   }
   if (result.result.status === "empty") {
-    return <StatusMessage message={`No result from ${result.providerName}.`} icon={SearchX} />;
+    return (
+      <StatusMessage
+        message={t("lookup.providerEmpty", { provider: result.providerName })}
+        icon={SearchX}
+      />
+    );
   }
   if (!hasVisibleContent(result.result.entry)) {
     return (
-      <StatusMessage message={`No usable result from ${result.providerName}.`} icon={SearchX} />
+      <StatusMessage
+        message={t("lookup.providerUnusable", { provider: result.providerName })}
+        icon={SearchX}
+      />
     );
   }
 
   const { entry } = result.result;
   return (
     <LookupLayout
-      label={`${result.providerName} result`}
+      label={t("lookup.providerResult", { provider: result.providerName })}
       context={context}
       onContextChange={onContextChange}
     >

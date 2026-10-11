@@ -1,3 +1,4 @@
+import { t } from "@common/i18n";
 import { ExternalLink } from "lucide-preact";
 import pkg from "../../../package.json" with { type: "json" };
 import { SettingsLayout } from "./page";
@@ -11,17 +12,14 @@ interface AboutSettingsProps {
 
 export function AboutSettings({ onOpenLink }: AboutSettingsProps) {
   return (
-    <SettingsLayout
-      title="About"
-      description="OneDict brings dictionary lookup, AI explanations, and Anki cards to your reading."
-    >
+    <SettingsLayout title={t("about.title")} description={t("about.description")}>
       <div class="divide-border border-border divide-y rounded-md border text-sm">
-        <SettingsRow label="Version">{pkg.version}</SettingsRow>
-        <SettingsRow label="Author">{pkg.author}</SettingsRow>
+        <SettingsRow label={t("about.version")}>{pkg.version}</SettingsRow>
+        <SettingsRow label={t("about.author")}>{pkg.author}</SettingsRow>
         {[
-          { label: "Project", text: "GitHub", url: projectUrl },
-          { label: "Feedback", text: "Report an issue", url: `${projectUrl}/issues` },
-          { label: "License", text: "MIT", url: `${projectUrl}/blob/main/LICENSE` },
+          { label: t("about.project"), text: "GitHub", url: projectUrl },
+          { label: t("about.feedback"), text: t("about.reportIssue"), url: `${projectUrl}/issues` },
+          { label: t("about.license"), text: "MIT", url: `${projectUrl}/blob/main/LICENSE` },
         ].map(({ label, text, url }) => (
           <SettingsRow key={label} label={label}>
             <a

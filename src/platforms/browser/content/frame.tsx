@@ -1,3 +1,4 @@
+import { i18n } from "@common/i18n";
 import type { IAppServices, LookupRequest, WordLookupTask } from "@common/types";
 import { lookupRequestSchema } from "@common/types/lookup";
 import { LookupPanel } from "@views/lookup";
@@ -55,6 +56,14 @@ function FrameApp({ services }: { services: IAppServices }) {
 const app = document.createElement("div");
 app.className = "h-full";
 const services = createAppServices();
+void i18n.changeLanguage(chrome.i18n.getUILanguage());
+document.documentElement.lang = i18n.resolvedLanguage ?? "en";
 render(<FrameApp services={services} />, app);
 document.body.append(app);
-window.addEventListener("pagehide", () => render(null, app), { once: true });
+window.addEventListener(
+  "pagehide",
+  () => {
+    render(null, app);
+  },
+  { once: true },
+);

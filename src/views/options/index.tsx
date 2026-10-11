@@ -1,3 +1,4 @@
+import { t } from "@common/i18n";
 import type { IAiService, IAnkiService, IConfigService } from "@common/types";
 import { Sidebar, type SidebarItem, SidebarPanel } from "@views/components/sidebar";
 import { Info, Sparkles, Star } from "lucide-preact";
@@ -9,19 +10,19 @@ import { AnkiSettings } from "./anki";
 const settingsItems: readonly SidebarItem[] = [
   {
     id: "ai",
-    label: "AI",
+    label: "ai.title",
     icon: Sparkles,
     iconClass: "fill-current text-yellow-500",
   },
   {
     id: "anki",
-    label: "Anki",
+    label: "anki.title",
     icon: Star,
     iconClass: "fill-current text-blue-500",
   },
   {
     id: "about",
-    label: "About",
+    label: "about.title",
     icon: Info,
   },
 ];
@@ -48,7 +49,7 @@ export function OptionsPage({
     if (!dirty || !view) return;
     const beforeUnload = (event: BeforeUnloadEvent) => {
       event.preventDefault();
-      event.returnValue = "You have unsaved changes.";
+      event.returnValue = t("settings.unsaved");
     };
     view.addEventListener("beforeunload", beforeUnload);
     return () => view.removeEventListener("beforeunload", beforeUnload);
@@ -56,13 +57,7 @@ export function OptionsPage({
 
   const selectSection = (id: string) => {
     if (id === selectedId) return;
-    if (
-      dirty &&
-      !root.current?.ownerDocument.defaultView?.confirm(
-        "You have unsaved changes. Discard them and switch sections?",
-      )
-    )
-      return;
+    if (dirty && !root.current?.ownerDocument.defaultView?.confirm(t("settings.discard"))) return;
     setDirty(false);
     setSelectedId(id);
   };
@@ -73,9 +68,9 @@ export function OptionsPage({
       class="border-border bg-background text-foreground flex w-full overflow-hidden rounded-lg border shadow-xs"
     >
       <Sidebar
-        items={settingsItems}
+        items={settingsItems.map((item) => ({ ...item, label: t(item.label) }))}
         selectedId={selectedId}
-        ariaLabel="Settings sections"
+        ariaLabel={t("settings.sections")}
         onSelect={selectSection}
         side="left"
         showStatus={false}

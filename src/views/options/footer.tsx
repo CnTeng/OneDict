@@ -1,3 +1,4 @@
+import { t } from "@common/i18n";
 import { Button } from "@views/components/button";
 import { PlugZap, RotateCcw, Save } from "lucide-preact";
 import type { ComponentChildren } from "preact";
@@ -25,7 +26,7 @@ export function SettingsFooter({
       <Button
         variant="destructive"
         size="icon"
-        label="Reset"
+        label={t("settings.reset")}
         disabled={Boolean(busy)}
         onClick={onReset}
       >
@@ -35,7 +36,7 @@ export function SettingsFooter({
         {children}
         <Button
           size="icon"
-          label="Test Connection"
+          label={t("settings.test")}
           loading={busy === "test"}
           disabled={Boolean(busy)}
           onClick={onTest}
@@ -45,7 +46,7 @@ export function SettingsFooter({
         <Button
           variant="success"
           size="icon"
-          label="Save"
+          label={t("settings.save")}
           loading={busy === "save"}
           disabled={Boolean(busy) || !dirty}
           onClick={onSave}

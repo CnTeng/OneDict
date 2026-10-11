@@ -1,3 +1,4 @@
+import { t } from "@common/i18n";
 import type {
   IAiService,
   IAnkiService,
@@ -62,11 +63,9 @@ export function LookupPanel({
   const onContextChange = (providerId: string, value: string) =>
     dispatch({ type: "context", providerId, value });
   if (status === "loading")
-    return <StatusMessage message="Looking up..." icon={LoaderCircle} spin />;
+    return <StatusMessage message={t("lookup.loading")} icon={LoaderCircle} spin />;
   if (results.length === 0 && !aiService) {
-    return (
-      <StatusMessage message="No dictionaries are available for this language." icon={SearchX} />
-    );
+    return <StatusMessage message={t("lookup.noDictionaries")} icon={SearchX} />;
   }
 
   const selected =
@@ -83,12 +82,12 @@ export function LookupPanel({
             state: textState,
             statusLabel:
               textState === "pending"
-                ? "Generating explanation"
+                ? t("ai.generating")
                 : textState === "ready"
-                  ? "Explanation ready"
+                  ? t("ai.ready")
                   : textState === "error"
-                    ? "Generation failed"
-                    : "Click to explain",
+                    ? t("ai.failed")
+                    : t("ai.start"),
           },
         ]
       : []),
@@ -97,7 +96,7 @@ export function LookupPanel({
 
   return (
     <Sidebar
-      ariaLabel="Lookup sources"
+      ariaLabel={t("lookup.sources")}
       items={items}
       selectedId={textSelected ? TEXT_SOURCE_ID : (selected?.providerId ?? "")}
       onSelect={(id) => dispatch({ type: "select", id })}
@@ -127,10 +126,7 @@ export function LookupPanel({
       )}
       <SidebarPanel key={selected?.providerId} itemId={selected?.providerId} active={!textSelected}>
         {results.length === 0 && aiService ? (
-          <StatusMessage
-            message="Select AI in the sidebar to explain the selected text."
-            icon={Sparkles}
-          />
+          <StatusMessage message={t("lookup.aiHint")} icon={Sparkles} />
         ) : (
           <WordLookup
             result={selected}
@@ -156,13 +152,13 @@ function createSidebarItem(result: WordLookupState): SidebarItem {
     iconUrl: result.providerIconUrl,
   };
   if (result.result.status === "loading") {
-    return { ...item, state: "pending", statusLabel: "Looking up" };
+    return { ...item, state: "pending", statusLabel: t("lookup.pending") };
   }
   if (result.result.status === "failed") {
-    return { ...item, state: "error", statusLabel: "Error" };
+    return { ...item, state: "error", statusLabel: t("common.error") };
   }
   if (result.result.status === "found" && hasVisibleContent(result.result.entry)) {
-    return { ...item, state: "ready", statusLabel: "Result" };
+    return { ...item, state: "ready", statusLabel: t("lookup.result") };
   }
-  return { ...item, state: "idle", statusLabel: "No result" };
+  return { ...item, state: "idle", statusLabel: t("lookup.empty") };
 }

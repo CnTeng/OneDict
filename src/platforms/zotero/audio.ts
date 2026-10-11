@@ -1,3 +1,4 @@
+import { t } from "@common/i18n";
 import type { IAudioService, Pronunciation } from "@common/types";
 
 export class ZoteroAudioService implements IAudioService {
@@ -8,7 +9,7 @@ export class ZoteroAudioService implements IAudioService {
   }
 
   async play({ audioUrl }: Pronunciation) {
-    if (!audioUrl) throw new Error("No audio is available for this pronunciation.");
+    if (!audioUrl) throw new Error(t("errors.audio"));
     this.currentAudio?.pause();
 
     const audio = Zotero.getMainWindow().document.createElementNS(
