@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="9 8 112 112">
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="11 10 108 108">
   <defs>
     <linearGradient id="cover" x1="20" y1="12" x2="110" y2="116" gradientUnits="userSpaceOnUse">
       <stop stop-color="#5287ff"/>
@@ -7,9 +7,9 @@
   </defs>
   <path fill="url(#cover)" d="M36 10h58a22 22 0 0 1 22 22v74a12 12 0 0 1-12 12H28a14 14 0 0 1-14-14V32a22 22 0 0 1 22-22Z"/>
   <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
-    <circle cx="65" cy="51" r="24"/>
-    <ellipse cx="65" cy="51" rx="10" ry="24"/>
-    <path d="M41 51h48"/>
+    <circle cx="65" cy="54" r="24"/>
+    <ellipse cx="65" cy="54" rx="10" ry="24"/>
+    <path d="M41 54h48"/>
     <path d="M113.5 92.5H28a11.5 11.5 0 0 0 0 23h76a9.5 9.5 0 0 0 9.5-9.5"/>
   </g>
 </svg>
