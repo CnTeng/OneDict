@@ -135,5 +135,34 @@
     "audio": "No audio is available for this pronunciation.",
     "ankiAudio": "No Anki audio is available for this pronunciation.",
     "ankiConnection": "Could not connect to Anki. Please check if Anki is running and AnkiConnect is installed."
+  },
+  "config": {
+    "invalidBackup": "This file must contain One Dictionary settings with ai and anki objects.",
+    "restoreFailed": "Some settings could not be saved. AI or Anki settings may have changed. Check your settings before retrying."
+  },
+  "webdav": {
+    "title": "WebDAV",
+    "description": "Save your WebDAV connection. Manually import or export AI and Anki settings; export replaces the remote file.",
+    "url": "WebDAV base URL",
+    "urlHint": "Any server or subdirectory. The file path is fixed at onedict/config.json.",
+    "username": "Username",
+    "password": "Password",
+    "ready": "Settings loaded. Review them, then click Import to replace your AI and Anki settings.",
+    "saved": "AI and Anki settings imported.",
+    "keyIncluded": "API key included",
+    "noKey": "No API key",
+    "invalidConnection": "Enter an HTTP or HTTPS WebDAV base URL without embedded credentials, query, or fragment, and a username without a colon.",
+    "timeout": "The WebDAV request timed out. Please retry.",
+    "fileNotFound": "onedict/config.json was not found under this base URL. If you have not exported settings yet, click Export first; otherwise check the WebDAV base URL.",
+    "httpError": "WebDAV returned HTTP {{status}}. Check the base URL, credentials, and server permissions.",
+    "connectionError": "Could not access WebDAV. Check the URL, credentials, and server permissions.",
+    "import": "Import settings",
+    "confirmImport": "Confirm import",
+    "cancel": "Cancel",
+    "reading": "Reading remote settings...",
+    "importing": "Importing settings...",
+    "export": "Export settings",
+    "exporting": "Exporting settings...",
+    "exported": "AI and Anki settings exported to onedict/config.json."
   }
 }

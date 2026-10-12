@@ -1,4 +1,4 @@
-import type { AiConfig, AnkiConfig } from "./config";
+import type { AiConfig, AnkiConfig, ConfigBackup, WebdavConfig } from "./config";
 import type { LookupRequest, WordLookupTask } from "./lookup";
 import type { TextEntry } from "./text";
 import type { Pronunciation, WordEntry } from "./word";
@@ -19,10 +19,21 @@ export interface IConfigStore<T> {
 
 export type IAiConfigService = IConfigStore<AiConfig>;
 export type IAnkiConfigService = IConfigStore<AnkiConfig>;
+export type IWebdavConfigService = IConfigStore<WebdavConfig>;
+
+export interface IConfigBackupAdapter {
+  test(signal?: AbortSignal): Promise<void>;
+  read(signal?: AbortSignal): Promise<string>;
+  write(content: string, signal?: AbortSignal): Promise<void>;
+}
 
 export interface IConfigService {
   readonly anki: IAnkiConfigService;
   readonly ai: IAiConfigService;
+  readonly webdav: IWebdavConfigService;
+  read(source: Pick<IConfigBackupAdapter, "read">, signal?: AbortSignal): Promise<ConfigBackup>;
+  write(target: Pick<IConfigBackupAdapter, "write">, signal?: AbortSignal): Promise<void>;
+  restoreBackup(backup: ConfigBackup): Promise<void>;
 }
 
 export interface IAiService {

@@ -135,5 +135,34 @@
     "audio": "此发音没有可用的音频。",
     "ankiAudio": "此发音没有可用的 Anki 音频。",
     "ankiConnection": "无法连接 Anki，请确认 Anki 已启动并安装了 AnkiConnect。"
+  },
+  "config": {
+    "invalidBackup": "文件必须包含 One Dictionary 的 ai 和 anki 设置对象。",
+    "restoreFailed": "部分设置保存失败，AI 或 Anki 设置可能已发生变化。请检查设置后重试。"
+  },
+  "webdav": {
+    "title": "WebDAV",
+    "description": "保存 WebDAV 连接，手动导入或导出 AI 和 Anki 设置。导出会覆盖远端文件。",
+    "url": "WebDAV 根地址",
+    "urlHint": "支持任意服务器及子目录，文件路径固定为 onedict/config.json。",
+    "username": "用户名",
+    "password": "密码",
+    "ready": "已读取设置。请核对后点击导入，替换当前 AI 和 Anki 设置。",
+    "saved": "已导入 AI 和 Anki 设置。",
+    "keyIncluded": "包含 API 密钥",
+    "noKey": "不含 API 密钥",
+    "invalidConnection": "请填写不含登录凭据、查询参数或片段的 HTTP 或 HTTPS WebDAV 根地址，用户名不能包含冒号。",
+    "timeout": "WebDAV 请求超时，请重试。",
+    "fileNotFound": "该根地址下未找到 onedict/config.json。如果尚未导出设置，请先点击导出；否则请检查 WebDAV 根地址。",
+    "httpError": "WebDAV 返回 HTTP {{status}}，请检查根地址、登录凭据和服务器权限。",
+    "connectionError": "无法访问 WebDAV，请检查地址、登录凭据和服务器权限。",
+    "import": "导入设置",
+    "confirmImport": "确认导入",
+    "cancel": "取消",
+    "reading": "正在读取远端设置……",
+    "importing": "正在导入设置……",
+    "export": "导出设置",
+    "exporting": "正在导出设置……",
+    "exported": "已将 AI 和 Anki 设置导出到 onedict/config.json。"
   }
 }

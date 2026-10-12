@@ -1,11 +1,12 @@
 import { t } from "@common/i18n";
 import type { IAiService, IAnkiService, IConfigService } from "@common/types";
 import { Sidebar, type SidebarItem, SidebarPanel } from "@views/components/sidebar";
-import { Info, Sparkles, Star } from "lucide-preact";
+import { CloudDownload, Info, Sparkles, Star } from "lucide-preact";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { AboutSettings } from "./about";
 import { AiSettings } from "./ai";
 import { AnkiSettings } from "./anki";
+import { WebdavSettings } from "./webdav";
 
 const settingsItems: readonly SidebarItem[] = [
   {
@@ -19,6 +20,11 @@ const settingsItems: readonly SidebarItem[] = [
     label: "anki.title",
     icon: Star,
     iconClass: "fill-current text-blue-500",
+  },
+  {
+    id: "webdav",
+    label: "webdav.title",
+    icon: CloudDownload,
   },
   {
     id: "about",
@@ -49,7 +55,6 @@ export function OptionsPage({
     if (!dirty || !view) return;
     const beforeUnload = (event: BeforeUnloadEvent) => {
       event.preventDefault();
-      event.returnValue = t("settings.unsaved");
     };
     view.addEventListener("beforeunload", beforeUnload);
     return () => view.removeEventListener("beforeunload", beforeUnload);
@@ -88,6 +93,8 @@ export function OptionsPage({
               ankiService={ankiService}
               onDirtyChange={setDirty}
             />
+          ) : selectedId === "webdav" ? (
+            <WebdavSettings configService={configService} onDirtyChange={setDirty} />
           ) : (
             <AboutSettings onOpenLink={onOpenLink} />
           )}

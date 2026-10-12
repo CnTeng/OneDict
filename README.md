@@ -17,7 +17,7 @@ Supported dictionaries: **Youdao**, **Bing**, **Zdic** (Chinese), and **Jisho** 
 
 ## Installation
 
-Supports Chrome 114+, Firefox 125+, and Zotero 7–10. Node.js 24+ and npm are recommended for building.
+Supports Chrome 119+, Firefox 125+, and Zotero 7–10. Node.js 24+ and npm are recommended for building.
 
 ```bash
 npm ci
