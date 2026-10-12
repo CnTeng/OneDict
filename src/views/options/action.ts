@@ -2,7 +2,7 @@ import { errorMessage } from "@common/error";
 import { useCallback, useLayoutEffect, useRef, useState } from "preact/hooks";
 import { useSettingsStatus } from "./notice";
 
-export type SettingsAction = "save" | "test" | "fetch" | "template";
+export type SettingsAction = "save" | "test" | "fetch" | "template" | "import" | "export";
 
 interface ActionMessages<T> {
   pending: string;

@@ -32,6 +32,7 @@
     "openai": "^7.32.0",
     "preact": "11.0.1",
     "sentencex-ts": "^0.1.13-ts",
+    "webdav": "^5.11.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {
