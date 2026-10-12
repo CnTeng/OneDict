@@ -27,6 +27,11 @@ export interface IConfigBackupAdapter {
   write(content: string, signal?: AbortSignal): Promise<void>;
 }
 
+export interface IFileService {
+  read(extension: string, signal?: AbortSignal): Promise<string>;
+  write(filename: string, content: string, signal?: AbortSignal): Promise<void>;
+}
+
 export interface IConfigService {
   readonly anki: IAnkiConfigService;
   readonly ai: IAiConfigService;
@@ -72,6 +77,7 @@ export interface IAnkiService {
 }
 
 export interface IAppServices {
+  readonly file: IFileService;
   readonly config: IConfigService;
   readonly dictionary: IDictionaryService;
   readonly anki: IAnkiService;

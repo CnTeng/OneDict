@@ -16,6 +16,7 @@ render(
     configService={services.config}
     ankiService={services.anki}
     aiService={services.ai}
+    fileService={services.file}
   />,
   root,
 );

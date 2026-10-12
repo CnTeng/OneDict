@@ -1,12 +1,12 @@
 import { t } from "@common/i18n";
-import type { IAiService, IAnkiService, IConfigService } from "@common/types";
+import type { IAiService, IAnkiService, IConfigService, IFileService } from "@common/types";
 import { Sidebar, type SidebarItem, SidebarPanel } from "@views/components/sidebar";
-import { CloudDownload, Info, Sparkles, Star } from "lucide-preact";
+import { FolderArchive, Info, Sparkles, Star } from "lucide-preact";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { AboutSettings } from "./about";
 import { AiSettings } from "./ai";
 import { AnkiSettings } from "./anki";
-import { WebdavSettings } from "./webdav";
+import { BackupSettings } from "./backup";
 
 const settingsItems: readonly SidebarItem[] = [
   {
@@ -22,9 +22,10 @@ const settingsItems: readonly SidebarItem[] = [
     iconClass: "fill-current text-blue-500",
   },
   {
-    id: "webdav",
-    label: "webdav.title",
-    icon: CloudDownload,
+    id: "backup",
+    label: "config.title",
+    icon: FolderArchive,
+    iconClass: "fill-muted-foreground text-foreground",
   },
   {
     id: "about",
@@ -37,6 +38,7 @@ interface OptionsPageProps {
   configService: IConfigService;
   ankiService: IAnkiService;
   aiService: IAiService;
+  fileService: IFileService;
   onOpenLink?: (url: string) => void;
 }
 
@@ -44,6 +46,7 @@ export function OptionsPage({
   configService,
   ankiService,
   aiService,
+  fileService,
   onOpenLink,
 }: OptionsPageProps) {
   const [selectedId, setSelectedId] = useState("ai");
@@ -93,8 +96,12 @@ export function OptionsPage({
               ankiService={ankiService}
               onDirtyChange={setDirty}
             />
-          ) : selectedId === "webdav" ? (
-            <WebdavSettings configService={configService} onDirtyChange={setDirty} />
+          ) : selectedId === "backup" ? (
+            <BackupSettings
+              configService={configService}
+              onDirtyChange={setDirty}
+              fileService={fileService}
+            />
           ) : (
             <AboutSettings onOpenLink={onOpenLink} />
           )}

@@ -27,6 +27,7 @@ interface SettingsPageProps<T extends Record<string, unknown>> extends SettingsL
   onTest: (config: T, signal: AbortSignal) => Promise<unknown>;
   allowEditingWhileFetching?: boolean;
   footerActions?: ComponentChildren;
+  showConfigActions?: boolean;
 }
 
 export function SettingsPage<T extends Record<string, unknown>>({
@@ -36,6 +37,7 @@ export function SettingsPage<T extends Record<string, unknown>>({
   onTest,
   allowEditingWhileFetching = false,
   footerActions,
+  showConfigActions = true,
   children,
 }: SettingsPageProps<T>) {
   const { loading, dirty, loadError, status, busy, reset, test, save } = draft;
@@ -73,9 +75,9 @@ export function SettingsPage<T extends Record<string, unknown>>({
           <SettingsFooter
             busy={busy}
             dirty={dirty}
-            onReset={reset}
-            onTest={() => void test(onTest)}
-            onSave={() => void save()}
+            onReset={showConfigActions ? reset : undefined}
+            onTest={showConfigActions ? () => void test(onTest) : undefined}
+            onSave={showConfigActions ? () => void save() : undefined}
           >
             {footerActions}
           </SettingsFooter>
