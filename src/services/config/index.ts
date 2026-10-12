@@ -16,6 +16,9 @@ import {
 } from "@common/types/config";
 import { ConfigStore } from "./store";
 
+export { FileBackup } from "./file";
+export { WebdavBackup } from "./webdav";
+
 export class ConfigService implements IConfigService {
   readonly ai: IAiConfigService;
   readonly anki: IAnkiConfigService;

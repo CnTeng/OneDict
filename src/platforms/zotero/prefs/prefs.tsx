@@ -20,6 +20,7 @@ export function mountPrefs(document: Document) {
       configService={services.config}
       ankiService={services.anki}
       aiService={services.ai}
+      fileService={services.file}
       onOpenLink={(url) => Zotero.launchURL(url)}
     />,
     () => {
