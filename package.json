@@ -33,7 +33,7 @@
     "preact": "11.0.1",
     "sentencex-ts": "^0.1.13-ts",
     "webdav": "^5.11.0",
-    "zod": "^4.6.5"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
