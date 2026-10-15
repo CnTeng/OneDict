@@ -26,7 +26,7 @@
     "@lezer/highlight": "^1.2.5",
     "@lezer/markdown": "^1.8.0",
     "cn": "^0.4.0",
-    "i18next": "^26.4.3",
+    "i18next": "^26.4.4",
     "ky": "^2.2.0",
     "lucide-preact": "^1.55.0",
     "openai": "^7.32.0",
